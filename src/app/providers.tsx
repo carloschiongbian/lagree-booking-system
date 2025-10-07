@@ -2,10 +2,13 @@
 
 import React from "react";
 import { ConfigProvider, App as AntdApp, theme as antdTheme } from "antd";
+import { Provider } from "react-redux";
+import { store } from "@/store";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ConfigProvider
+    <Provider store={store}>
+      <ConfigProvider
       theme={{
         algorithm: antdTheme.defaultAlgorithm,
         token: {
@@ -20,8 +23,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           },
         },
       }}
-    >
-      <AntdApp>{children}</AntdApp>
-    </ConfigProvider>
+      >
+        <AntdApp>{children}</AntdApp>
+      </ConfigProvider>
+    </Provider>
   );
 }

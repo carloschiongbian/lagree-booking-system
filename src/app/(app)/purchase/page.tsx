@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Card, Radio, Space, Button, Typography, Result, Form, Input, Alert, message } from "antd";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { fetchPackages } from "@/store/packagesSlice";
 
 const { Title, Text } = Typography;
 
@@ -9,22 +11,19 @@ type PaymentMethod = "gcash" | "bank" | "card";
 type Pkg = { id: string; name: string; credits: number; price_cents: number; duration_days: number | null };
 
 export default function PurchasePage() {
+  const dispatch = useAppDispatch();
+  const { items } = useAppSelector((s) => s.packages);
   const [pkg, setPkg] = useState<string>("");
   const [method, setMethod] = useState<PaymentMethod>("gcash");
   const [pending, setPending] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
-  const [packages, setPackages] = useState<Pkg[]>([]);
 
   useEffect(() => {
-    (async () => {
-      const res = await fetch("/api/packages");
-      if (res.ok) {
-        const json = await res.json();
-        setPackages(json.packages || []);
-        if (json.packages?.[0]?.id) setPkg(json.packages[0].id);
-      }
-    })();
-  }, []);
+    dispatch(fetchPackages()).then((action: any) => {
+      const list = action.payload as Pkg[] | undefined;
+      if (list && list[0]?.id) setPkg(list[0].id);
+    });
+  }, [dispatch]);
 
   async function onPay() {
     setPending(true);
@@ -69,12 +68,12 @@ export default function PurchasePage() {
       <Card title="Choose a package">
         <Radio.Group value={pkg} onChange={(e) => setPkg(e.target.value)}>
           <Space direction="vertical">
-            {packages.map((p) => (
+            {items.map((p) => (
               <Radio key={p.id} value={p.id}>
                 {p.name} — {p.credits} credits{p.duration_days ? ` • ${p.duration_days} days` : ""}
               </Radio>
             ))}
-            {packages.length === 0 && <Typography.Text type="secondary">No packages available yet.</Typography.Text>}
+            {items.length === 0 && <Typography.Text type="secondary">No packages available yet.</Typography.Text>}
           </Space>
         </Radio.Group>
       </Card>

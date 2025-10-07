@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Card, Tabs, Form, Input, Button, Typography, message } from "antd";
 import { supabaseBrowser } from "@/lib/supabase/browser";
+import { useAppDispatch } from "@/store";
+import { fetchSession } from "@/store/sessionSlice";
 
 const { Title, Text } = Typography;
 
@@ -12,6 +14,7 @@ export default function AuthPage() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [loading, setLoading] = useState(false);
   const supabase = supabaseBrowser();
+  const dispatch = useAppDispatch();
 
   async function onLogin(values: any) {
     setLoading(true);
@@ -20,6 +23,7 @@ export default function AuthPage() {
     setLoading(false);
     if (error) return message.error(error.message);
     message.success("Logged in");
+    dispatch(fetchSession());
     window.location.href = "/schedule";
   }
 

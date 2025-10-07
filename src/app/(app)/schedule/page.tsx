@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, List, Tag, Space, Button, Modal, Typography, Segmented, DatePicker, message, Checkbox } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { supabaseBrowser } from "@/lib/supabase/browser";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { fetchClasses, setDate as setDateAction, setView as setViewAction } from "@/store/scheduleSlice";
 
 const { Title, Text } = Typography;
 
@@ -19,56 +21,21 @@ type ClassItem = {
 
 export default function SchedulePage() {
   const supabase = supabaseBrowser();
-  const [date, setDate] = useState<Dayjs>(dayjs());
-  const [view, setView] = useState<"list" | "calendar">("list");
-  const [classes, setClasses] = useState<ClassItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const schedule = useAppSelector((s) => s.schedule);
+  const date = dayjs(schedule.date);
+  const view = schedule.view;
+  const classes = schedule.items;
+  const loading = schedule.status === "loading";
   const [selected, setSelected] = useState<ClassItem | null>(null);
   const [waiverRequired, setWaiverRequired] = useState(false);
   const [waiverChecked, setWaiverChecked] = useState(false);
 
   useEffect(() => {
-    void loadClasses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date.format("YYYY-MM-DD")]);
+    dispatch(fetchClasses({ date: schedule.date }));
+  }, [dispatch, schedule.date]);
 
-  async function loadClasses() {
-    setLoading(true);
-    const startOfDay = date.startOf("day").toISOString();
-    const endOfDay = date.endOf("day").toISOString();
-    const { data, error } = await supabase
-      .from("class_availability")
-      .select("id,title,start_time,end_time,capacity,booked_count")
-      .gte("start_time", startOfDay)
-      .lte("start_time", endOfDay)
-      .order("start_time");
-    if (error) {
-      // fallback demo
-      const demo: ClassItem[] = Array.from({ length: 5 }).map((_, i) => {
-        const start = date.hour(8 + i).minute(0);
-        return {
-          id: `${date.format("YYYYMMDD")}-${i}`,
-          name: "Lagree Class",
-          start_time: start.toISOString(),
-          end_time: start.add(45, "minute").toISOString(),
-          capacity: 10,
-          booked_count: i * 2,
-        };
-      });
-      setClasses(demo);
-    } else {
-      const mapped: ClassItem[] = (data || []).map((r: any) => ({
-        id: r.id,
-        name: r.title,
-        start_time: r.start_time,
-        end_time: r.end_time,
-        capacity: r.capacity,
-        booked_count: r.booked_count,
-      }));
-      setClasses(mapped);
-    }
-    setLoading(false);
-  }
+  async function loadClasses() {}
 
   const data = useMemo(() => classes.sort((a, b) => a.start_time.localeCompare(b.start_time)), [classes]);
 
@@ -130,11 +97,11 @@ export default function SchedulePage() {
       <Space align="center" style={{ width: "100%", justifyContent: "space-between" }}>
         <Title level={3} style={{ margin: 0 }}>Class Schedule</Title>
         <Space>
-          <DatePicker value={date} onChange={(d) => d && setDate(d)} />
+          <DatePicker value={date} onChange={(d) => d && dispatch(setDateAction(d.format("YYYY-MM-DD")))} />
           <Segmented
             options={[{ label: "List", value: "list" }, { label: "Calendar", value: "calendar" }]}
             value={view}
-            onChange={(v) => setView(v as any)}
+            onChange={(v) => dispatch(setViewAction(v as any))}
           />
         </Space>
       </Space>

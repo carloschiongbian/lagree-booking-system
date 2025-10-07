@@ -1,32 +1,18 @@
 "use client";
 
-import useSWR from "swr";
 import { Card, Descriptions, List, Typography, Button, Space, Popconfirm, message } from "antd";
-import { supabaseBrowser } from "@/lib/supabase/browser";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { fetchProfileData } from "@/store/profileSlice";
 
 const { Title, Text } = Typography;
 
 export default function ProfilePage() {
-  const supabase = supabaseBrowser();
-  const { data: profile } = useSWR("profile", async () => (await supabase.auth.getUser()).data.user);
-  const { data: balance } = useSWR("balance", async () => {
-    const { data } = await supabase.from("user_packages").select("credits_remaining").eq("status", "confirmed");
-    return (data || []).reduce((sum, r) => sum + (r.credits_remaining || 0), 0);
-  });
-  const { data: bookings } = useSWR("bookings", async () => {
-    const { data } = await supabase
-      .from("bookings")
-      .select("id,status,created_at, schedule_id, class_schedules:start_time")
-      .order("created_at", { ascending: false });
-    return (data || []).map((r: any) => ({ id: r.id, title: "Lagree Class", date: new Date(r.class_schedules?.start_time || r.created_at).toLocaleString(), status: r.status }));
-  });
-  const { data: purchases } = useSWR("purchases", async () => {
-    const { data } = await supabase
-      .from("user_packages")
-      .select("id,status,purchased_at,packages(name)")
-      .order("purchased_at", { ascending: false });
-    return (data || []).map((r: any) => ({ id: r.id, title: r.packages?.name || "Package", date: new Date(r.purchased_at).toLocaleDateString(), status: r.status }));
-  });
+  const dispatch = useAppDispatch();
+  const { balance, bookings, purchases } = useAppSelector((s) => s.profile);
+  const { user } = useAppSelector((s) => s.session);
+  React.useEffect(() => {
+    dispatch(fetchProfileData());
+  }, [dispatch]);
 
   return (
     <Space direction="vertical" size={16} style={{ width: "100%" }}>
@@ -34,16 +20,16 @@ export default function ProfilePage() {
 
       <Card>
         <Descriptions column={1} title="Basic Info">
-          <Descriptions.Item label="Name">{profile?.user_metadata?.name || "—"}</Descriptions.Item>
-          <Descriptions.Item label="Email">{profile?.email}</Descriptions.Item>
-          <Descriptions.Item label="Phone">{profile?.user_metadata?.phone || "—"}</Descriptions.Item>
-          <Descriptions.Item label="Credits">{balance ?? 0}</Descriptions.Item>
+          <Descriptions.Item label="Name">{user?.user_metadata?.name || "—"}</Descriptions.Item>
+          <Descriptions.Item label="Email">{user?.email}</Descriptions.Item>
+          <Descriptions.Item label="Phone">{user?.user_metadata?.phone || "—"}</Descriptions.Item>
+          <Descriptions.Item label="Credits">{balance}</Descriptions.Item>
         </Descriptions>
       </Card>
 
       <Card title="Upcoming / Past Bookings">
         <List
-          dataSource={bookings || []}
+          dataSource={bookings}
           renderItem={(b) => (
             <List.Item
               actions={[
@@ -80,7 +66,7 @@ export default function ProfilePage() {
 
       <Card title="Purchase History">
         <List
-          dataSource={purchases || []}
+          dataSource={purchases}
           renderItem={(p) => (
             <List.Item>
               <List.Item.Meta title={p.title} description={`${p.date} • ${p.status}`} />

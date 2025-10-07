@@ -4,16 +4,22 @@ import Link from "next/link";
 import { Flex, Menu, Typography, Dropdown, Avatar, Button } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { supabaseBrowser } from "@/lib/supabase/browser";
-import useSWR from "swr";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { fetchSession, clearSession } from "@/store/sessionSlice";
 
 const { Title, Text } = Typography;
 
 export default function AppHeader() {
   const supabase = supabaseBrowser();
-  const { data: user } = useSWR("user", async () => (await supabase.auth.getUser()).data.user);
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((s) => s.session);
+  React.useEffect(() => {
+    dispatch(fetchSession());
+  }, [dispatch]);
 
   async function logout() {
     await supabase.auth.signOut();
+    dispatch(clearSession());
     window.location.href = "/auth";
   }
 
