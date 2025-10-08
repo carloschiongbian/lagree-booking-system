@@ -107,7 +107,7 @@ export default function AuthenticatedLayout({
     {
       key: "3",
       icon: <UserOutlined />,
-      label: <Link href="/bookings">Profile</Link>,
+      label: <Link href="/dashboard">Profile</Link>,
     },
   ];
 
