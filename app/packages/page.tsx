@@ -71,7 +71,16 @@ export default function PackagesPage() {
             itemLayout="horizontal"
             dataSource={data}
             renderItem={(item, index) => (
-              <List.Item actions={[<Button>Buy</Button>]}>
+              <List.Item
+                actions={[
+                  <Button
+                    type="primary"
+                    className="!bg-[#733AC6] hover:!bg-[#5B2CA8] !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                  >
+                    Buy
+                  </Button>,
+                ]}
+              >
                 <Row className="wrap-none items-center gap-4">
                   <Avatar
                     className="border-gray-500 border"
@@ -88,7 +97,9 @@ export default function PackagesPage() {
                       </span>
                     </p>
                     <p>
-                      <span className="font-light">{item.validity} days</span>
+                      <span className="font-light">
+                        Valid for {item.validity} days
+                      </span>
                     </p>
                   </Col>
                 </Row>

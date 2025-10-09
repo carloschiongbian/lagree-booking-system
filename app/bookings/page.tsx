@@ -87,7 +87,15 @@ export default function BookingsPage() {
             renderItem={(item, index) => (
               <List.Item
                 actions={[
-                  <Button disabled={item.available === 0}>Book</Button>,
+                  <Button
+                    disabled={item.available === 0}
+                    type="primary"
+                    className={`bg-[#733AC6] ${
+                      item.available === 0 ? "" : "hover:!bg-[#5B2CA8]"
+                    } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+                  >
+                    Book
+                  </Button>,
                 ]}
               >
                 <Row className="wrap-none items-center gap-4">
