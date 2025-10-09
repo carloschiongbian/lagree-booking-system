@@ -20,7 +20,7 @@ import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 
 const { Title } = Typography;
 
-export default function BookingsPage() {
+export default function CreditsPage() {
   const data = [
     {
       time: "07:00AM",
@@ -60,13 +60,10 @@ export default function BookingsPage() {
       <div className="space-y-6">
         <div>
           <Title level={2} className="!mb-2">
-            Available Bookings
+            Your Credits
           </Title>
         </div>
 
-        <Row className="wrap-none justify-center bg-transparent">
-          <DatePickerCarousel onDateSelect={(e) => console.log(e)} />
-        </Row>
         {/* <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={8}>
             <Card className="shadow-sm hover:shadow-md transition-shadow">
@@ -91,36 +88,41 @@ export default function BookingsPage() {
                 ]}
               >
                 <Row className="wrap-none items-center gap-4">
-                  <Avatar
-                    className="border-gray-500 border"
-                    size={60}
-                    src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`}
-                  />
+                  <Col>
+                    <Avatar
+                      className="border-gray-500 border"
+                      size={60}
+                      src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`}
+                    />
+                    <p>
+                      <span className="font-light">{item.instructor}</span>
+                    </p>
+                  </Col>
                   <Col>
                     <p>
-                      <span className="font-semibold">
-                        {`${item.time} (${item.duration})`}{" "}
-                        <span
-                          className={
-                            item.available === 1 || item.available === 0
-                              ? `text-red-500`
-                              : ``
-                          }
-                        >
-                          {item.available === 1
-                            ? `(Last Slot)`
-                            : item.available <= 3 && item.available > 1
-                            ? `(${item.available} slots left)`
-                            : ``}
-                          {item.available === 0 && `(Full)`}
-                        </span>
-                      </span>
+                      <span className="font-semibold">{`${item.time}`} </span>
                     </p>
                     <p>
                       <span className="font-light">{item.date}</span>
                     </p>
                     <p>
-                      <span className="font-light">{item.instructor}</span>
+                      <span className="font-light">{item.duration}</span>
+                    </p>
+                    <p>
+                      <span
+                        className={`${
+                          item.available === 1 || item.available === 0
+                            ? `text-red-500`
+                            : ``
+                        } font-semibold`}
+                      >
+                        {item.available === 1
+                          ? `Last Slot`
+                          : item.available > 1
+                          ? `${item.available} slots left`
+                          : ``}
+                        {item.available <= 0 && `Full`}
+                      </span>
                     </p>
                   </Col>
                 </Row>

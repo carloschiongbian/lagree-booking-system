@@ -17,42 +17,31 @@ import {
 } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
+import { formatNumber } from "@/lib/utils";
 
 const { Title } = Typography;
 
-export default function BookingsPage() {
+export default function PackagesPage() {
   const data = [
     {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 3,
+      title: "Private Class",
+      validity: 30,
+      price: 15000,
     },
     {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 0,
+      title: "Private Class",
+      validity: 30,
+      price: 15000,
     },
     {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 1,
+      title: "Private Class",
+      validity: 30,
+      price: 15000,
     },
     {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 7,
+      title: "Private Class",
+      validity: 30,
+      price: 15000,
     },
   ];
   return (
@@ -60,13 +49,10 @@ export default function BookingsPage() {
       <div className="space-y-6">
         <div>
           <Title level={2} className="!mb-2">
-            Available Bookings
+            Available Packages
           </Title>
         </div>
 
-        <Row className="wrap-none justify-center bg-transparent">
-          <DatePickerCarousel onDateSelect={(e) => console.log(e)} />
-        </Row>
         {/* <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={8}>
             <Card className="shadow-sm hover:shadow-md transition-shadow">
@@ -85,11 +71,7 @@ export default function BookingsPage() {
             itemLayout="horizontal"
             dataSource={data}
             renderItem={(item, index) => (
-              <List.Item
-                actions={[
-                  <Button disabled={item.available === 0}>Book</Button>,
-                ]}
-              >
+              <List.Item actions={[<Button>Buy</Button>]}>
                 <Row className="wrap-none items-center gap-4">
                   <Avatar
                     className="border-gray-500 border"
@@ -98,29 +80,15 @@ export default function BookingsPage() {
                   />
                   <Col>
                     <p>
-                      <span className="font-semibold">
-                        {`${item.time} (${item.duration})`}{" "}
-                        <span
-                          className={
-                            item.available === 1 || item.available === 0
-                              ? `text-red-500`
-                              : ``
-                          }
-                        >
-                          {item.available === 1
-                            ? `(Last Slot)`
-                            : item.available <= 3 && item.available > 1
-                            ? `(${item.available} slots left)`
-                            : ``}
-                          {item.available === 0 && `(Full)`}
-                        </span>
+                      <span className="font-semibold">{`${item.title}`}</span>
+                    </p>
+                    <p>
+                      <span className="font-light">
+                        PHP {formatNumber(item.price)}
                       </span>
                     </p>
                     <p>
-                      <span className="font-light">{item.date}</span>
-                    </p>
-                    <p>
-                      <span className="font-light">{item.instructor}</span>
+                      <span className="font-light">{item.validity} days</span>
                     </p>
                   </Col>
                 </Row>

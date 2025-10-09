@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   Layout,
   Menu,
@@ -16,12 +17,14 @@ import {
   UserOutlined,
   LogoutOutlined,
   MenuOutlined,
+  CreditCardOutlined,
 } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
+import { LuPackage } from "react-icons/lu";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -89,7 +92,10 @@ export default function AuthenticatedLayout({
 
   const getSelectedKey = () => {
     if (pathname === "/dashboard") return "1";
-    if (pathname === "/bookings") return "2";
+    if (pathname === "/profile") return "2";
+    if (pathname === "/credits") return "3";
+    if (pathname === "/packages") return "4";
+    if (pathname === "/bookings") return "5";
     return "1";
   };
 
@@ -101,13 +107,23 @@ export default function AuthenticatedLayout({
     },
     {
       key: "2",
-      icon: <CalendarOutlined />,
-      label: <Link href="/bookings">Bookings</Link>,
+      icon: <UserOutlined />,
+      label: <Link href="/profile">Profile</Link>,
     },
     {
       key: "3",
-      icon: <UserOutlined />,
-      label: <Link href="/dashboard">Profile</Link>,
+      icon: <CreditCardOutlined />,
+      label: <Link href="/credits">Credits</Link>,
+    },
+    {
+      key: "4",
+      icon: <LuPackage />,
+      label: <Link href="/packages">Packages</Link>,
+    },
+    {
+      key: "5",
+      icon: <CalendarOutlined />,
+      label: <Link href="/bookings">Bookings</Link>,
     },
   ];
 
@@ -184,9 +200,11 @@ export default function AuthenticatedLayout({
       <Drawer
         title="Menu"
         placement="left"
+        width={"70%"}
         onClose={() => setMobileMenuOpen(false)}
         open={mobileMenuOpen}
         className="lg:hidden"
+        styles={{ body: { paddingInline: 0 } }}
       >
         <Menu
           mode="inline"
