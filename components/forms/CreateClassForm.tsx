@@ -1,7 +1,20 @@
 "use client";
 
-import { Form, Input, Select, TimePicker, InputNumber, Button, Row, Col } from "antd";
-import { UserOutlined, ClockCircleOutlined, TeamOutlined } from "@ant-design/icons";
+import {
+  Form,
+  Input,
+  Select,
+  TimePicker,
+  InputNumber,
+  Button,
+  Row,
+  Col,
+} from "antd";
+import {
+  UserOutlined,
+  ClockCircleOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 
 interface CreateClassFormProps {
@@ -17,12 +30,20 @@ export default function CreateClassForm({
 }: CreateClassFormProps) {
   const [form] = Form.useForm();
 
+  const instructors = [
+    { value: "instructor1", label: "John Doe" },
+    { value: "instructor2", label: "Jane Smith" },
+    { value: "instructor3", label: "Mike Johnson" },
+  ];
+
   const handleFinish = (values: any) => {
     const formattedValues = {
       ...values,
-      time: values.time.format("hh:mm A"),
+      start_time: values.time[0],
+      end_time: values.time[1],
     };
     onSubmit(formattedValues);
+    form.resetFields();
   };
 
   return (
@@ -49,11 +70,7 @@ export default function CreateClassForm({
               size="large"
               placeholder="Select an instructor"
               suffixIcon={<UserOutlined className="text-slate-400" />}
-              options={[
-                { value: "instructor1", label: "John Doe" },
-                { value: "instructor2", label: "Jane Smith" },
-                { value: "instructor3", label: "Mike Johnson" },
-              ]}
+              options={instructors}
             />
           </Form.Item>
         </Col>
@@ -69,11 +86,11 @@ export default function CreateClassForm({
               },
             ]}
           >
-            <TimePicker
+            <TimePicker.RangePicker
               size="large"
               use12Hours
+              minuteStep={15}
               format="hh:mm A"
-              placeholder="Select time"
               suffixIcon={<ClockCircleOutlined className="text-slate-400" />}
               className="w-full"
             />
@@ -103,9 +120,16 @@ export default function CreateClassForm({
               className="w-full"
               min={1}
               precision={0}
-              parser={(value) => {
-                const parsed = value?.replace(/[^\d]/g, "");
-                return parsed ? parseInt(parsed, 10) : 0;
+              onKeyDown={(e) => {
+                if (!/[0-9]/.test(e.key) && e.code !== "Backspace") {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => {
+                const paste = e.clipboardData.getData("text");
+                if (!/^\d+$/.test(paste)) {
+                  e.preventDefault();
+                }
               }}
             />
           </Form.Item>
@@ -127,12 +151,7 @@ export default function CreateClassForm({
             </Button>
           </Col>
           <Col xs={12} sm={8}>
-            <Button
-              size="large"
-              onClick={onCancel}
-              disabled={loading}
-              block
-            >
+            <Button size="large" onClick={onCancel} disabled={loading} block>
               Cancel
             </Button>
           </Col>
