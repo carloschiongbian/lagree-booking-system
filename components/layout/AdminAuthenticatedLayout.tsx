@@ -60,7 +60,7 @@ export default function AuthenticatedLayout({
         .maybeSingle();
 
       if (profile) {
-        if (profile.role !== 'admin') {
+        if (profile.role !== "admin") {
           router.push("/dashboard");
           return;
         }
@@ -95,8 +95,8 @@ export default function AuthenticatedLayout({
   };
 
   const getSelectedKey = () => {
-    if (pathname === "/dashboard") return "1";
-    if (pathname === "/class-management") return "2";
+    if (pathname === "/admin/dashboard") return "1";
+    if (pathname === "/admin/class-management") return "2";
     return "1";
   };
 
@@ -104,12 +104,12 @@ export default function AuthenticatedLayout({
     {
       key: "1",
       icon: <HomeOutlined />,
-      label: <Link href="/dashboard">Dashboard</Link>,
+      label: <Link href="/admin/dashboard">Dashboard</Link>,
     },
     {
       key: "2",
       icon: <UserOutlined />,
-      label: <Link href="/profile">Class Management</Link>,
+      label: <Link href="/admin/class-management">Class Management</Link>,
     },
   ];
 

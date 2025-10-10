@@ -24,10 +24,12 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
   useEffect(() => {
     const updateDaysToShow = () => {
       if (window.innerWidth < 640) {
-        setDaysToShow(4); // mobile
+        setDaysToShow(3); // mobile
       } else {
         setDaysToShow(7); // desktop/tablet
       }
+
+      onDateSelect?.(dayjs().toISOString());
     };
 
     updateDaysToShow();
@@ -64,7 +66,7 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
   const isNextDisabled = currentDate.diff(today, "day") >= maxDaysAhead;
 
   return (
-    <div className="flex items-center justify-center gap-2 bg-[#F5F7FB] p-4 rounded-xl w-full max-w-4xl mx-auto">
+    <div className="flex items-center justify-center gap-2 bg-transparent p-4 rounded-xl w-full max-w-4xl mx-auto">
       {/* Left Arrow */}
       <Button
         shape="circle"
