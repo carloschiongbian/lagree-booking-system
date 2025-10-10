@@ -1,0 +1,143 @@
+"use client";
+
+import { Form, Input, Select, TimePicker, InputNumber, Button, Row, Col } from "antd";
+import { UserOutlined, ClockCircleOutlined, TeamOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+
+interface CreateClassFormProps {
+  onSubmit: (values: any) => void;
+  onCancel: () => void;
+  loading?: boolean;
+}
+
+export default function CreateClassForm({
+  onSubmit,
+  onCancel,
+  loading = false,
+}: CreateClassFormProps) {
+  const [form] = Form.useForm();
+
+  const handleFinish = (values: any) => {
+    const formattedValues = {
+      ...values,
+      time: values.time.format("hh:mm A"),
+    };
+    onSubmit(formattedValues);
+  };
+
+  return (
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleFinish}
+      requiredMark="optional"
+      className="w-full"
+    >
+      <Row gutter={[16, 0]}>
+        <Col xs={24} sm={24}>
+          <Form.Item
+            name="instructor"
+            label="Instructor"
+            rules={[
+              {
+                required: true,
+                message: "Please select an instructor",
+              },
+            ]}
+          >
+            <Select
+              size="large"
+              placeholder="Select an instructor"
+              suffixIcon={<UserOutlined className="text-slate-400" />}
+              options={[
+                { value: "instructor1", label: "John Doe" },
+                { value: "instructor2", label: "Jane Smith" },
+                { value: "instructor3", label: "Mike Johnson" },
+              ]}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col xs={24} sm={12}>
+          <Form.Item
+            name="time"
+            label="Time"
+            rules={[
+              {
+                required: true,
+                message: "Please select a time",
+              },
+            ]}
+          >
+            <TimePicker
+              size="large"
+              use12Hours
+              format="hh:mm A"
+              placeholder="Select time"
+              suffixIcon={<ClockCircleOutlined className="text-slate-400" />}
+              className="w-full"
+            />
+          </Form.Item>
+        </Col>
+
+        <Col xs={24} sm={12}>
+          <Form.Item
+            name="slots"
+            label="Slots"
+            rules={[
+              {
+                required: true,
+                message: "Please enter number of slots",
+              },
+              {
+                type: "number",
+                min: 1,
+                message: "Slots must be at least 1",
+              },
+            ]}
+          >
+            <InputNumber
+              size="large"
+              placeholder="Enter slots"
+              prefix={<TeamOutlined className="text-slate-400" />}
+              className="w-full"
+              min={1}
+              precision={0}
+              parser={(value) => {
+                const parsed = value?.replace(/[^\d]/g, "");
+                return parsed ? parseInt(parsed, 10) : 0;
+              }}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Form.Item className="mb-0 mt-6">
+        <Row gutter={12} className="flex-row-reverse">
+          <Col xs={12} sm={8}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={loading}
+              block
+              className="bg-[#733AC6] hover:!bg-[#5B2CA8] !border-none"
+            >
+              Create
+            </Button>
+          </Col>
+          <Col xs={12} sm={8}>
+            <Button
+              size="large"
+              onClick={onCancel}
+              disabled={loading}
+              block
+            >
+              Cancel
+            </Button>
+          </Col>
+        </Row>
+      </Form.Item>
+    </Form>
+  );
+}

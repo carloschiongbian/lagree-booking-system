@@ -20,6 +20,7 @@ import {
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import AdminBookingTable from "@/components/ui/admin-booking-table";
+import CreateClassForm from "@/components/forms/CreateClassForm";
 
 const { Title } = Typography;
 
@@ -43,6 +44,11 @@ export default function ClassManagementPage() {
   };
 
   const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = (values: any) => {
+    console.log("Form values:", values);
     setIsModalOpen(false);
   };
 
@@ -78,15 +84,15 @@ export default function ClassManagementPage() {
             placement="right"
             onClose={handleCloseModal}
             open={isModalOpen}
-            // height="80%"
             width={"100%"}
             styles={{
               body: { paddingTop: 24 },
             }}
           >
-            <div className="space-y-4">
-              <p>Create class form will go here</p>
-            </div>
+            <CreateClassForm
+              onSubmit={handleSubmit}
+              onCancel={handleCloseModal}
+            />
           </Drawer>
         ) : (
           <Modal
@@ -96,8 +102,11 @@ export default function ClassManagementPage() {
             footer={null}
             width={600}
           >
-            <div className="space-y-4 pt-4">
-              <p>Create class form will go here</p>
+            <div className="pt-4">
+              <CreateClassForm
+                onSubmit={handleSubmit}
+                onCancel={handleCloseModal}
+              />
             </div>
           </Modal>
         )}
