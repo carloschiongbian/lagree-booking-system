@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, Row, Col, Statistic, Typography, Button, Modal, Drawer } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Typography,
+  Button,
+  Modal,
+  Drawer,
+} from "antd";
 import {
   CalendarOutlined,
   CheckCircleOutlined,
@@ -24,9 +33,9 @@ export default function ClassManagementPage() {
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleOpenModal = () => {
@@ -66,12 +75,13 @@ export default function ClassManagementPage() {
         {isMobile ? (
           <Drawer
             title="Create New Class"
-            placement="bottom"
+            placement="right"
             onClose={handleCloseModal}
             open={isModalOpen}
-            height="80%"
+            // height="80%"
+            width={"100%"}
             styles={{
-              body: { paddingTop: 24 }
+              body: { paddingTop: 24 },
             }}
           >
             <div className="space-y-4">
