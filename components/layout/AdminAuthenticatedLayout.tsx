@@ -97,6 +97,7 @@ export default function AuthenticatedLayout({
   const getSelectedKey = () => {
     if (pathname === "/admin/dashboard") return "1";
     if (pathname === "/admin/class-management") return "2";
+    if (pathname === "/admin/package-management") return "3";
     return "1";
   };
 
@@ -110,6 +111,11 @@ export default function AuthenticatedLayout({
       key: "2",
       icon: <UserOutlined />,
       label: <Link href="/admin/class-management">Class Management</Link>,
+    },
+    {
+      key: "3",
+      icon: <LuPackage />,
+      label: <Link href="/admin/package-management">Package Management</Link>,
     },
   ];
 

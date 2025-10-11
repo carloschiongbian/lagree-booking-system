@@ -17,7 +17,7 @@ import {
 } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
-import { formatNumber } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 
 const { Title } = Typography;
 
@@ -93,7 +93,7 @@ export default function PackagesPage() {
                     </p>
                     <p>
                       <span className="font-light">
-                        PHP {formatNumber(item.price)}
+                        PHP {formatPrice(item.price)}
                       </span>
                     </p>
                     <p>

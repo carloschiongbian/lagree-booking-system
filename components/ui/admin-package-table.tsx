@@ -1,18 +1,18 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnsType, TableColumnType } from "antd";
-import { Button, Input, Row, Space, Table, Modal } from "antd";
+import { Button, Input, Row, Space, Table, Modal, Typography } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
-import dayjs, { Dayjs } from "dayjs";
-import { formatTime } from "@/lib/utils";
-import { CreateClassProps } from "@/lib/props";
+import { CreatePackageProps } from "@/lib/props";
 import { MdDelete } from "react-icons/md";
-import { ExclamationCircleFilled } from "@ant-design/icons";
+import { formatPrice } from "@/lib/utils";
 
-type DataIndex = keyof CreateClassProps;
+type DataIndex = keyof CreatePackageProps;
 
-const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
+const { Text } = Typography;
+
+const AdminPackageTable = ({ data }: { data: CreatePackageProps[] }) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -45,11 +45,11 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
     setSearchText("");
   };
 
-  const showDeleteConfirm = (record: CreateClassProps) => {
+  const showDeleteConfirm = (record: CreatePackageProps) => {
     confirm({
-      title: "Delete Class",
+      title: "Delete Package",
       icon: null,
-      content: `Are you sure you want to delete the class with instructor ${record.instructor}?`,
+      content: `Are you sure you want to delete this package?`,
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
@@ -66,7 +66,7 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
 
   const getColumnSearchProps = (
     dataIndex: DataIndex
-  ): TableColumnType<CreateClassProps> => ({
+  ): TableColumnType<CreatePackageProps> => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -157,34 +157,44 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
       ),
   });
 
-  const columns: TableColumnsType<CreateClassProps> = [
+  const columns: TableColumnsType<CreatePackageProps> = [
     {
-      title: "Instructor",
-      dataIndex: "instructor",
-      key: "instructor",
+      title: "Title",
+      dataIndex: "name",
+      key: "name",
       width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("instructor"),
+      ...getColumnSearchProps("name"),
     },
     {
-      title: "Start Time",
-      dataIndex: "start_time",
-      key: "start_time",
+      title: "Price (PHP)",
+      dataIndex: "price",
+      key: "price",
       width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("start_time"),
+      ...getColumnSearchProps("price"),
+      render: (_, record) => (
+        <Row>
+          <Text>{formatPrice(record.price)}</Text>
+        </Row>
+      ),
     },
     {
-      title: "End Time",
-      dataIndex: "end_time",
-      key: "end_time",
+      title: "Validity Period (days)",
+      dataIndex: "validity_period",
+      key: "validity_period",
       width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("end_time"),
+      ...getColumnSearchProps("validity_period"),
     },
     {
-      title: "Slots",
-      dataIndex: "slots",
-      key: "slots",
+      title: "Package Type",
+      dataIndex: "promo",
+      key: "promo",
       width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("slots"),
+      ...getColumnSearchProps("promo"),
+      render: (_, record) => (
+        <Row>
+          <Text>{record.promo ? "Promo" : "Regular"}</Text>
+        </Row>
+      ),
     },
     {
       title: "Action",
@@ -204,7 +214,7 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
   ];
 
   return (
-    <Table<CreateClassProps>
+    <Table<CreatePackageProps>
       columns={columns}
       dataSource={data}
       scroll={{ x: isMobile ? 600 : undefined }}
@@ -222,4 +232,4 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
   );
 };
 
-export default AdminBookingTable;
+export default AdminPackageTable;

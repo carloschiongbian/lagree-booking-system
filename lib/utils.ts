@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatNumber(
+export function formatPrice(
   value: number | string,
   options: {
     decimals?: number;
