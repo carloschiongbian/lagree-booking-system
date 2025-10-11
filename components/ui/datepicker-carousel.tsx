@@ -49,7 +49,7 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
   }, []);
 
   // Keep a stable reference to the latest onDateSelect to avoid effect re-triggers
-  const onDateSelectRef = useRef<typeof onDateSelect>();
+  const onDateSelectRef = useRef<typeof onDateSelect>(onDateSelect);
   useEffect(() => {
     onDateSelectRef.current = onDateSelect;
   }, [onDateSelect]);
