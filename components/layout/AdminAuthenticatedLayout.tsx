@@ -167,7 +167,7 @@ export default function AuthenticatedLayout({
               className="lg:hidden mr-2"
             />
             <Text className="text-xl font-semibold text-slate-800 lg:hidden">
-              BookingApp
+              LagreeStudio
             </Text>
           </div>
 
