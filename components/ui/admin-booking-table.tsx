@@ -1,20 +1,34 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnsType, TableColumnType } from "antd";
-import { Button, Input, Row, Space, Table } from "antd";
+import { Button, Input, Row, Space, Table, Modal } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
 import dayjs, { Dayjs } from "dayjs";
 import { formatTime } from "@/lib/utils";
 import { CreateClassProps } from "@/lib/props";
 import { MdDelete } from "react-icons/md";
+import { ExclamationCircleFilled } from "@ant-design/icons";
 
 type DataIndex = keyof CreateClassProps;
 
 const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const searchInput = useRef<InputRef>(null);
+  const { confirm } = Modal;
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleSearch = (
     selectedKeys: string[],
@@ -29,6 +43,25 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
   const handleReset = (clearFilters: () => void) => {
     clearFilters();
     setSearchText("");
+  };
+
+  const showDeleteConfirm = (record: CreateClassProps) => {
+    confirm({
+      title: "Delete Class",
+      icon: <ExclamationCircleFilled />,
+      content: `Are you sure you want to delete the class with instructor ${record.instructor}?`,
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      centered: isMobile,
+      width: isMobile ? "90%" : 416,
+      onOk() {
+        console.log("Deleted:", record);
+      },
+      onCancel() {
+        console.log("Cancelled delete");
+      },
+    });
   };
 
   const getColumnSearchProps = (
@@ -167,7 +200,11 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
       width: "10%",
       render: (_, record) => (
         <Row className="justify-center cursor-pointer">
-          <MdDelete size={20} color="red" />
+          <MdDelete
+            size={20}
+            color="red"
+            onClick={() => showDeleteConfirm(record)}
+          />
         </Row>
       ),
     },
