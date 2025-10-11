@@ -1,52 +1,17 @@
 import React, { useRef, useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnsType, TableColumnType } from "antd";
-import { Button, Input, Space, Table } from "antd";
+import { Button, Input, Row, Space, Table } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
+import dayjs, { Dayjs } from "dayjs";
+import { formatTime } from "@/lib/utils";
+import { CreateClassProps } from "@/lib/props";
+import { MdDelete } from "react-icons/md";
 
-interface DataType {
-  key: string;
-  instructor: string;
-  time: number;
-  duration: string;
-  slots: string;
-}
+type DataIndex = keyof CreateClassProps;
 
-type DataIndex = keyof DataType;
-
-const data: DataType[] = [
-  {
-    key: "1",
-    instructor: "John Brown",
-    time: 32,
-    duration: "New York No. 1 Lake Park",
-    slots: "5 / 10",
-  },
-  {
-    key: "2",
-    instructor: "Joe Black",
-    time: 42,
-    duration: "London No. 1 Lake Park",
-    slots: "5 / 10",
-  },
-  {
-    key: "3",
-    instructor: "Jim Green",
-    time: 32,
-    duration: "Sydney No. 1 Lake Park",
-    slots: "5 / 10",
-  },
-  {
-    key: "4",
-    instructor: "Jim Red",
-    time: 32,
-    duration: "London No. 2 Lake Park",
-    slots: "5 / 10",
-  },
-];
-
-const AdminBookingTable: React.FC = () => {
+const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
@@ -68,7 +33,7 @@ const AdminBookingTable: React.FC = () => {
 
   const getColumnSearchProps = (
     dataIndex: DataIndex
-  ): TableColumnType<DataType> => ({
+  ): TableColumnType<CreateClassProps> => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -159,7 +124,7 @@ const AdminBookingTable: React.FC = () => {
       ),
   });
 
-  const columns: TableColumnsType<DataType> = [
+  const columns: TableColumnsType<CreateClassProps> = [
     {
       title: "Instructor",
       dataIndex: "instructor",
@@ -172,14 +137,14 @@ const AdminBookingTable: React.FC = () => {
       dataIndex: "start_time",
       key: "time",
       width: "20%",
-      ...getColumnSearchProps("time"),
+      ...getColumnSearchProps("start_time"),
     },
     {
       title: "End Time",
       dataIndex: "end_time",
       key: "time",
       width: "20%",
-      ...getColumnSearchProps("time"),
+      ...getColumnSearchProps("end_time"),
     },
     // {
     //   title: "Duration",
@@ -194,12 +159,21 @@ const AdminBookingTable: React.FC = () => {
       dataIndex: "slots",
       key: "slots",
       width: "20%",
-      ...getColumnSearchProps("duration"),
-      sortDirections: ["descend", "ascend"],
+      ...getColumnSearchProps("slots"),
+    },
+    {
+      title: "Action",
+      key: "action",
+      width: "10%",
+      render: (_, record) => (
+        <Row className="justify-center cursor-pointer">
+          <MdDelete size={20} color="red" />
+        </Row>
+      ),
     },
   ];
 
-  return <Table<DataType> columns={columns} dataSource={data} />;
+  return <Table<CreateClassProps> columns={columns} dataSource={data} />;
 };
 
 export default AdminBookingTable;

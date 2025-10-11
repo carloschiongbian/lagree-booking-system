@@ -21,8 +21,42 @@ import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayo
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import AdminBookingTable from "@/components/ui/admin-booking-table";
 import CreateClassForm from "@/components/forms/CreateClassForm";
+import { formatTime } from "@/lib/utils";
+import dayjs from "dayjs";
+import { CreateClassProps } from "@/lib/props";
 
 const { Title } = Typography;
+
+let data: CreateClassProps[] = [
+  {
+    key: "1",
+    instructor: "John Brown",
+    start_time: formatTime(dayjs()),
+    end_time: formatTime(dayjs()),
+    slots: "5 / 10",
+  },
+  {
+    key: "2",
+    instructor: "Joe Black",
+    start_time: formatTime(dayjs()),
+    end_time: formatTime(dayjs()),
+    slots: "5 / 10",
+  },
+  {
+    key: "3",
+    instructor: "Jim Green",
+    start_time: formatTime(dayjs()),
+    end_time: formatTime(dayjs()),
+    slots: "5 / 10",
+  },
+  {
+    key: "4",
+    instructor: "Jim Red",
+    start_time: formatTime(dayjs()),
+    end_time: formatTime(dayjs()),
+    slots: "5 / 10",
+  },
+];
 
 export default function ClassManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,6 +83,15 @@ export default function ClassManagementPage() {
 
   const handleSubmit = (values: any) => {
     console.log("Form values:", values);
+
+    data.push({
+      key: (data.length + 1).toString(),
+      instructor: values.instructor,
+      start_time: formatTime(dayjs(values.start_time)),
+      end_time: formatTime(dayjs(values.end_time)),
+      slots: `0 / ${values.slots}`,
+    });
+
     setIsModalOpen(false);
   };
 
@@ -76,7 +119,7 @@ export default function ClassManagementPage() {
               Create
             </Button>
           </Row>
-          <AdminBookingTable />
+          <AdminBookingTable data={data} />
         </div>
         {isMobile ? (
           <Drawer

@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { Dayjs } from "dayjs";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -24,3 +25,7 @@ export function formatNumber(
     maximumFractionDigits: decimals,
   }).format(num);
 }
+
+export const formatTime = (dateTime: Dayjs) => {
+  return dateTime.format("HH:mm A");
+};
