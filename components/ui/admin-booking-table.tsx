@@ -1,14 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnsType, TableColumnType } from "antd";
-import { Button, Input, Row, Space, Table, Modal } from "antd";
+import { Button, Input, Row, Space, Table, Modal, Typography } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
-import dayjs, { Dayjs } from "dayjs";
 import { formatTime } from "@/lib/utils";
 import { CreateClassProps } from "@/lib/props";
 import { MdDelete, MdEdit } from "react-icons/md";
-import { ExclamationCircleFilled } from "@ant-design/icons";
+import { IoEye } from "react-icons/io5";
 
 type DataIndex = keyof CreateClassProps;
 
@@ -16,6 +15,8 @@ interface AdminBookingTableProps {
   data: CreateClassProps[];
   onEdit: (record: CreateClassProps) => void;
 }
+
+const { Text } = Typography;
 
 const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
   const [searchText, setSearchText] = useState("");
@@ -58,7 +59,7 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
-      centered: isMobile,
+      centered: true,
       width: isMobile ? "90%" : 416,
       onOk() {
         console.log("Deleted:", record);
@@ -176,6 +177,11 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
       key: "start_time",
       width: isMobile ? undefined : "20%",
       ...getColumnSearchProps("start_time"),
+      render: (_, record) => (
+        <Row>
+          <Text>{formatTime(record.start_time)}</Text>
+        </Row>
+      ),
     },
     {
       title: "End Time",
@@ -183,6 +189,11 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
       key: "end_time",
       width: isMobile ? undefined : "20%",
       ...getColumnSearchProps("end_time"),
+      render: (_, record) => (
+        <Row>
+          <Text>{formatTime(record.end_time)}</Text>
+        </Row>
+      ),
     },
     {
       title: "Slots",
@@ -198,11 +209,8 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
       fixed: isMobile ? undefined : "right",
       render: (_, record) => (
         <Row className="justify-center cursor-pointer gap-3">
-          <MdEdit
-            size={20}
-            color="#733AC6"
-            onClick={() => onEdit(record)}
-          />
+          <IoEye size={20} />
+          <MdEdit size={20} color="#733AC6" onClick={() => onEdit(record)} />
           <MdDelete
             size={20}
             color="red"

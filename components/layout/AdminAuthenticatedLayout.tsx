@@ -13,12 +13,12 @@ import {
 } from "antd";
 import {
   HomeOutlined,
-  CalendarOutlined,
   UserOutlined,
   LogoutOutlined,
   MenuOutlined,
-  CreditCardOutlined,
 } from "@ant-design/icons";
+import { FaBook } from "react-icons/fa";
+
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -96,8 +96,9 @@ export default function AuthenticatedLayout({
 
   const getSelectedKey = () => {
     if (pathname === "/admin/dashboard") return "1";
-    if (pathname === "/admin/class-management") return "2";
-    if (pathname === "/admin/package-management") return "3";
+    if (pathname === "/admin/instructor-management") return "2";
+    if (pathname === "/admin/class-management") return "3";
+    if (pathname === "/admin/package-management") return "4";
     return "1";
   };
 
@@ -110,10 +111,17 @@ export default function AuthenticatedLayout({
     {
       key: "2",
       icon: <UserOutlined />,
-      label: <Link href="/admin/class-management">Class Management</Link>,
+      label: (
+        <Link href="/admin/instructor-management">Instructor Management</Link>
+      ),
     },
     {
       key: "3",
+      icon: <FaBook />,
+      label: <Link href="/admin/class-management">Class Management</Link>,
+    },
+    {
+      key: "4",
       icon: <LuPackage />,
       label: <Link href="/admin/package-management">Package Management</Link>,
     },
@@ -196,7 +204,7 @@ export default function AuthenticatedLayout({
         onClose={() => setMobileMenuOpen(false)}
         open={mobileMenuOpen}
         className="lg:hidden"
-        styles={{ body: { paddingInline: 0 } }}
+        styles={{ body: { padding: 0 } }}
       >
         <Menu
           mode="inline"

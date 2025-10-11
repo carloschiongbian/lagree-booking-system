@@ -1,27 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Statistic,
-  Typography,
-  Button,
-  Modal,
-  Drawer,
-} from "antd";
-import {
-  CalendarOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { Row, Typography, Button, Modal, Drawer } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import AdminBookingTable from "@/components/ui/admin-booking-table";
 import CreateClassForm from "@/components/forms/CreateClassForm";
-import { formatTime } from "@/lib/utils";
 import dayjs from "dayjs";
 import { CreateClassProps } from "@/lib/props";
 
@@ -31,29 +16,29 @@ let data: CreateClassProps[] = [
   {
     key: "1",
     instructor: "John Brown",
-    start_time: formatTime(dayjs()),
-    end_time: formatTime(dayjs()),
+    start_time: dayjs(),
+    end_time: dayjs(),
     slots: "5 / 10",
   },
   {
     key: "2",
     instructor: "Joe Black",
-    start_time: formatTime(dayjs()),
-    end_time: formatTime(dayjs()),
+    start_time: dayjs(),
+    end_time: dayjs(),
     slots: "5 / 10",
   },
   {
     key: "3",
     instructor: "Jim Green",
-    start_time: formatTime(dayjs()),
-    end_time: formatTime(dayjs()),
+    start_time: dayjs(),
+    end_time: dayjs(),
     slots: "5 / 10",
   },
   {
     key: "4",
     instructor: "Jim Red",
-    start_time: formatTime(dayjs()),
-    end_time: formatTime(dayjs()),
+    start_time: dayjs(),
+    end_time: dayjs(),
     slots: "5 / 10",
   },
 ];
@@ -61,7 +46,9 @@ let data: CreateClassProps[] = [
 export default function ClassManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<CreateClassProps | null>(null);
+  const [editingRecord, setEditingRecord] = useState<CreateClassProps | null>(
+    null
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -80,6 +67,7 @@ export default function ClassManagementPage() {
   };
 
   const handleEdit = (record: CreateClassProps) => {
+    console.log("record: ", record);
     setEditingRecord(record);
     setIsModalOpen(true);
   };
@@ -94,13 +82,14 @@ export default function ClassManagementPage() {
 
     if (editingRecord) {
       const index = data.findIndex((item) => item.key === editingRecord.key);
+      console.log("index: ", index);
       if (index !== -1) {
         const currentSlots = data[index].slots.split("/")[0].trim();
         data[index] = {
           ...data[index],
           instructor: values.instructor,
-          start_time: values.time,
-          end_time: values.time,
+          start_time: values.start_time,
+          end_time: values.end_time,
           slots: `${currentSlots} / ${values.slots}`,
         };
       }
@@ -108,8 +97,8 @@ export default function ClassManagementPage() {
       data.push({
         key: (data.length + 1).toString(),
         instructor: values.instructor,
-        start_time: values.time,
-        end_time: values.time,
+        start_time: values.start_time,
+        end_time: values.end_time,
         slots: `0 / ${values.slots}`,
       });
     }
@@ -164,6 +153,7 @@ export default function ClassManagementPage() {
           </Drawer>
         ) : (
           <Modal
+            centered
             title={editingRecord ? "Edit Class" : "Create New Class"}
             open={isModalOpen}
             onCancel={handleCloseModal}

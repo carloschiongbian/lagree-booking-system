@@ -27,5 +27,5 @@ export function formatPrice(
 }
 
 export const formatTime = (dateTime: Dayjs) => {
-  return dateTime.format("HH:mm A");
+  return dateTime.format("hh:mm A");
 };

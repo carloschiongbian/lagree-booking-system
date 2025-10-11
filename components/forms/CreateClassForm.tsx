@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Form,
-  Input,
-  Select,
-  TimePicker,
-  InputNumber,
-  Button,
-  Row,
-  Col,
-} from "antd";
+import { Form, Select, TimePicker, InputNumber, Button, Row, Col } from "antd";
 import {
   UserOutlined,
   ClockCircleOutlined,
@@ -41,7 +32,11 @@ export default function CreateClassForm({
       const totalSlots = initialValues.slots.split("/")[1].trim();
       form.setFieldsValue({
         instructor: initialValues.instructor,
-        time: dayjs(initialValues.start_time, "hh:mm A"),
+        time: [
+          dayjs(initialValues.start_time, "hh:mm A"),
+          dayjs(initialValues.end_time, "hh:mm A"),
+        ],
+
         slots: parseInt(totalSlots),
       });
     } else {
@@ -112,6 +107,7 @@ export default function CreateClassForm({
               format="hh:mm A"
               suffixIcon={<ClockCircleOutlined className="text-slate-400" />}
               className="w-full"
+              needConfirm={false}
             />
           </Form.Item>
         </Col>

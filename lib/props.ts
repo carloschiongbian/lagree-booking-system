@@ -1,8 +1,10 @@
+import { Dayjs } from "dayjs";
+
 export interface CreateClassProps {
   key: string;
   instructor: string;
-  start_time: string;
-  end_time: string;
+  start_time: Dayjs;
+  end_time: Dayjs;
   slots: string;
 }
 
