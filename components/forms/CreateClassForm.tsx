@@ -16,19 +16,38 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useEffect } from "react";
+import { CreateClassProps } from "@/lib/props";
 
 interface CreateClassFormProps {
   onSubmit: (values: any) => void;
   onCancel: () => void;
   loading?: boolean;
+  initialValues?: CreateClassProps | null;
+  isEdit?: boolean;
 }
 
 export default function CreateClassForm({
   onSubmit,
   onCancel,
   loading = false,
+  initialValues = null,
+  isEdit = false,
 }: CreateClassFormProps) {
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (initialValues) {
+      const totalSlots = initialValues.slots.split("/")[1].trim();
+      form.setFieldsValue({
+        instructor: initialValues.instructor,
+        time: dayjs(initialValues.start_time, "hh:mm A"),
+        slots: parseInt(totalSlots),
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [initialValues, form]);
 
   const instructors = [
     { value: "instructor1", label: "John Doe" },
@@ -147,7 +166,7 @@ export default function CreateClassForm({
               block
               className="bg-[#733AC6] hover:!bg-[#5B2CA8] !border-none"
             >
-              Create
+              {isEdit ? "Update" : "Create"}
             </Button>
           </Col>
           <Col xs={12} sm={8}>

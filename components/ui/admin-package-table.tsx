@@ -5,14 +5,19 @@ import { Button, Input, Row, Space, Table, Modal, Typography } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
 import { CreatePackageProps } from "@/lib/props";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdEdit } from "react-icons/md";
 import { formatPrice } from "@/lib/utils";
 
 type DataIndex = keyof CreatePackageProps;
 
 const { Text } = Typography;
 
-const AdminPackageTable = ({ data }: { data: CreatePackageProps[] }) => {
+interface AdminPackageTableProps {
+  data: CreatePackageProps[];
+  onEdit: (record: CreatePackageProps) => void;
+}
+
+const AdminPackageTable = ({ data, onEdit }: AdminPackageTableProps) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -202,7 +207,12 @@ const AdminPackageTable = ({ data }: { data: CreatePackageProps[] }) => {
       width: isMobile ? undefined : "10%",
       fixed: isMobile ? undefined : "right",
       render: (_, record) => (
-        <Row className="justify-center cursor-pointer">
+        <Row className="justify-center cursor-pointer gap-3">
+          <MdEdit
+            size={20}
+            color="#733AC6"
+            onClick={() => onEdit(record)}
+          />
           <MdDelete
             size={20}
             color="red"

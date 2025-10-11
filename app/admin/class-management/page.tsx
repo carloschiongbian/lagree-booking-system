@@ -61,6 +61,7 @@ let data: CreateClassProps[] = [
 export default function ClassManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<CreateClassProps | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -74,25 +75,47 @@ export default function ClassManagementPage() {
   }, []);
 
   const handleOpenModal = () => {
+    setEditingRecord(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (record: CreateClassProps) => {
+    setEditingRecord(record);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEditingRecord(null);
   };
 
   const handleSubmit = (values: any) => {
     console.log("Form values:", values);
 
-    data.push({
-      key: (data.length + 1).toString(),
-      instructor: values.instructor,
-      start_time: formatTime(dayjs(values.start_time)),
-      end_time: formatTime(dayjs(values.end_time)),
-      slots: `0 / ${values.slots}`,
-    });
+    if (editingRecord) {
+      const index = data.findIndex((item) => item.key === editingRecord.key);
+      if (index !== -1) {
+        const currentSlots = data[index].slots.split("/")[0].trim();
+        data[index] = {
+          ...data[index],
+          instructor: values.instructor,
+          start_time: values.time,
+          end_time: values.time,
+          slots: `${currentSlots} / ${values.slots}`,
+        };
+      }
+    } else {
+      data.push({
+        key: (data.length + 1).toString(),
+        instructor: values.instructor,
+        start_time: values.time,
+        end_time: values.time,
+        slots: `0 / ${values.slots}`,
+      });
+    }
 
     setIsModalOpen(false);
+    setEditingRecord(null);
   };
 
   return (
@@ -119,11 +142,11 @@ export default function ClassManagementPage() {
               Create
             </Button>
           </Row>
-          <AdminBookingTable data={data} />
+          <AdminBookingTable data={data} onEdit={handleEdit} />
         </div>
         {isMobile ? (
           <Drawer
-            title="Create New Class"
+            title={editingRecord ? "Edit Class" : "Create New Class"}
             placement="right"
             onClose={handleCloseModal}
             open={isModalOpen}
@@ -135,11 +158,13 @@ export default function ClassManagementPage() {
             <CreateClassForm
               onSubmit={handleSubmit}
               onCancel={handleCloseModal}
+              initialValues={editingRecord}
+              isEdit={!!editingRecord}
             />
           </Drawer>
         ) : (
           <Modal
-            title="Create New Class"
+            title={editingRecord ? "Edit Class" : "Create New Class"}
             open={isModalOpen}
             onCancel={handleCloseModal}
             footer={null}
@@ -149,6 +174,8 @@ export default function ClassManagementPage() {
               <CreateClassForm
                 onSubmit={handleSubmit}
                 onCancel={handleCloseModal}
+                initialValues={editingRecord}
+                isEdit={!!editingRecord}
               />
             </div>
           </Modal>

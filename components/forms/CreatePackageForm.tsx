@@ -3,26 +3,47 @@
 import { Form, Input, InputNumber, Button, Row, Col, Checkbox } from "antd";
 import { TeamOutlined } from "@ant-design/icons";
 import { LuCalendarDays, LuPackage } from "react-icons/lu";
+import { useEffect } from "react";
+import { CreatePackageProps } from "@/lib/props";
 
 interface CreatePackageFormProps {
   onSubmit: (values: any) => void;
   onCancel: () => void;
   loading?: boolean;
+  initialValues?: CreatePackageProps | null;
+  isEdit?: boolean;
 }
 
 export default function CreatePackageForm({
   onSubmit,
   onCancel,
   loading = false,
+  initialValues = null,
+  isEdit = false,
 }: CreatePackageFormProps) {
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue({
+        name: initialValues.name,
+        price: initialValues.price,
+        validity_period: initialValues.validity_period,
+        promo: initialValues.promo,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [initialValues, form]);
 
   const handleFinish = (values: any) => {
     const formattedValues = {
       ...values,
     };
     onSubmit(formattedValues);
-    form.resetFields();
+    if (!isEdit) {
+      form.resetFields();
+    }
   };
 
   return (
@@ -155,7 +176,7 @@ export default function CreatePackageForm({
               block
               className="bg-[#733AC6] hover:!bg-[#5B2CA8] !border-none"
             >
-              Create
+              {isEdit ? "Update" : "Create"}
             </Button>
           </Col>
           <Col xs={12} sm={8}>

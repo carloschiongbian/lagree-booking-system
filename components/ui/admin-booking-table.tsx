@@ -7,12 +7,17 @@ import Highlighter from "react-highlight-words";
 import dayjs, { Dayjs } from "dayjs";
 import { formatTime } from "@/lib/utils";
 import { CreateClassProps } from "@/lib/props";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdEdit } from "react-icons/md";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 
 type DataIndex = keyof CreateClassProps;
 
-const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
+interface AdminBookingTableProps {
+  data: CreateClassProps[];
+  onEdit: (record: CreateClassProps) => void;
+}
+
+const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -192,7 +197,12 @@ const AdminBookingTable = ({ data }: { data: CreateClassProps[] }) => {
       width: isMobile ? undefined : "10%",
       fixed: isMobile ? undefined : "right",
       render: (_, record) => (
-        <Row className="justify-center cursor-pointer">
+        <Row className="justify-center cursor-pointer gap-3">
+          <MdEdit
+            size={20}
+            color="#733AC6"
+            onClick={() => onEdit(record)}
+          />
           <MdDelete
             size={20}
             color="red"

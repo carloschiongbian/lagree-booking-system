@@ -63,6 +63,7 @@ let data: CreatePackageProps[] = [
 export default function ClassManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<CreatePackageProps | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -76,23 +77,44 @@ export default function ClassManagementPage() {
   }, []);
 
   const handleOpenModal = () => {
+    setEditingRecord(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (record: CreatePackageProps) => {
+    setEditingRecord(record);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEditingRecord(null);
   };
 
   const handleSubmit = (values: any) => {
-    data.push({
-      key: (data.length + 1).toString(),
-      name: values.name,
-      price: values.price,
-      promo: values.promo,
-      validity_period: values.validity_period,
-    });
+    if (editingRecord) {
+      const index = data.findIndex((item) => item.key === editingRecord.key);
+      if (index !== -1) {
+        data[index] = {
+          ...data[index],
+          name: values.name,
+          price: values.price,
+          promo: values.promo,
+          validity_period: values.validity_period,
+        };
+      }
+    } else {
+      data.push({
+        key: (data.length + 1).toString(),
+        name: values.name,
+        price: values.price,
+        promo: values.promo,
+        validity_period: values.validity_period,
+      });
+    }
 
     setIsModalOpen(false);
+    setEditingRecord(null);
   };
 
   return (
@@ -115,11 +137,11 @@ export default function ClassManagementPage() {
               Create
             </Button>
           </Row>
-          <AdminPackageTable data={data} />
+          <AdminPackageTable data={data} onEdit={handleEdit} />
         </div>
         {isMobile ? (
           <Drawer
-            title="Create New Package"
+            title={editingRecord ? "Edit Package" : "Create New Package"}
             placement="right"
             onClose={handleCloseModal}
             open={isModalOpen}
@@ -131,11 +153,13 @@ export default function ClassManagementPage() {
             <CreatePackageForm
               onSubmit={handleSubmit}
               onCancel={handleCloseModal}
+              initialValues={editingRecord}
+              isEdit={!!editingRecord}
             />
           </Drawer>
         ) : (
           <Modal
-            title="Create New Package"
+            title={editingRecord ? "Edit Package" : "Create New Package"}
             open={isModalOpen}
             onCancel={handleCloseModal}
             footer={null}
@@ -145,6 +169,8 @@ export default function ClassManagementPage() {
               <CreatePackageForm
                 onSubmit={handleSubmit}
                 onCancel={handleCloseModal}
+                initialValues={editingRecord}
+                isEdit={!!editingRecord}
               />
             </div>
           </Modal>
