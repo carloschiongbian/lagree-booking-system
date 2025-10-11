@@ -143,7 +143,7 @@ export default function ClassManagementPage() {
               Create
             </Button>
           </Row>
-          <AdminBookingTable data={data} onEdit={handleEdit} />
+          <AdminBookingTable data={[...data]} onEdit={handleEdit} />
         </div>
         {isMobile ? (
           <Drawer

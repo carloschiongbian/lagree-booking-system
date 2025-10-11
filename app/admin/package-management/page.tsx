@@ -63,7 +63,9 @@ let data: CreatePackageProps[] = [
 export default function ClassManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<CreatePackageProps | null>(null);
+  const [editingRecord, setEditingRecord] = useState<CreatePackageProps | null>(
+    null
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -149,7 +151,7 @@ export default function ClassManagementPage() {
               Create
             </Button>
           </Row>
-          <AdminPackageTable data={data} onEdit={handleEdit} />
+          <AdminPackageTable data={[...data]} onEdit={handleEdit} />
         </div>
         {isMobile ? (
           <Drawer

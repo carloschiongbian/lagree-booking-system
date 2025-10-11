@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnsType, TableColumnType } from "antd";
 import { Button, Input, Row, Space, Table, Modal, Typography } from "antd";
@@ -175,63 +175,56 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
       ),
   });
 
-  const columns: TableColumnsType<CreateClassProps> = [
-    {
-      title: "Instructor",
-      dataIndex: "instructor",
-      key: "instructor",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("instructor"),
-    },
-    {
-      title: "Start Time",
-      dataIndex: "start_time",
-      key: "start_time",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("start_time"),
-      render: (_, record) => (
-        <Row>
-          <Text>{formatTime(record.start_time)}</Text>
-        </Row>
-      ),
-    },
-    {
-      title: "End Time",
-      dataIndex: "end_time",
-      key: "end_time",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("end_time"),
-      render: (_, record) => (
-        <Row>
-          <Text>{formatTime(record.end_time)}</Text>
-        </Row>
-      ),
-    },
-    {
-      title: "Slots",
-      dataIndex: "slots",
-      key: "slots",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("slots"),
-    },
-    {
-      title: "Action",
-      key: "action",
-      width: isMobile ? undefined : "10%",
-      fixed: isMobile ? undefined : "right",
-      render: (_, record) => (
-        <Row className="justify-center cursor-pointer gap-3">
-          <IoEye size={20} />
-          <MdEdit size={20} color="#733AC6" onClick={() => onEdit(record)} />
-          <MdDelete
-            size={20}
-            color="red"
-            onClick={() => showDeleteConfirm(record)}
-          />
-        </Row>
-      ),
-    },
-  ];
+  const columns = useMemo<TableColumnsType<CreateClassProps>>(
+    () => [
+      {
+        title: "Instructor",
+        dataIndex: "instructor",
+        key: "instructor",
+        width: isMobile ? undefined : "20%",
+        ...getColumnSearchProps("instructor"),
+      },
+      {
+        title: "Start Time",
+        dataIndex: "start_time",
+        key: "start_time",
+        width: isMobile ? undefined : "20%",
+        render: (_, record) => <Text>{formatTime(record.start_time)}</Text>,
+      },
+      {
+        title: "End Time",
+        dataIndex: "end_time",
+        key: "end_time",
+        width: isMobile ? undefined : "20%",
+        render: (_, record) => <Text>{formatTime(record.end_time)}</Text>,
+      },
+      {
+        title: "Slots",
+        dataIndex: "slots",
+        key: "slots",
+        width: isMobile ? undefined : "20%",
+        ...getColumnSearchProps("slots"),
+      },
+      {
+        title: "Action",
+        key: "action",
+        width: isMobile ? undefined : "10%",
+        fixed: isMobile ? undefined : "right",
+        render: (_, record) => (
+          <Row className="justify-center cursor-pointer gap-3">
+            <IoEye size={20} />
+            <MdEdit size={20} color="#733AC6" onClick={() => onEdit(record)} />
+            <MdDelete
+              size={20}
+              color="red"
+              onClick={() => showDeleteConfirm(record)}
+            />
+          </Row>
+        ),
+      },
+    ],
+    [isMobile, searchedColumn, searchText, data]
+  );
 
   return (
     <Table<CreateClassProps>

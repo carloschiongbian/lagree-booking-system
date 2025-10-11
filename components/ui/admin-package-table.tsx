@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnsType, TableColumnType } from "antd";
 import { Button, Input, Row, Space, Table, Modal, Typography } from "antd";
@@ -174,66 +174,65 @@ const AdminPackageTable = ({ data, onEdit }: AdminPackageTableProps) => {
       ),
   });
 
-  const columns: TableColumnsType<CreatePackageProps> = [
-    {
-      title: "Title",
-      dataIndex: "name",
-      key: "name",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("name"),
-    },
-    {
-      title: "Price (PHP)",
-      dataIndex: "price",
-      key: "price",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("price"),
-      render: (_, record) => (
-        <Row>
-          <Text>{formatPrice(record.price)}</Text>
-        </Row>
-      ),
-    },
-    {
-      title: "Validity Period (days)",
-      dataIndex: "validity_period",
-      key: "validity_period",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("validity_period"),
-    },
-    {
-      title: "Package Type",
-      dataIndex: "promo",
-      key: "promo",
-      width: isMobile ? undefined : "20%",
-      ...getColumnSearchProps("promo"),
-      render: (_, record) => (
-        <Row>
-          <Text>{record.promo ? "Promo" : "Regular"}</Text>
-        </Row>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      width: isMobile ? undefined : "10%",
-      fixed: isMobile ? undefined : "right",
-      render: (_, record) => (
-        <Row className="justify-center cursor-pointer gap-3">
-          <MdEdit
-            size={20}
-            color="#733AC6"
-            onClick={() => onEdit(record)}
-          />
-          <MdDelete
-            size={20}
-            color="red"
-            onClick={() => showDeleteConfirm(record)}
-          />
-        </Row>
-      ),
-    },
-  ];
+  const columns = useMemo<TableColumnsType<CreatePackageProps>>(
+    () => [
+      {
+        title: "Title",
+        dataIndex: "name",
+        key: "name",
+        width: isMobile ? undefined : "20%",
+        ...getColumnSearchProps("name"),
+      },
+      {
+        title: "Price (PHP)",
+        dataIndex: "price",
+        key: "price",
+        width: isMobile ? undefined : "20%",
+        ...getColumnSearchProps("price"),
+        render: (_, record) => (
+          <Row>
+            <Text>{formatPrice(record.price)}</Text>
+          </Row>
+        ),
+      },
+      {
+        title: "Validity Period (days)",
+        dataIndex: "validity_period",
+        key: "validity_period",
+        width: isMobile ? undefined : "20%",
+        ...getColumnSearchProps("validity_period"),
+      },
+      {
+        title: "Package Type",
+        dataIndex: "promo",
+        key: "promo",
+        width: isMobile ? undefined : "20%",
+        ...getColumnSearchProps("promo"),
+        render: (_, record) => (
+          <Row>
+            <Text>{record.promo ? "Promo" : "Regular"}</Text>
+          </Row>
+        ),
+      },
+      {
+        title: "Action",
+        key: "action",
+        width: isMobile ? undefined : "10%",
+        fixed: isMobile ? undefined : "right",
+        render: (_, record) => (
+          <Row className="justify-center cursor-pointer gap-3">
+            <MdEdit size={20} color="#733AC6" onClick={() => onEdit(record)} />
+            <MdDelete
+              size={20}
+              color="red"
+              onClick={() => showDeleteConfirm(record)}
+            />
+          </Row>
+        ),
+      },
+    ],
+    [isMobile, searchedColumn, searchText, data]
+  );
 
   return (
     <Table<CreatePackageProps>
