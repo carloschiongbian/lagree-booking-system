@@ -41,7 +41,7 @@ export default function DashboardPage() {
   );
 
   const data = useMemo(
-    () => activities.map((a) => ({ activity: a.activity, range: [a.start, a.end] })),
+    () => activities.map((a) => ({ activity: a.activity, hours: [a.start, a.end] })),
     [activities]
   );
 
@@ -49,17 +49,17 @@ export default function DashboardPage() {
     () => ({
       data,
       isRange: true,
-      xField: "range",
+      xField: "hours",
       yField: "activity",
       autoFit: true,
       height: isMobile ? 280 : 360,
       padding: [16, 24, 48, 120],
       legend: false,
       tooltip: {
-        formatter: (datum: { activity: string; range: [number, number] }) => {
+        formatter: (datum: { activity: string; hours: [number, number] }) => {
           return {
             name: datum.activity,
-            value: `${formatHour(datum.range[0])} — ${formatHour(datum.range[1])}`,
+            value: `${formatHour(datum.hours[0])} — ${formatHour(datum.hours[1])}`,
           };
         },
       },
@@ -84,7 +84,7 @@ export default function DashboardPage() {
       },
       // Make sure the scale covers the full day explicitly
       meta: {
-        range: { min: 0, max: 24 },
+        hours: { min: 0, max: 24 },
       },
       barStyle: {
         radius: [4, 4, 4, 4],
