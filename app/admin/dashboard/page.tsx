@@ -64,10 +64,13 @@ export default function DashboardPage() {
         },
       },
       xAxis: {
+        position: "bottom",
+        title: { text: "Hours" },
         min: 0,
         max: 24,
         nice: false,
         tickCount: 25,
+        tickInterval: 1,
         label: {
           autoHide: false,
           formatter: (v: string | number) => {
@@ -75,6 +78,9 @@ export default function DashboardPage() {
             return `${String(Math.floor(num)).padStart(2, "0")}:00`;
           },
         },
+      },
+      yAxis: {
+        title: { text: "Activity" },
       },
       // Make sure the scale covers the full day explicitly
       meta: {
