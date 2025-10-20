@@ -24,7 +24,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
-import { LuPackage } from "react-icons/lu";
+import { LuPackage, LuUserPen } from "react-icons/lu";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -96,9 +96,10 @@ export default function AuthenticatedLayout({
 
   const getSelectedKey = () => {
     if (pathname === "/admin/dashboard") return "1";
-    if (pathname === "/admin/instructor-management") return "2";
-    if (pathname === "/admin/class-management") return "3";
-    if (pathname === "/admin/package-management") return "4";
+    if (pathname === "/admin/client-management") return "2";
+    if (pathname === "/admin/instructor-management") return "3";
+    if (pathname === "/admin/class-management") return "4";
+    if (pathname === "/admin/package-management") return "5";
     return "1";
   };
 
@@ -110,18 +111,23 @@ export default function AuthenticatedLayout({
     },
     {
       key: "2",
+      icon: <LuUserPen size={15} />,
+      label: <Link href="/admin/client-management">Client Management</Link>,
+    },
+    {
+      key: "3",
       icon: <UserOutlined />,
       label: (
         <Link href="/admin/instructor-management">Instructor Management</Link>
       ),
     },
     {
-      key: "3",
+      key: "4",
       icon: <FaBook />,
       label: <Link href="/admin/class-management">Class Management</Link>,
     },
     {
-      key: "4",
+      key: "5",
       icon: <LuPackage />,
       label: <Link href="/admin/package-management">Package Management</Link>,
     },
