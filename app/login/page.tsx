@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Form, Input, Button, Card, Typography, message } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 import Link from "next/link";
 
 const { Title, Text } = Typography;
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
+      const supabase = getSupabaseClient();
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,

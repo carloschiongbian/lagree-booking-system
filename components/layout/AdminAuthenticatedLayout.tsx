@@ -21,7 +21,7 @@ import { FaBook } from "react-icons/fa";
 
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
 import { LuPackage, LuUserPen } from "react-icons/lu";
@@ -44,6 +44,7 @@ export default function AuthenticatedLayout({
 
   useEffect(() => {
     const checkUser = async () => {
+      const supabase = getSupabaseClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -72,7 +73,7 @@ export default function AuthenticatedLayout({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = getSupabaseClient().auth.onAuthStateChange((event, session) => {
       (() => {
         if (event === "SIGNED_OUT") {
           dispatch(logoutAction());
@@ -89,7 +90,7 @@ export default function AuthenticatedLayout({
   }, [dispatch, router]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await getSupabaseClient().auth.signOut();
     dispatch(logoutAction());
     router.push("/login");
   };

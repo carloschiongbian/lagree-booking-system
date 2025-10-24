@@ -60,18 +60,19 @@ export default function DashboardPage() {
       ],
     };
 
-    const options = {
-      indexAxis: "y" as const, // makes it horizontal
+    const options: ChartOptions<"bar"> = {
+      indexAxis: "y",
       responsive: true,
       maintainAspectRatio: false,
       scales: {
         x: {
-          type: "linear" as const,
+          type: "linear",
           min: 7,
           max: 22,
           ticks: {
             stepSize: 1,
-            callback: (value: number) => {
+            callback: (v: string | number) => {
+              const value = Number(v);
               const hour = Math.floor(value);
               const suffix = hour >= 12 ? "PM" : "AM";
               const displayHour = hour % 12 || 12;
@@ -85,7 +86,7 @@ export default function DashboardPage() {
           },
         },
         y: {
-          type: "category" as const,
+          type: "category",
           grid: { display: false },
           ticks: {
             color: "#374151",

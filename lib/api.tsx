@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase, UpdateUserProfile } from "./supabase";
+import { getSupabaseClient, UpdateUserProfile } from "./supabase";
 
 export const useSearchUser = () => {
   const [loading, setLoading] = useState(false);
@@ -9,6 +9,7 @@ export const useSearchUser = () => {
   const validateEmail = async ({ email }: { email: string }) => {
     setLoading(true);
 
+    const supabase = getSupabaseClient();
     let query = supabase
       .from("user_profiles")
       .select()
@@ -27,7 +28,11 @@ export const useSearchUser = () => {
     setLoading(true);
     console.log("Searching for name: ", name);
 
-    let query = supabase.from("user_profiles").select("*").eq("is_user", true);
+    const supabase = getSupabaseClient();
+    let query = supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("is_user", true);
 
     if (!!name.length) {
       query = query.ilike("full_name", `%${name}%`);
@@ -45,6 +50,7 @@ export const useSearchUser = () => {
     setLoading(true);
     console.log("Searching for name: ", name);
 
+    const supabase = getSupabaseClient();
     let query = supabase.from("instructors").select("*");
 
     if (!!name.length) {
@@ -74,6 +80,7 @@ export const useUpdateUser = () => {
   }) => {
     setLoading(true);
 
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from("user_profiles")
       .update(values)

@@ -19,7 +19,7 @@ import {
   EnvironmentOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 import Link from "next/link";
 import { MdContactEmergency } from "react-icons/md";
 import { useSearchUser } from "@/lib/api";
@@ -46,6 +46,7 @@ export default function SignupPage() {
   const onFinishStepTwo = async (values: any) => {
     setLoading(true);
     try {
+      const supabase = getSupabaseClient();
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: stepOneData.email,
         password: stepOneData.password,
