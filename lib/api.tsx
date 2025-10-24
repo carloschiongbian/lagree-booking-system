@@ -1,10 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "./supabase";
+import { supabase, UpdateUserProfile } from "./supabase";
 
 export const useSearchUser = () => {
   const [loading, setLoading] = useState(false);
+
+  const validateEmail = async ({ email }: { email: string }) => {
+    setLoading(true);
+
+    let query = supabase
+      .from("user_profiles")
+      .select()
+      .eq("email", email)
+      .single();
+
+    const { data, error } = await query;
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
 
   const searchClients = async ({ name }: { name: string }) => {
     setLoading(true);
@@ -42,5 +59,31 @@ export const useSearchUser = () => {
     return data;
   };
 
-  return { searchClients, searchInstructors, loading };
+  return { validateEmail, searchClients, searchInstructors, loading };
+};
+
+export const useUpdateUser = () => {
+  const [loading, setLoading] = useState(false);
+
+  const updateUser = async ({
+    id,
+    values,
+  }: {
+    id: string;
+    values: UpdateUserProfile;
+  }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .update(values)
+      .eq("id", id);
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
+
+  return { loading, updateUser };
 };

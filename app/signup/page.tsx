@@ -21,6 +21,8 @@ import {
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { MdContactEmergency } from "react-icons/md";
+import { useSearchUser } from "@/lib/api";
 
 const { Title, Text } = Typography;
 
@@ -30,10 +32,15 @@ export default function SignupPage() {
   const [form] = Form.useForm();
   const [stepOneData, setStepOneData] = useState<any>(null);
   const router = useRouter();
+  const { validateEmail, loading: validatingEmail } = useSearchUser();
 
   const onFinishStepOne = async (values: any) => {
     setStepOneData(values);
     setCurrentStep(1);
+  };
+
+  const handleValidateEmail = async (email: string) => {
+    const response = await validateEmail({ email: email });
   };
 
   const onFinishStepTwo = async (values: any) => {
@@ -55,6 +62,8 @@ export default function SignupPage() {
             contact_number: stepOneData.contact_number,
             full_name: `${values.first_name} ${values.last_name}`,
             first_name: values.first_name,
+            emergency_contact_name: values.emergency_contact_name,
+            emergency_contact_number: values.emergency_contact_number,
             last_name: values.last_name,
             birthday: values.birthday
               ? values.birthday.format("YYYY-MM-DD")
@@ -93,7 +102,6 @@ export default function SignupPage() {
           className="mb-8"
           items={[{ title: "Account" }, { title: "Profile" }]}
         />
-
         {currentStep === 0 && (
           <Form
             form={form}
@@ -167,7 +175,12 @@ export default function SignupPage() {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" block className="h-11">
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+              >
                 Next
               </Button>
             </Form.Item>
@@ -185,7 +198,6 @@ export default function SignupPage() {
             </div>
           </Form>
         )}
-
         {currentStep === 1 && (
           <Form
             name="signup-step-2"
@@ -243,6 +255,36 @@ export default function SignupPage() {
               />
             </Form.Item>
 
+            <Form.Item
+              name="emergency_contact_name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter an emergency contact name",
+                },
+              ]}
+            >
+              <Input
+                prefix={<MdContactEmergency className="text-slate-400" />}
+                placeholder="Emergency Contact Name"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="emergency_contact_number"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter an emergency contact number",
+                },
+              ]}
+            >
+              <Input
+                prefix={<PhoneOutlined className="text-slate-400" />}
+                placeholder="Emergency Contact Number"
+              />
+            </Form.Item>
+
             <div className="flex gap-3">
               <Button onClick={() => setCurrentStep(0)} block className="h-11">
                 Back
@@ -252,7 +294,7 @@ export default function SignupPage() {
                 htmlType="submit"
                 loading={loading}
                 block
-                className="h-11"
+                className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
               >
                 Create Account
               </Button>

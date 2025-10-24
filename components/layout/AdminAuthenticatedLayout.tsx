@@ -164,7 +164,7 @@ export default function AuthenticatedLayout({
       </Sider>
 
       <Layout>
-        <Header className="!bg-white border-b border-slate-200 !px-4 md:!px-6 flex items-center justify-between !h-16">
+        <Header className="!bg-[#36013F] border-b border-slate-200 !px-4 md:!px-6 flex items-center justify-between !h-16">
           <div className="flex items-center">
             <Button
               type="text"
@@ -178,9 +178,9 @@ export default function AuthenticatedLayout({
           </div>
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors">
+            <div className="flex items-center gap-3 cursor-pointer px-3 py-2 rounded-lg transition-colors">
               <div className="text-right hidden md:block">
-                <Text className="block text-sm font-medium">
+                <Text className="block text-sm font-medium !text-slate-200">
                   {user?.first_name || "User"}
                 </Text>
                 <Text className="block text-xs text-slate-500">
@@ -190,7 +190,7 @@ export default function AuthenticatedLayout({
               <Avatar
                 size="large"
                 icon={<UserOutlined />}
-                className="bg-blue-600"
+                className="bg-slate-200"
               >
                 {user?.first_name?.[0]?.toUpperCase() || "U"}
               </Avatar>

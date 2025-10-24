@@ -18,7 +18,6 @@ export default function DashboardPage() {
           <Title level={2} className="!mb-2">
             Dashboard
           </Title>
-          <p className="text-slate-600">Welcome to your booking dashboard</p>
         </div>
 
         <Row gutter={[16, 16]}>
@@ -32,7 +31,7 @@ export default function DashboardPage() {
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} lg={8}>
+          {/* <Col xs={24} sm={12} lg={8}>
             <Card className="shadow-sm hover:shadow-md transition-shadow">
               <Statistic
                 title="Confirmed"
@@ -51,7 +50,7 @@ export default function DashboardPage() {
                 valueStyle={{ color: "#1e293b" }}
               />
             </Card>
-          </Col>
+          </Col> */}
         </Row>
 
         <Card className="shadow-sm" title="Upcoming Sessions">

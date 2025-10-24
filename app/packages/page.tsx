@@ -75,7 +75,7 @@ export default function PackagesPage() {
                 actions={[
                   <Button
                     type="primary"
-                    className="!bg-[#733AC6] hover:!bg-[#5B2CA8] !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                    className="!bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
                   >
                     Buy
                   </Button>,

@@ -15,6 +15,11 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
           fontSize: 14,
         },
         components: {
+          Steps: {
+            colorPrimary: "#36013F", // active color
+            colorTextDescription: "#666", // text color
+            colorText: "#333",
+          },
           Segmented: {
             itemSelectedBg: "#36013F",
             itemSelectedColor: "white",

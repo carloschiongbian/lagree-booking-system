@@ -3,43 +3,45 @@
 import { Card, Row, Col, Typography, Avatar, List, Button } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
+import { useRouter } from "next/navigation";
 
 const { Title } = Typography;
 
 export default function CreditsPage() {
+  const router = useRouter();
   const data = [
-    {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 3,
-    },
-    {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 0,
-    },
-    {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 1,
-    },
-    {
-      time: "07:00AM",
-      duration: "50 mins",
-      date: "2024-10-10",
-      instructor: "Jane Doe",
-      limit: 10,
-      available: 7,
-    },
+    // {
+    //   time: "07:00AM",
+    //   duration: "50 mins",
+    //   date: "2024-10-10",
+    //   instructor: "Jane Doe",
+    //   limit: 10,
+    //   available: 3,
+    // },
+    // {
+    //   time: "07:00AM",
+    //   duration: "50 mins",
+    //   date: "2024-10-10",
+    //   instructor: "Jane Doe",
+    //   limit: 10,
+    //   available: 0,
+    // },
+    // {
+    //   time: "07:00AM",
+    //   duration: "50 mins",
+    //   date: "2024-10-10",
+    //   instructor: "Jane Doe",
+    //   limit: 10,
+    //   available: 1,
+    // },
+    // {
+    //   time: "07:00AM",
+    //   duration: "50 mins",
+    //   date: "2024-10-10",
+    //   instructor: "Jane Doe",
+    //   limit: 10,
+    //   available: 7,
+    // },
   ];
   return (
     <AuthenticatedLayout>
@@ -64,7 +66,7 @@ export default function CreditsPage() {
         </Row> */}
 
         <Card className="shadow-sm">
-          <List
+          {/* <List
             itemLayout="horizontal"
             dataSource={data}
             renderItem={(item, index) => (
@@ -114,11 +116,16 @@ export default function CreditsPage() {
                 </Row>
               </List.Item>
             )}
-          />
+          /> */}
           {data.length === 0 && (
             <div className="text-center py-12 text-slate-500">
-              <CalendarOutlined className="text-4xl mb-4" />
-              <p>No bookings yet. Start by creating your first booking.</p>
+              <Button
+                onClick={() => router.push("/packages")}
+                type="primary"
+                className="!bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+              >
+                Purchase a package
+              </Button>
             </div>
           )}
         </Card>

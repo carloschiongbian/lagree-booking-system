@@ -51,7 +51,7 @@ export default function LoginPage() {
       >
         <div className="text-center mb-8">
           <Title level={2} className="!mb-2">
-            Welcome Back
+            Lagree Studio
           </Title>
           <Text type="secondary">Sign in to your account</Text>
         </div>
@@ -92,9 +92,9 @@ export default function LoginPage() {
               htmlType="submit"
               loading={loading}
               block
-              className="h-11"
+              className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
             >
-              Sign In
+              Log In
             </Button>
           </Form.Item>
 
@@ -103,7 +103,7 @@ export default function LoginPage() {
               Don't have an account?{" "}
               <Link
                 href="/signup"
-                className="text-blue-600 hover:text-blue-700"
+                className="!text-[#36013F] hover:text-[#36013F]"
               >
                 Sign up
               </Link>
