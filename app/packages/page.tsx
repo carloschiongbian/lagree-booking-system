@@ -9,6 +9,7 @@ import {
   Avatar,
   List,
   Button,
+  Drawer,
 } from "antd";
 import {
   CalendarOutlined,
@@ -18,10 +19,14 @@ import {
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import { formatPrice } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const { Title } = Typography;
 
 export default function PackagesPage() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const data = [
     {
       title: "Private Class",
@@ -44,6 +49,39 @@ export default function PackagesPage() {
       price: 15000,
     },
   ];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // rAF throttle
+    let rafId: number | null = null;
+    const onResize = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        handleResize();
+      });
+    };
+
+    handleResize();
+    window.addEventListener("resize", onResize);
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  const handleOpenModal = () => {
+    setSelectedRecord(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRecord(null);
+  };
   return (
     <AuthenticatedLayout>
       <div className="space-y-6">
@@ -113,7 +151,10 @@ export default function PackagesPage() {
                     </p>
                   </Col>
 
-                  <Button className="!bg-[#36013F] h-[40px] hover:!bg-[#36013F] !border-[#36013F] !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]">
+                  <Button
+                    onClick={handleOpenModal}
+                    className="!bg-[#36013F] h-[40px] hover:!bg-[#36013F] !border-[#36013F] !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                  >
                     Purchase
                   </Button>
                 </Col>
@@ -171,6 +212,19 @@ export default function PackagesPage() {
           </Card>
         )}
       </div>
+
+      <Drawer
+        title={"Package title"}
+        placement="right"
+        onClose={handleCloseModal}
+        open={isModalOpen}
+        width={isMobile ? "100%" : "30%"}
+        styles={{
+          body: { paddingTop: 24 },
+        }}
+      >
+        <Title>Package Details</Title>
+      </Drawer>
     </AuthenticatedLayout>
   );
 }
