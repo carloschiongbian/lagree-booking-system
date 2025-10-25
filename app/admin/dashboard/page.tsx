@@ -60,7 +60,7 @@ export default function DashboardPage() {
       ],
     };
 
-    const options = {
+    const options: any = {
       indexAxis: "y" as const, // makes it horizontal
       responsive: true,
       maintainAspectRatio: false,

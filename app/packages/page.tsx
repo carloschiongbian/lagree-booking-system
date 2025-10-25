@@ -68,8 +68,8 @@ export default function PackagesPage() {
 
         <Row
           gutter={[20, 20]} // spacing between cards (horizontal, vertical)
-          justify="center"
-          className="px-4"
+          justify="start"
+          // className="px-4"
         >
           {data.map((item, index) => (
             <Col
