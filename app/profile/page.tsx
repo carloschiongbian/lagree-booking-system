@@ -74,41 +74,32 @@ export default function ProfilePage() {
               {/* First Name */}
               <Col xs={24} sm={12}>
                 <Form.Item
-                  initialValue={user?.first_name}
                   label="First Name"
                   name="first_name"
                   rules={[
                     { required: true, message: "Please enter your first name" },
                   ]}
                 >
-                  <Input
-                    defaultValue={user?.first_name}
-                    placeholder="Enter first name"
-                  />
+                  <Input placeholder="Enter first name" />
                 </Form.Item>
               </Col>
 
               {/* Last Name */}
               <Col xs={24} sm={12}>
                 <Form.Item
-                  initialValue={user?.last_name}
                   label="Last Name"
                   name="last_name"
                   rules={[
                     { required: true, message: "Please enter your last name" },
                   ]}
                 >
-                  <Input
-                    defaultValue={user?.last_name}
-                    placeholder="Enter last name"
-                  />
+                  <Input placeholder="Enter last name" />
                 </Form.Item>
               </Col>
 
               {/* Birthday */}
               <Col xs={24} sm={12}>
                 <Form.Item
-                  initialValue={dayjs(user?.birthday)}
                   label="Birthday"
                   name="birthday"
                   rules={[
@@ -116,7 +107,6 @@ export default function ProfilePage() {
                   ]}
                 >
                   <DatePicker
-                    defaultValue={dayjs(user?.birthday)}
                     className="w-full"
                     format="YYYY-MM-DD"
                     placeholder="Select date"

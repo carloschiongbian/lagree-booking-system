@@ -66,8 +66,65 @@ export default function PackagesPage() {
           </Col>
         </Row> */}
 
-        <Card className="shadow-sm">
-          <List
+        <Row
+          gutter={[20, 20]} // spacing between cards (horizontal, vertical)
+          justify="center"
+          className="px-4"
+        >
+          {data.map((item, index) => (
+            <Col
+              key={index}
+              xs={24} // full width on mobile
+              sm={12} // 2 columns on small screens
+              md={8} // 3 columns on tablets
+              lg={6} // 4 columns on desktops
+              xl={5} // 4–5 columns on wide desktops
+            >
+              <Card
+                title={`${item.validity} days`}
+                styles={{
+                  header: {
+                    backgroundColor: "#36013F",
+                    color: "white",
+                    textAlign: "center",
+                    fontSize: "36px",
+                    height: "120px",
+                  },
+                  body: {
+                    paddingTop: "15px",
+                  },
+                }}
+                className="border-[#fbe2ff] rounded-[24px] shadow-sm hover:shadow-md transition-all duration-300"
+              >
+                <Col className="flex flex-col gap-y-[10px]">
+                  <Col>
+                    <p>
+                      <span className="font-light">{item.title}</span>
+                    </p>
+                    <p>
+                      <span className="font-light">
+                        PHP {formatPrice(item.price)}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="font-light">
+                        Valid for {item.validity} days
+                      </span>
+                    </p>
+                  </Col>
+
+                  <Button className="!bg-[#36013F] h-[40px] hover:!bg-[#36013F] !border-[#36013F] !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]">
+                    Purchase
+                  </Button>
+                </Col>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+
+        {data.length === 0 && (
+          <Card className="shadow-sm">
+            {/* <List
             itemLayout="horizontal"
             dataSource={data}
             renderItem={(item, index) => (
@@ -105,14 +162,14 @@ export default function PackagesPage() {
                 </Row>
               </List.Item>
             )}
-          />
-          {data.length === 0 && (
+          /> */}
+
             <div className="text-center py-12 text-slate-500">
               <CalendarOutlined className="text-4xl mb-4" />
               <p>No bookings yet. Start by creating your first booking.</p>
             </div>
-          )}
-        </Card>
+          </Card>
+        )}
       </div>
     </AuthenticatedLayout>
   );

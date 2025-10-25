@@ -76,13 +76,13 @@ export default function ClassManagementPage() {
     };
   }, []);
 
+  const handleOpenBookingModal = () => {
+    setIsBookingModalOpen(true);
+  };
+
   const handleOpenModal = () => {
     setEditingRecord(null);
     setIsModalOpen(true);
-  };
-
-  const handleOpenBookingModal = () => {
-    setIsBookingModalOpen(true);
   };
 
   const handleEdit = (record: CreateClassProps) => {

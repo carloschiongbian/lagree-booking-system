@@ -43,31 +43,6 @@ export default function AuthenticatedLayout({
   const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        router.push("/login");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .maybeSingle();
-
-      if (profile) {
-        if (profile.is_user === false) {
-          router.push("/admin/dashboard");
-          return;
-        }
-        dispatch(setUser(profile));
-      }
-    };
-
     checkUser();
 
     const {
@@ -87,6 +62,32 @@ export default function AuthenticatedLayout({
       subscription.unsubscribe();
     };
   }, [dispatch, router]);
+
+  const checkUser = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+
+    console.log("trigger");
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("id", session.user.id)
+      .maybeSingle();
+
+    if (profile) {
+      if (profile.is_user === false) {
+        router.push("/admin/dashboard");
+        return;
+      }
+      dispatch(setUser(profile));
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

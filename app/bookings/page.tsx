@@ -9,16 +9,20 @@ import {
   List,
   Button,
   Divider,
+  Drawer,
 } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 
 const { Title } = Typography;
 
 export default function BookingsPage() {
-  const date = dayjs("2024-10-10");
+  const [isMobile, setIsMobile] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const data = [
     {
       time: "07:00AM",
@@ -85,6 +89,40 @@ export default function BookingsPage() {
       available: 7,
     },
   ];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // rAF throttle
+    let rafId: number | null = null;
+    const onResize = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        handleResize();
+      });
+    };
+
+    handleResize();
+    window.addEventListener("resize", onResize);
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  const handleOpenModal = () => {
+    setSelectedRecord(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRecord(null);
+  };
+
   return (
     <AuthenticatedLayout>
       <div className="space-y-6">
@@ -102,78 +140,11 @@ export default function BookingsPage() {
         </Row>
 
         <Row wrap={false} className="w-full gap-x-[20px] items-start">
-          {/* <DatePickerCarousel onDateSelect={(e) => console.log(e)} /> */}
-          {/* <Card className="shadow-sm w-full">
-            <List
-              itemLayout="horizontal"
-              dataSource={data}
-              renderItem={(item, index) => (
-                <List.Item
-                  actions={[
-                    <Button
-                      disabled={item.available === 0}
-                      type="primary"
-                      className={`bg-[#36013F] ${
-                        item.available === 0 ? "" : "hover:!bg-[#36013F]"
-                      } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
-                    >
-                      Join
-                    </Button>,
-                  ]}
-                >
-                  <Row className="wrap-none items-center gap-4">
-                    <Col>
-                      <Avatar
-                        className="border-gray-500 border"
-                        size={60}
-                        src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`}
-                      />
-                      <p>
-                        <span className="font-light">{item.instructor}</span>
-                      </p>
-                    </Col>
-                    <Col>
-                      <p>
-                        <span className="font-semibold">{item.time}</span>
-                      </p>
-                      <p>
-                        <span className="font-light">{item.duration}</span>
-                      </p>
-
-                      <p>
-                        <span
-                          className={`${
-                            item.available === 1 || item.available === 0
-                              ? `text-red-500`
-                              : ``
-                          } font-semibold`}
-                        >
-                          {item.available === 1
-                            ? `Last Slot`
-                            : item.available > 1
-                            ? `${item.available} slots left`
-                            : ``}
-                          {item.available <= 0 && `Full`}
-                        </span>
-                      </p>
-                    </Col>
-                  </Row>
-                </List.Item>
-              )}
-            />
-            {data.length === 0 && (
-              <div className="text-center py-12 text-slate-500">
-                <CalendarOutlined className="text-4xl mb-4" />
-                <p>No bookings yet. Start by creating your first booking.</p>
-              </div>
-            )}
-          </Card> */}
-
           <Card className="shadow-sm w-full">
             <div
               style={{
-                scrollbarWidth: "none", // Firefox
-                msOverflowStyle: "none", // IE and Edge
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
               }}
               className="max-h-[500px] overflow-y-auto"
             >
@@ -184,8 +155,9 @@ export default function BookingsPage() {
                   <List.Item
                     actions={[
                       <Button
-                        disabled={item.available === 0}
                         type="primary"
+                        disabled={item.available === 0}
+                        onClick={handleOpenModal}
                         className={`bg-[#36013F] ${
                           item.available === 0 ? "" : "hover:!bg-[#36013F]"
                         } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
@@ -244,6 +216,19 @@ export default function BookingsPage() {
           </Card>
         </Row>
       </div>
+
+      <Drawer
+        title={"Join this class"}
+        placement="right"
+        onClose={handleCloseModal}
+        open={isModalOpen}
+        width={isMobile ? "100%" : "30%"}
+        styles={{
+          body: { paddingTop: 24 },
+        }}
+      >
+        <Title>SCHEDULE</Title>
+      </Drawer>
     </AuthenticatedLayout>
   );
 }
