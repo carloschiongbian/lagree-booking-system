@@ -1,44 +1,49 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Row, Typography, Button, Modal, Drawer } from "antd";
+import { Row, Typography, Button, Modal, Drawer, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import AdminBookingTable from "@/components/ui/admin-booking-table";
 import CreateClassForm from "@/components/forms/CreateClassForm";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { CreateClassProps } from "@/lib/props";
 import { IoMdPersonAdd } from "react-icons/io";
 import ManualBookingForm from "@/components/forms/ManualBookingForm";
+import { useClassManagement, useSearchUser } from "@/lib/api";
 
 const { Title } = Typography;
 
 let data: CreateClassProps[] = [
   {
     key: "1",
-    instructor: "John Brown",
+    instructor_id: "123494",
+    instructor_name: "John Brown",
     start_time: dayjs(),
     end_time: dayjs(),
     slots: "5 / 10",
   },
   {
     key: "2",
-    instructor: "Joe Black",
+    instructor_id: "123494",
+    instructor_name: "Joe Black",
     start_time: dayjs(),
     end_time: dayjs(),
     slots: "5 / 10",
   },
   {
     key: "3",
-    instructor: "Jim Green",
+    instructor_id: "123494",
+    instructor_name: "Jim Green",
     start_time: dayjs(),
     end_time: dayjs(),
     slots: "5 / 10",
   },
   {
     key: "4",
-    instructor: "Jim Red",
+    instructor_id: "123494",
+    instructor_name: "Jim Red",
     start_time: dayjs(),
     end_time: dayjs(),
     slots: "5 / 10",
@@ -46,6 +51,11 @@ let data: CreateClassProps[] = [
 ];
 
 export default function ClassManagementPage() {
+  // const { createClass, loading } = useCreateClass();
+  const { createClass, updateClass, fetchClasses, loading } =
+    useClassManagement();
+  const [classes, setClasses] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Dayjs>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -76,6 +86,31 @@ export default function ClassManagementPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedDate) {
+      handleFetchClasses();
+    }
+  }, [selectedDate]);
+
+  const handleFetchClasses = async () => {
+    const data = await fetchClasses({ date: selectedDate as Dayjs });
+
+    if (data) {
+      const mapped = data?.map((item: any, index: number) => ({
+        key: item.id,
+        instructor_id: item.instructor_id,
+        instructor_name: item.instructor_name,
+        start_time: dayjs(item.start_time),
+        end_time: dayjs(item.end_time),
+        slots: `${item.taken_slots} / ${item.available_slots}`,
+      }));
+
+      setClasses(mapped);
+    }
+
+    console.log("fetched classes: ", data);
+  };
+
   const handleOpenBookingModal = () => {
     setIsBookingModalOpen(true);
   };
@@ -86,7 +121,6 @@ export default function ClassManagementPage() {
   };
 
   const handleEdit = (record: CreateClassProps) => {
-    console.log("record: ", record);
     setEditingRecord(record);
     setIsModalOpen(true);
   };
@@ -99,30 +133,30 @@ export default function ClassManagementPage() {
     setIsBookingModalOpen(false);
   };
 
-  const handleSubmit = (values: any) => {
-    console.log("Form values:", values);
-
+  const handleSubmit = async (values: any) => {
     if (editingRecord) {
-      const index = data.findIndex((item) => item.key === editingRecord.key);
-      console.log("index: ", index);
+      const index = classes.findIndex((item) => item.key === editingRecord.key);
+      console.log("index :", index);
       if (index !== -1) {
-        const currentSlots = data[index].slots.split("/")[0].trim();
-        data[index] = {
-          ...data[index],
-          instructor: values.instructor,
-          start_time: values.start_time,
-          end_time: values.end_time,
-          slots: `${currentSlots} / ${values.slots}`,
-        };
+        await updateClass({
+          id: editingRecord.key,
+          values: { ...values, class_date: selectedDate?.format("YYYY-MM-DD") },
+        });
+
+        handleFetchClasses();
+        message.success("Class has been updated");
       }
     } else {
-      data.push({
-        key: (data.length + 1).toString(),
-        instructor: values.instructor,
-        start_time: values.start_time,
-        end_time: values.end_time,
-        slots: `0 / ${values.slots}`,
+      // CREATE INSTRUCTOR MANAGEMENT FIRST
+      console.log("values: ", values);
+
+      const response = await createClass({
+        values: { ...values, class_date: selectedDate?.format("YYYY-MM-DD") },
       });
+      if (response) {
+        handleFetchClasses();
+        message.success("Class has been created!");
+      }
     }
 
     setIsModalOpen(false);
@@ -139,7 +173,7 @@ export default function ClassManagementPage() {
         </div>
 
         <Row className="wrap-none justify-center bg-transparent">
-          <DatePickerCarousel onDateSelect={(e) => console.log(e)} />
+          <DatePickerCarousel onDateSelect={(e) => setSelectedDate(dayjs(e))} />
         </Row>
 
         <div>
@@ -148,7 +182,7 @@ export default function ClassManagementPage() {
               type="primary"
               icon={<PlusOutlined />}
               onClick={handleOpenModal}
-              className={`bg-[#733AC6] hover:!bg-[#5B2CA8] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+              className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
             >
               Create
             </Button>
@@ -156,12 +190,16 @@ export default function ClassManagementPage() {
               type="primary"
               icon={<IoMdPersonAdd />}
               onClick={handleOpenBookingModal}
-              className={`bg-[#733AC6] hover:!bg-[#5B2CA8] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+              className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
             >
               Manual Booking
             </Button>
           </Row>
-          <AdminBookingTable data={[...data]} onEdit={handleEdit} />
+          <AdminBookingTable
+            loading={loading}
+            data={[...classes]}
+            onEdit={handleEdit}
+          />
         </div>
         {isMobile ? (
           <Drawer

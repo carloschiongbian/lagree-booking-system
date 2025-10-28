@@ -10,6 +10,8 @@ import {
   List,
   Button,
   Drawer,
+  Checkbox,
+  Divider,
 } from "antd";
 import {
   CalendarOutlined,
@@ -20,10 +22,12 @@ import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import { formatPrice } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 
 export default function PackagesPage() {
+  const [acceptsTerms, setAcceptsTerms] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
@@ -73,8 +77,11 @@ export default function PackagesPage() {
     };
   }, []);
 
-  const handleOpenModal = () => {
-    setSelectedRecord(null);
+  const handleAcceptTermsChange = (e: any) => {
+    setAcceptsTerms(e.target.checked);
+  };
+  const handleOpenModal = (item: any) => {
+    setSelectedRecord(item);
     setIsModalOpen(true);
   };
 
@@ -152,7 +159,7 @@ export default function PackagesPage() {
                   </Col>
 
                   <Button
-                    onClick={handleOpenModal}
+                    onClick={() => handleOpenModal(item)}
                     className="!bg-[#36013F] h-[40px] hover:!bg-[#36013F] !border-[#36013F] !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
                   >
                     Purchase
@@ -214,7 +221,6 @@ export default function PackagesPage() {
       </div>
 
       <Drawer
-        title={"Package title"}
         placement="right"
         onClose={handleCloseModal}
         open={isModalOpen}
@@ -223,7 +229,56 @@ export default function PackagesPage() {
           body: { paddingTop: 24 },
         }}
       >
-        <Title>Package Details</Title>
+        <Col className="flex flex-col items-center">
+          <Avatar
+            className="!text-[50px] bg-[#36013F] border w-full"
+            size={200}
+          >
+            30
+          </Avatar>
+          <Divider />
+          <Col className="items-start w-full">
+            <Row wrap={false} className="mb-[20px] items-start w-full">
+              <Title level={5}>
+                Package:{" "}
+                <span className="font-normal">{selectedRecord?.title}</span>
+              </Title>
+            </Row>
+            <Row wrap={false} className="mb-[20px] items-start w-full">
+              <Title level={5}>
+                Price:{" "}
+                <span className="font-normal">
+                  PHP {formatPrice(selectedRecord?.price)}
+                </span>
+              </Title>
+            </Row>
+            <Row wrap={false} className="mb-[20px] items-start w-full">
+              <Title level={5}>
+                Validity Period:{" "}
+                <span className="font-normal">
+                  {selectedRecord?.validity} days
+                </span>
+              </Title>
+            </Row>
+          </Col>
+          <Row justify={"start"} className="w-full mb-[10px]">
+            <Checkbox onChange={handleAcceptTermsChange}>
+              I have read the
+            </Checkbox>
+            <a className="text-blue-400">Terms and Conditions</a>
+          </Row>
+          <Button
+            disabled={!acceptsTerms}
+            className={`bg-[#36013F] ${
+              acceptsTerms ? "hover:!bg-[#36013F]" : ""
+            } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03] w-full h-[50px]`}
+          >
+            Continue
+          </Button>
+          <span className="font-normal text-slate-500">
+            You won&apos;t be charged yet.
+          </span>
+        </Col>
       </Drawer>
     </AuthenticatedLayout>
   );

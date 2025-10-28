@@ -1,13 +1,23 @@
 "use client";
 
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
-import { Card, Row, Col, Typography, Button, Drawer, Modal, Input } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Typography,
+  Button,
+  Drawer,
+  Modal,
+  Input,
+  message,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import CreateInstructorForm from "@/components/forms/CreateInstructorForm";
 import { IoIosSearch } from "react-icons/io";
 import useDebounce from "@/hooks/use-debounce";
-import { useSearchUser } from "@/lib/api";
+import { useInstructorManagement, useSearchUser } from "@/lib/api";
 import { User } from "lucide-react";
 
 const { Title, Text } = Typography;
@@ -20,6 +30,8 @@ export default function InstructorManagementPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [editingRecord, setEditingRecord] = useState<any | null>(null);
   const { searchInstructors, loading } = useSearchUser();
+  const { createInstructor, loading: creatingInstructor } =
+    useInstructorManagement();
 
   useEffect(() => {
     handleSearchInstructors();
@@ -70,31 +82,35 @@ export default function InstructorManagementPage() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = async (values: any) => {
     console.log("Form values:", values);
 
-    // if (editingRecord) {
-    //   const index = data.findIndex((item) => item.key === editingRecord.key);
-    //   console.log("index: ", index);
-    //   if (index !== -1) {
-    //     const currentSlots = data[index].slots.split("/")[0].trim();
-    //     data[index] = {
-    //       ...data[index],
-    //       instructor: values.instructor,
-    //       start_time: values.start_time,
-    //       end_time: values.end_time,
-    //       slots: `${currentSlots} / ${values.slots}`,
-    //     };
-    //   }
-    // } else {
-    //   data.push({
-    //     key: (data.length + 1).toString(),
-    //     instructor: values.instructor,
-    //     start_time: values.start_time,
-    //     end_time: values.end_time,
-    //     slots: `0 / ${values.slots}`,
-    //   });
-    // }
+    if (editingRecord) {
+      // const index = data.findIndex((item) => item.key === editingRecord.key);
+      // console.log("index: ", index);
+      // if (index !== -1) {
+      //   const currentSlots = data[index].slots.split("/")[0].trim();
+      //   data[index] = {
+      //     ...data[index],
+      //     instructor: values.instructor,
+      //     start_time: values.start_time,
+      //     end_time: values.end_time,
+      //     slots: `${currentSlots} / ${values.slots}`,
+      //   };
+      // }
+    } else {
+      const inputs = {
+        first_name: values.first_name,
+        last_name: values.last_name,
+        full_name: `${values.first_name} ${values.last_name}`,
+      };
+      const response = await createInstructor({ values: inputs });
+
+      if (response) {
+        handleSearchInstructors();
+        message.success("Instructor has been created!");
+      }
+    }
 
     setIsModalOpen(false);
     setEditingRecord(null);

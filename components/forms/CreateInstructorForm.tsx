@@ -42,29 +42,16 @@ export default function CreateInstructorForm({
       form.setFieldsValue({
         first_name: initialValues.first_name,
         last_name: initialValues.last_name,
-        time: [
-          dayjs(initialValues.start_time, "hh:mm A"),
-          dayjs(initialValues.end_time, "hh:mm A"),
-        ],
-
-        slots: parseInt("3"),
+        full_name: `${initialValues.first_name} ${initialValues.last_name}`,
       });
     } else {
       form.resetFields();
     }
   }, [initialValues, form]);
 
-  const instructors = [
-    { value: "instructor1", label: "John Doe" },
-    { value: "instructor2", label: "Jane Smith" },
-    { value: "instructor3", label: "Mike Johnson" },
-  ];
-
   const handleFinish = (values: any) => {
     const formattedValues = {
       ...values,
-      start_time: values.time[0],
-      end_time: values.time[1],
     };
     onSubmit(formattedValues);
     form.resetFields();
@@ -114,44 +101,6 @@ export default function CreateInstructorForm({
             />
           </Form.Item>
         </Row>
-
-        <Col xs={24} sm={12}>
-          <Form.Item
-            name="slots"
-            label="Slots"
-            rules={[
-              {
-                required: true,
-                message: "Please enter number of slots",
-              },
-              {
-                type: "number",
-                min: 1,
-                message: "Slots must be at least 1",
-              },
-            ]}
-          >
-            <InputNumber
-              size="large"
-              placeholder="Enter slots"
-              prefix={<TeamOutlined className="text-slate-400" />}
-              className="w-full"
-              min={1}
-              precision={0}
-              onKeyDown={(e) => {
-                if (!/[0-9]/.test(e.key) && e.code !== "Backspace") {
-                  e.preventDefault();
-                }
-              }}
-              onPaste={(e) => {
-                const paste = e.clipboardData.getData("text");
-                if (!/^\d+$/.test(paste)) {
-                  e.preventDefault();
-                }
-              }}
-            />
-          </Form.Item>
-        </Col>
       </Row>
 
       <Form.Item className="mb-0 mt-6">

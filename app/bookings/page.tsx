@@ -10,16 +10,22 @@ import {
   Button,
   Divider,
   Drawer,
+  Checkbox,
 } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { LiaCoinsSolid } from "react-icons/lia";
+import { useRouter } from "next/navigation";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export default function BookingsPage() {
+  const router = useRouter();
+  const [acceptsTerms, setAcceptsTerms] = useState(false);
+  const [userCredits, setUserCredits] = useState<number>(1);
   const [isMobile, setIsMobile] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
@@ -27,7 +33,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 3,
@@ -35,7 +41,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 0,
@@ -43,7 +49,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 1,
@@ -51,7 +57,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 7,
@@ -59,7 +65,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 7,
@@ -67,7 +73,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 7,
@@ -75,7 +81,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 7,
@@ -83,7 +89,7 @@ export default function BookingsPage() {
     {
       time: "07:00AM",
       duration: "50 mins",
-      date: dayjs("2024-10-10").format("MMM D, YYYY"),
+      date: dayjs("2024-10-10").format("MMM D YYYY"),
       instructor: "Jane Doe",
       limit: 10,
       available: 7,
@@ -113,9 +119,12 @@ export default function BookingsPage() {
     };
   }, []);
 
-  const handleOpenModal = () => {
-    setSelectedRecord(null);
+  const handleAcceptTermsChange = (e: any) => {
+    setAcceptsTerms(e.target.checked);
+  };
+  const handleOpenModal = (item: any) => {
     setIsModalOpen(true);
+    setSelectedRecord(item);
   };
 
   const handleCloseModal = () => {
@@ -123,17 +132,64 @@ export default function BookingsPage() {
     setSelectedRecord(null);
   };
 
+  const renderActionButton = useMemo(
+    () => (item: any) =>
+      (
+        <Button
+          type="primary"
+          disabled={userCredits === 0 ? false : item.available === 0}
+          onClick={() => {
+            if (userCredits === 0) {
+              router.push("/credits");
+            } else {
+              handleOpenModal(item);
+            }
+          }}
+          className={`bg-[#36013F] ${
+            userCredits === 0
+              ? "hover:!bg-[#36013F]"
+              : item.available === 0
+              ? ""
+              : "hover:!bg-[#36013F]"
+          } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+        >
+          {userCredits === 0 ? "Get Tokens" : "Join"}
+        </Button>
+      ),
+    [userCredits]
+  );
+
   return (
     <AuthenticatedLayout>
       <div className="space-y-6">
         <Row className="flex flex-col wrap-none justify-center bg-transparent">
-          {/* <Title className="!mb-0 !pb-0 font-[800]">october</Title> */}
           <Col>
-            <p className="!mb-0 !pb-0 text-[42px] font-[400]">
-              {`${dayjs().format("MMMM").toLowerCase()} ${dayjs().format(
-                "YYYY"
-              )}`}
-            </p>
+            <Row
+              wrap={false}
+              className="items-center"
+              justify={"space-between"}
+            >
+              <p className="!mb-0 !pb-0 text-[42px] font-[400]">
+                {`${dayjs().format("MMMM").toLowerCase()} ${dayjs().format(
+                  "YYYY"
+                )}`}
+              </p>
+
+              <Row
+                wrap={false}
+                className="cursor-pointer items-center gap-[10px] text-[20px] font-[400] bg-white rounded-lg py-[7px] px-[10px] shadow-sm border border-slate-300"
+              >
+                <LiaCoinsSolid size={30} />
+                <span>
+                  <span className="text-red-400">{userCredits} </span>
+                  {userCredits >= 0 && userCredits !== 1
+                    ? "credits"
+                    : userCredits === 1
+                    ? "credit"
+                    : "credits"}
+                </span>
+              </Row>
+            </Row>
             <Divider className="m-0 pb-[10px]" />
             <DatePickerCarousel onDateSelect={(e) => console.log(e)} />
           </Col>
@@ -152,20 +208,7 @@ export default function BookingsPage() {
                 itemLayout="horizontal"
                 dataSource={data}
                 renderItem={(item, index) => (
-                  <List.Item
-                    actions={[
-                      <Button
-                        type="primary"
-                        disabled={item.available === 0}
-                        onClick={handleOpenModal}
-                        className={`bg-[#36013F] ${
-                          item.available === 0 ? "" : "hover:!bg-[#36013F]"
-                        } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
-                      >
-                        Join
-                      </Button>,
-                    ]}
-                  >
+                  <List.Item actions={[renderActionButton(item)]}>
                     <Row className="wrap-none items-center gap-4">
                       <Col>
                         <Avatar
@@ -218,7 +261,6 @@ export default function BookingsPage() {
       </div>
 
       <Drawer
-        title={"Join this class"}
         placement="right"
         onClose={handleCloseModal}
         open={isModalOpen}
@@ -227,7 +269,38 @@ export default function BookingsPage() {
           body: { paddingTop: 24 },
         }}
       >
-        <Title>SCHEDULE</Title>
+        <Col className="flex flex-col items-center">
+          <Avatar
+            className="border-gray-500 border w-full"
+            size={200}
+            src={`https://api.dicebear.com/7.x/miniavs/svg?seed=0`}
+          />
+          <Divider />
+          <Col className="mb-[20px] items-start w-full">
+            <Title>{selectedRecord?.date}</Title>
+            <Title level={5}>
+              Class with{" "}
+              <span className="text-red-400">{selectedRecord?.instructor}</span>{" "}
+              at <span className="text-red-400">{selectedRecord?.time}</span> on{" "}
+              <span className="text-red-400">
+                {dayjs(selectedRecord?.date).format("dddd")}
+              </span>
+            </Title>
+          </Col>
+          <Row justify={"start"} className="w-full mb-[10px]">
+            <Checkbox onChange={handleAcceptTermsChange}>
+              Accept Terms and Conditions
+            </Checkbox>
+          </Row>
+          <Button
+            disabled={!acceptsTerms}
+            className={`bg-[#36013F] ${
+              acceptsTerms ? "hover:!bg-[#36013F]" : ""
+            } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03] w-full h-[40px]`}
+          >
+            Book
+          </Button>
+        </Col>
       </Drawer>
     </AuthenticatedLayout>
   );

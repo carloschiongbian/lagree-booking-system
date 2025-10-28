@@ -15,6 +15,10 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
           fontSize: 14,
         },
         components: {
+          Checkbox: {
+            colorPrimary: "#36013F",
+            colorPrimaryHover: "#36013F",
+          },
           Steps: {
             colorPrimary: "#36013F", // active color
             colorTextDescription: "#666", // text color

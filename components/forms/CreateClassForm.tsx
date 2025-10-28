@@ -7,8 +7,10 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CreateClassProps } from "@/lib/props";
+import { useSearchUser } from "@/lib/api";
+import omit from "lodash/omit";
 
 interface CreateClassFormProps {
   onSubmit: (values: any) => void;
@@ -26,12 +28,26 @@ export default function CreateClassForm({
   isEdit = false,
 }: CreateClassFormProps) {
   const [form] = Form.useForm();
+  const [instructors, setInstructors] = useState<any>([]);
+  const { searchInstructors, loading: fetchingInstructors } = useSearchUser();
+  const handleSearchInstructors = async () => {
+    const data = await searchInstructors({});
+
+    if (data) {
+      const mapped = data.map((inst, key) => {
+        return { value: inst.full_name, label: inst.full_name, id: inst.id };
+      });
+      setInstructors(mapped);
+    }
+  };
 
   useEffect(() => {
+    handleSearchInstructors();
     if (initialValues) {
       const totalSlots = initialValues.slots.split("/")[1].trim();
       form.setFieldsValue({
-        instructor: initialValues.instructor,
+        instructor_name: initialValues.instructor_name,
+        instructor_id: initialValues.instructor_id,
         time: [
           dayjs(initialValues.start_time, "hh:mm A"),
           dayjs(initialValues.end_time, "hh:mm A"),
@@ -44,20 +60,28 @@ export default function CreateClassForm({
     }
   }, [initialValues, form]);
 
-  const instructors = [
-    { value: "instructor1", label: "John Doe" },
-    { value: "instructor2", label: "Jane Smith" },
-    { value: "instructor3", label: "Mike Johnson" },
-  ];
+  // const instructors = [
+  //   { value: "instructor1", label: "John Doe" },
+  //   { value: "instructor2", label: "Jane Smith" },
+  //   { value: "instructor3", label: "Mike Johnson" },
+  // ];
 
   const handleFinish = (values: any) => {
+    const instructor = instructors.find(
+      (inst: any) => inst.value === values.instructor_name
+    );
     const formattedValues = {
       ...values,
+      taken_slots: 0,
+      available_slots: values.slots,
+      instructor_name: values.instructor_name,
+      instructor_id: instructor.id,
       start_time: values.time[0],
       end_time: values.time[1],
     };
-    onSubmit(formattedValues);
-    form.resetFields();
+
+    onSubmit(omit(formattedValues, ["time", "slots"]));
+    // form.resetFields();
   };
 
   return (
@@ -71,7 +95,7 @@ export default function CreateClassForm({
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={24}>
           <Form.Item
-            name="instructor"
+            name="instructor_name"
             label="Instructor"
             rules={[
               {

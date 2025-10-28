@@ -27,12 +27,17 @@ type DataIndex = keyof CreateClassProps;
 
 interface AdminBookingTableProps {
   data: CreateClassProps[];
+  loading?: boolean;
   onEdit: (record: CreateClassProps) => void;
 }
 
 const { Text } = Typography;
 
-const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
+const AdminBookingTable = ({
+  data,
+  loading,
+  onEdit,
+}: AdminBookingTableProps) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -95,7 +100,7 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
     confirm({
       title: "Delete Class",
       icon: null,
-      content: `Are you sure you want to delete the class with instructor ${record.instructor}?`,
+      content: `Are you sure you want to delete the class with instructor ${record.instructor_name}?`,
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
@@ -207,10 +212,10 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
     () => [
       {
         title: "Instructor",
-        dataIndex: "instructor",
-        key: "instructor",
+        dataIndex: "instructor_name",
+        key: "instructor_name",
         width: isMobile ? undefined : "20%",
-        ...getColumnSearchProps("instructor"),
+        ...getColumnSearchProps("instructor_name"),
       },
       {
         title: "Start Time",
@@ -278,6 +283,7 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
   return (
     <>
       <Table<CreateClassProps>
+        loading={loading}
         columns={columns}
         dataSource={data}
         scroll={{ x: isMobile ? 600 : undefined }}
@@ -319,7 +325,7 @@ const AdminBookingTable = ({ data, onEdit }: AdminBookingTableProps) => {
             <Row wrap={false} className="justify-between">
               <Text className="!mt-[10px]">
                 <span className="font-semibold">Instructor:</span>{" "}
-                {selectedRecord?.instructor}
+                {selectedRecord?.instructor_name}
               </Text>
               <Text className="!mt-[10px]">
                 <span className="font-semibold">Time:</span>{" "}

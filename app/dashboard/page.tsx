@@ -31,6 +31,16 @@ export default function DashboardPage() {
               />
             </Card>
           </Col>
+          <Col xs={24} sm={12} lg={8}>
+            <Card className="shadow-sm hover:shadow-md transition-shadow">
+              <Statistic
+                title="Total Credits"
+                value={12}
+                prefix={<CalendarOutlined className="text-blue-600" />}
+                valueStyle={{ color: "#1e293b" }}
+              />
+            </Card>
+          </Col>
           {/* <Col xs={24} sm={12} lg={8}>
             <Card className="shadow-sm hover:shadow-md transition-shadow">
               <Statistic

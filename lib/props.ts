@@ -2,18 +2,16 @@ import { Dayjs } from "dayjs";
 
 export interface CreateClassProps {
   key: string;
-  instructor: string;
+  instructor_id: string;
+  instructor_name: string;
   start_time: Dayjs;
   end_time: Dayjs;
   slots: string;
 }
 export interface CreateInstructorProps {
-  key: string;
   first_name: string;
   last_name: string;
-  start_time: Dayjs;
-  end_time: Dayjs;
-  slots: string;
+  full_name: string;
 }
 
 export interface CreatePackageProps {
