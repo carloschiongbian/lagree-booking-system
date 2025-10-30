@@ -2,22 +2,23 @@
 
 import {
   Form,
-  Select,
-  TimePicker,
-  InputNumber,
   Button,
   Row,
   Col,
   Input,
+  UploadFile,
+  Upload,
+  message,
+  Image,
+  GetProp,
+  UploadProps,
 } from "antd";
-import {
-  UserOutlined,
-  ClockCircleOutlined,
-  TeamOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, PlusOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { CreateInstructorProps } from "@/lib/props";
+import { supabase } from "@/lib/supabase";
+import { useAppSelector } from "@/lib/hooks";
 import dayjs from "dayjs";
-import { useEffect } from "react";
-import { CreateClassProps, CreateInstructorProps } from "@/lib/props";
 
 interface CreateClassFormProps {
   onSubmit: (values: any) => void;
@@ -27,6 +28,8 @@ interface CreateClassFormProps {
   isEdit?: boolean;
 }
 
+type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+
 export default function CreateInstructorForm({
   onSubmit,
   onCancel,
@@ -34,7 +37,14 @@ export default function CreateInstructorForm({
   initialValues = null,
   isEdit = false,
 }: CreateClassFormProps) {
+  const BUCKET_NAME = "user-photos";
+
   const [form] = Form.useForm();
+  const user = useAppSelector((state) => state.auth.user);
+  const [uploading, setUploading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [file, setFile] = useState<UploadFile[] | null>(null);
 
   useEffect(() => {
     if (initialValues) {
@@ -49,12 +59,95 @@ export default function CreateInstructorForm({
     }
   }, [initialValues, form]);
 
-  const handleFinish = (values: any) => {
+  const handleUpload = async (file: any) => {
+    console.log(file);
+    try {
+      if (!!file.length) {
+        setUploading(true);
+
+        // 1️⃣ Generate unique file name
+        const filePath = `${dayjs().toDate().getTime()}`;
+        const fileExt = (file[0] as File).name.split(".").pop();
+        const fileName = `${filePath}.${fileExt}`;
+
+        // 2️⃣ Upload to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from(BUCKET_NAME)
+          .upload(fileName, file[0].originFileObj as File, {
+            upsert: true, // overwrite if exists
+            contentType: (file[0] as File).type,
+          });
+
+        if (uploadError) throw uploadError;
+
+        // 4️⃣ Save the image path to your database
+        // const { error: dbError } = await supabase.from("instructors").insert({
+        //   image_url: publicUrl, // or store filePath if you prefer private access
+        // });
+
+        // if (dbError) throw dbError;
+
+        message.success("Image uploaded successfully!");
+
+        // const imageURL = publicUrl.split("/").pop(); // "045
+        const imageURL = fileName;
+
+        return imageURL;
+      }
+    } catch (err: any) {
+      console.error(err);
+      message.error("Upload failed!");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const uploadButton = (
+    <button style={{ border: 0, background: "none" }} type="button">
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </button>
+  );
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as FileType);
+    }
+
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+  };
+
+  const getBase64 = (file: FileType): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  const handleFinish = async (values: any) => {
+    let imageURL: string = "";
     const formattedValues = {
       ...values,
     };
-    onSubmit(formattedValues);
-    form.resetFields();
+
+    if (file) {
+      const response = await handleUpload(file);
+      if (response) {
+        imageURL = response;
+      }
+
+      const formData = { ...formattedValues, avatar_path: imageURL };
+
+      console.log("formData: ", formData);
+
+      onSubmit(formData);
+      form.resetFields();
+    }
+  };
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    setFile(newFileList);
   };
 
   return (
@@ -65,6 +158,40 @@ export default function CreateInstructorForm({
       requiredMark="optional"
       className="w-full"
     >
+      <Row gutter={[16, 0]}>
+        {/* <Upload
+          action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+          showUploadList={false}
+          accept="image/*"
+          listType="picture-circle"
+        
+        >
+          {!!file?.length ? null : uploadButton}
+        </Upload>
+        {file && <Image className="h-[100px] w-[100px]" src={previewImage} />} */}
+
+        <Upload
+          listType="picture-circle"
+          fileList={file as UploadFile[]}
+          onPreview={handlePreview}
+          onChange={handleChange}
+          accept="image/*"
+        >
+          {file && file.length > 0 ? null : uploadButton}
+        </Upload>
+        {previewImage && (
+          <Image
+            wrapperStyle={{ display: "none" }}
+            preview={{
+              visible: previewOpen,
+              onVisibleChange: (visible) => setPreviewOpen(visible),
+              afterOpenChange: (visible) => !visible && setPreviewImage(""),
+            }}
+            src={previewImage}
+          />
+        )}
+      </Row>
+
       <Row gutter={[16, 0]}>
         <Row wrap={false} className="w-full gap-[10px] px-[8px]">
           <Form.Item

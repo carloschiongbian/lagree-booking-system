@@ -19,6 +19,7 @@ import { IoIosSearch } from "react-icons/io";
 import useDebounce from "@/hooks/use-debounce";
 import { useInstructorManagement, useSearchUser } from "@/lib/api";
 import { User } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const { Title, Text } = Typography;
 
@@ -63,7 +64,32 @@ export default function InstructorManagementPage() {
   const handleSearchInstructors = async () => {
     const data = await searchInstructors({ name: debouncedValue });
     console.log(data);
-    setInstructors(data);
+    try {
+      if (data) {
+        const usersWithSignedUrls = await Promise.all(
+          data.map(async (instructor) => {
+            if (!instructor.avatar_path) return instructor; // skip if no avatar
+
+            // generate signed URL valid for 1 hour (3600s)
+            const { data, error: urlError } = await supabase.storage
+              .from("user-photos")
+              .createSignedUrl(`${instructor.avatar_path}`, 3600);
+
+            if (urlError) {
+              console.error("Error generating signed URL:", urlError);
+              return { ...instructor, avatar_url: null };
+            }
+
+            return { ...instructor, avatar_url: data?.signedUrl };
+          })
+        );
+
+        console.log("usersWithSignedUrls: ", usersWithSignedUrls);
+        setInstructors(usersWithSignedUrls);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
   };
 
   const handleOpenModal = () => {
@@ -103,6 +129,7 @@ export default function InstructorManagementPage() {
         first_name: values.first_name,
         last_name: values.last_name,
         full_name: `${values.first_name} ${values.last_name}`,
+        avatar_path: values.avatar_path,
       };
       const response = await createInstructor({ values: inputs });
 
@@ -160,12 +187,12 @@ export default function InstructorManagementPage() {
                         backgroundColor: "#f5f5f5", // optional: placeholder background
                       }}
                     >
-                      {data?.avatar === undefined && (
+                      {data?.avatar_url === undefined && (
                         <User style={{ fontSize: 64, color: "#999" }} />
                       )}
-                      {data?.avatar && (
+                      {data?.avatar_url && (
                         <img
-                          src={data.avatar}
+                          src={data.avatar_url}
                           alt={data.full_name}
                           style={{
                             objectFit: "cover",

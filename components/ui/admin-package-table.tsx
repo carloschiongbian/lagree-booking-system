@@ -22,7 +22,6 @@ const AdminPackageTable = ({ data, onEdit }: AdminPackageTableProps) => {
   const [searchedColumn, setSearchedColumn] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const searchInput = useRef<InputRef>(null);
-  const { modal } = App.useApp();
 
   const { confirm } = Modal;
 
