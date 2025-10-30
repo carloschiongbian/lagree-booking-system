@@ -192,10 +192,6 @@ export default function BookingsPage() {
     [userCredits]
   );
 
-  const temp = (data) => {
-    console.log(data.toString());
-  };
-
   return (
     <AuthenticatedLayout>
       <div className="space-y-6">
