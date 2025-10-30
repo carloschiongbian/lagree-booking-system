@@ -134,7 +134,7 @@ export default function ClassManagementPage() {
           {`${dayjs().format("MMMM").toLowerCase()} ${dayjs().format("YYYY")}`}
         </p>
         <Divider className="m-0 pb-[10px]" />
-        <Row className="wrap-none justify-center bg-transparent">
+        <Row className="wrap-none justify-center bg-transparent !mt-0">
           <DatePickerCarousel
             isAdmin={true}
             onDateSelect={(e) => setSelectedDate(dayjs(e))}

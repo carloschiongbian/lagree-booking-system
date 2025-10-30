@@ -7,6 +7,7 @@ import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayo
 import { CreatePackageProps } from "@/lib/props";
 import AdminPackageTable from "@/components/ui/admin-package-table";
 import CreatePackageForm from "@/components/forms/CreatePackageForm";
+import { usePackageManagement } from "@/lib/api";
 
 const { Title } = Typography;
 
@@ -41,7 +42,9 @@ let data: CreatePackageProps[] = [
   },
 ];
 
-export default function ClassManagementPage() {
+export default function PackageManagementPage() {
+  const [packages, setPackages] = useState<any[]>([]);
+  const { createPackage, fetchPackages, loading } = usePackageManagement();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [editingRecord, setEditingRecord] = useState<CreatePackageProps | null>(
@@ -71,6 +74,26 @@ export default function ClassManagementPage() {
     };
   }, []);
 
+  useEffect(() => {
+    handleFetchPackages();
+  }, []);
+
+  const handleFetchPackages = async () => {
+    const response = await fetchPackages();
+    console.log(response);
+    if (response) {
+      const mapped = response.map((pkg: any, index: number) => ({
+        key: pkg.id,
+        title: pkg.title,
+        price: pkg.price,
+        validity_period: pkg.validity_period,
+        promo: pkg.package_type === "promo",
+      }));
+      console.log("mapped: ", mapped);
+      setPackages(mapped);
+    }
+  };
+
   const handleOpenModal = () => {
     setEditingRecord(null);
     setIsModalOpen(true);
@@ -86,7 +109,13 @@ export default function ClassManagementPage() {
     setEditingRecord(null);
   };
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = async (values: any) => {
+    const formData = {
+      title: values.name,
+      price: values.price,
+      package_type: values.promo ? "promo" : "regular",
+      validity_period: values.validity_period,
+    };
     if (editingRecord) {
       const index = data.findIndex((item) => item.key === editingRecord.key);
       if (index !== -1) {
@@ -99,6 +128,7 @@ export default function ClassManagementPage() {
         };
       }
     } else {
+      await createPackage({ values: formData });
       data.push({
         key: (data.length + 1).toString(),
         name: values.name,
@@ -132,7 +162,7 @@ export default function ClassManagementPage() {
               Create
             </Button>
           </Row>
-          <AdminPackageTable data={[...data]} onEdit={handleEdit} />
+          <AdminPackageTable data={[...packages]} onEdit={handleEdit} />
         </div>
         {isMobile ? (
           <Drawer

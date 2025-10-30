@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnsType, TableColumnType } from "antd";
-import { Button, Input, Row, Space, Table, Modal, Typography } from "antd";
+import { Button, Input, Row, Space, Table, Modal, Typography, App } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
 import { CreatePackageProps } from "@/lib/props";
@@ -22,6 +22,8 @@ const AdminPackageTable = ({ data, onEdit }: AdminPackageTableProps) => {
   const [searchedColumn, setSearchedColumn] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const searchInput = useRef<InputRef>(null);
+  const { modal } = App.useApp();
+
   const { confirm } = Modal;
 
   useEffect(() => {
@@ -177,8 +179,8 @@ const AdminPackageTable = ({ data, onEdit }: AdminPackageTableProps) => {
     () => [
       {
         title: "Title",
-        dataIndex: "name",
-        key: "name",
+        dataIndex: "title",
+        key: "title",
         width: isMobile ? undefined : "20%",
         ...getColumnSearchProps("name"),
       },

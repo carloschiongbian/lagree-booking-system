@@ -166,3 +166,51 @@ export const useClassManagement = () => {
 
   return { loading, updateClass, fetchClasses, createClass };
 };
+
+export const usePackageManagement = () => {
+  const [loading, setLoading] = useState(false);
+
+  const createPackage = async ({ values }: { values: any }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase.from("packages").insert(values);
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
+
+  const fetchPackages = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase.from("packages").select("*");
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
+
+  const updatePackage = async ({
+    id,
+    values,
+  }: {
+    id: string;
+    values: CreateClassProps;
+  }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("packages")
+      .update(values)
+      .eq("id", id);
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
+
+  return { loading, updatePackage, createPackage, fetchPackages };
+};

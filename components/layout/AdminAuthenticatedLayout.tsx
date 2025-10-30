@@ -168,11 +168,11 @@ export default function AuthenticatedLayout({
           <div className="flex items-center">
             <Button
               type="text"
-              icon={<MenuOutlined />}
+              icon={<MenuOutlined className="text-slate-200" />}
               onClick={() => setMobileMenuOpen(true)}
               className="lg:hidden mr-2"
             />
-            <Text className="text-xl font-semibold text-slate-800 lg:hidden">
+            <Text className="text-xl font-semibold text-slate-200 lg:hidden">
               LagreeStudio
             </Text>
           </div>

@@ -160,6 +160,9 @@ export default function AuthenticatedLayout({
           items={menuItems}
           className="border-r-0 pt-4"
         />
+        <Text className="text-xl font-semibold text-slate-200 lg:hidden">
+          LagreeStudio
+        </Text>
       </Sider>
 
       <Layout>
