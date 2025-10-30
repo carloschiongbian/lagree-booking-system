@@ -16,9 +16,10 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CreateClassProps } from "@/lib/props";
 import { MdOutlineSchedule } from "react-icons/md";
+import { useSearchUser } from "@/lib/api";
 
 interface CreateClassFormProps {
   onSubmit: (values: any) => void;
@@ -36,29 +37,28 @@ export default function ManualBookingForm({
   isEdit = false,
 }: CreateClassFormProps) {
   const [form] = Form.useForm();
+  const [instructors, setInstructors] = useState<any>([]);
+  const { searchInstructors, loading: searchingInstructor } = useSearchUser();
+
+  useEffect(() => {
+    handleSearchInstructors();
+  }, []);
 
   useEffect(() => {
     if (initialValues) {
-      const totalSlots = initialValues.slots.split("/")[1].trim();
       form.setFieldsValue({
-        instructor: initialValues.instructor,
-        time: [
-          dayjs(initialValues.start_time, "hh:mm A"),
-          dayjs(initialValues.end_time, "hh:mm A"),
-        ],
-
-        slots: parseInt(totalSlots),
+        instructor: initialValues.instructor_id,
       });
     } else {
       form.resetFields();
     }
   }, [initialValues, form]);
 
-  const instructors = [
-    { value: "instructor1", label: "John Doe" },
-    { value: "instructor2", label: "Jane Smith" },
-    { value: "instructor3", label: "Mike Johnson" },
-  ];
+  const handleSearchInstructors = async () => {
+    const data = await searchInstructors({});
+    console.log(data);
+    setInstructors(data);
+  };
 
   const handleFinish = (values: any) => {
     const formattedValues = {
