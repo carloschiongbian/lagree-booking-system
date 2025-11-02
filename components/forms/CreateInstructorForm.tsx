@@ -171,15 +171,17 @@ export default function CreateInstructorForm({
       className="w-full"
     >
       <Row gutter={[16, 0]}>
-        <Upload
-          listType="picture-circle"
-          fileList={file as UploadFile[]}
-          onPreview={handlePreview}
-          onChange={handleChange}
-          accept="image/*"
-        >
-          {file && file.length > 0 ? null : uploadButton}
-        </Upload>
+        <Row justify={"center"} className="w-full mb-4">
+          <Upload
+            listType="picture-circle"
+            fileList={file as UploadFile[]}
+            onPreview={handlePreview}
+            onChange={handleChange}
+            accept="image/*"
+          >
+            {file && file.length > 0 ? null : uploadButton}
+          </Upload>
+        </Row>
         {previewImage && (
           <Image
             wrapperStyle={{ display: "none" }}

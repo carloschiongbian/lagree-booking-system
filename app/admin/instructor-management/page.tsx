@@ -39,7 +39,7 @@ export default function InstructorManagementPage() {
   const {
     updateInstructor,
     createInstructor,
-    loading: creatingInstructor,
+    loading: loadingInstructor,
   } = useInstructorManagement();
   const { removeImage } = useManageImage();
 
@@ -237,6 +237,7 @@ export default function InstructorManagementPage() {
           }}
         >
           <CreateInstructorForm
+            loading={loadingInstructor}
             isModalOpen={isModalOpen}
             onSubmit={handleSubmit}
             onCancel={handleCloseModal}
@@ -255,6 +256,7 @@ export default function InstructorManagementPage() {
         >
           <div className="pt-4">
             <CreateInstructorForm
+              loading={loadingInstructor}
               isModalOpen={isModalOpen}
               onSubmit={handleSubmit}
               onCancel={handleCloseModal}
