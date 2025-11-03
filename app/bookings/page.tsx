@@ -83,7 +83,6 @@ export default function BookingsPage() {
             console.error("Error generating signed URL:", urlError);
           }
 
-          console.log(lagreeClass);
           return {
             ...lagreeClass,
             key: lagreeClass.id,
