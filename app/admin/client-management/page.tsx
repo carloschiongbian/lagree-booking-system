@@ -23,9 +23,9 @@ export default function ClientManagementPage() {
   const { searchClients, loading } = useSearchUser();
   const { updateUser, loading: updating } = useUpdateUser();
 
-  // useEffect(() => {
-  //   handleSearchClients();
-  // }, [debouncedValue]);
+  useEffect(() => {
+    handleSearchClients();
+  }, []);
 
   const handleSearchClients = async () => {
     // const data = await searchClients({ name: debouncedValue });
@@ -125,11 +125,11 @@ export default function ClientManagementPage() {
                 />
               </div>
 
-              {!clients?.length && (
+              {/* {!clients?.length && (
                 <div className="flex justify-center w-full">
                   <Text>No clients by that name</Text>
                 </div>
-              )}
+              )} */}
             </>
           )}
         </div>
