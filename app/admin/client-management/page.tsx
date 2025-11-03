@@ -82,8 +82,6 @@ export default function ClientManagementPage() {
           values,
         });
 
-        console.log("response: ", response);
-
         setIsModalOpen(false);
         setEditingRecord(null);
         handleSearchClients();
