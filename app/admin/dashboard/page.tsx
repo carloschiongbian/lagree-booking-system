@@ -63,7 +63,7 @@ export default function DashboardPage() {
         endDate: dayjs(sunday),
       };
     } else {
-      params = { date: dayjs() };
+      params = { selectedDate: dayjs() };
     }
 
     const data = await fetchClasses(params);

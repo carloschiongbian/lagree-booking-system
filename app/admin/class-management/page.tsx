@@ -55,7 +55,7 @@ export default function ClassManagementPage() {
   }, [selectedDate]);
 
   const handleFetchClasses = async () => {
-    const data = await fetchClasses({ date: selectedDate as Dayjs });
+    const data = await fetchClasses({ selectedDate: selectedDate as Dayjs });
 
     if (data) {
       const mapped = data?.map((item: any, index: number) => ({
