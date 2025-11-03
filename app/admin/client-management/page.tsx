@@ -77,7 +77,7 @@ export default function ClientManagementPage() {
   const handleSubmit = async (values: any) => {
     try {
       if (editingRecord) {
-        const response = await updateUser({
+        await updateUser({
           id: editingRecord.id,
           values,
         });
