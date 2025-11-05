@@ -21,7 +21,7 @@ import { formatTime } from "@/lib/utils";
 import { CreateClassProps } from "@/lib/props";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { IoEye } from "react-icons/io5";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 type DataIndex = keyof CreateClassProps;
 
@@ -221,14 +221,18 @@ const AdminBookingTable = ({
         dataIndex: "start_time",
         key: "start_time",
         width: isMobile ? undefined : "20%",
-        render: (_, record) => <Text>{formatTime(record.start_time)}</Text>,
+        render: (_, record) => (
+          <Text>{formatTime(record.start_time as Dayjs)}</Text>
+        ),
       },
       {
         title: "End Time",
         dataIndex: "end_time",
         key: "end_time",
         width: isMobile ? undefined : "20%",
-        render: (_, record) => <Text>{formatTime(record.end_time)}</Text>,
+        render: (_, record) => (
+          <Text>{formatTime(record.end_time as Dayjs)}</Text>
+        ),
       },
       {
         title: "Slots",

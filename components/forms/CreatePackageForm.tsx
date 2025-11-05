@@ -24,7 +24,6 @@ export default function CreatePackageForm({
   const [form] = Form.useForm();
 
   useEffect(() => {
-    console.log(initialValues);
     if (initialValues) {
       form.setFieldsValue({
         name: initialValues.title,

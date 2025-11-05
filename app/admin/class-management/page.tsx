@@ -97,8 +97,6 @@ export default function ClassManagementPage() {
   const handleSubmit = async (values: any) => {
     try {
       if (editingRecord) {
-        console.log("Editing record:", editingRecord);
-
         await updateClass({
           id: editingRecord.id as string,
           values: { ...values, class_date: selectedDate?.format("YYYY-MM-DD") },

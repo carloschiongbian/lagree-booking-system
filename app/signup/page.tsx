@@ -54,7 +54,6 @@ export default function SignupPage() {
 
       if (authError) throw authError;
 
-      console.log("authData: ", authData);
       if (authData.user) {
         const { error: profileError } = await supabase
           .from("user_profiles")

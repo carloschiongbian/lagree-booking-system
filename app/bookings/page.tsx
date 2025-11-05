@@ -246,6 +246,7 @@ export default function BookingsPage() {
               className="max-h-[500px] overflow-y-auto"
             >
               <List
+                loading={loading}
                 itemLayout="horizontal"
                 dataSource={classes}
                 renderItem={(item, index) => (

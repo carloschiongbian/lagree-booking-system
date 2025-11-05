@@ -110,6 +110,7 @@ export default function AuthenticatedLayout({
     if (pathname === "/credits") return "3";
     if (pathname === "/packages") return "4";
     if (pathname === "/bookings") return "5";
+    if (pathname === "/user-terms-and-conditions") return "6";
     return "1";
   };
 
@@ -138,6 +139,13 @@ export default function AuthenticatedLayout({
       key: "5",
       icon: <CalendarOutlined />,
       label: <Link href="/bookings">Lagree Schedules</Link>,
+    },
+    {
+      key: "6",
+      icon: <CalendarOutlined />,
+      label: (
+        <Link href="/user-terms-and-conditions">Terms and Conditions</Link>
+      ),
     },
   ];
 
