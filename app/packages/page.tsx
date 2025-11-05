@@ -92,8 +92,6 @@ export default function PackagesPage() {
       });
 
       dispatch(setUser({ ...user, credits: 40 }));
-
-      console.log("response: ", response);
     } catch (error) {
       console.log(error);
     }

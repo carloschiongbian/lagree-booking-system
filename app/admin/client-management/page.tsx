@@ -59,7 +59,6 @@ export default function ClientManagementPage() {
   const handleSearchClients = async () => {
     // const data = await searchClients({ name: debouncedValue });
     const data = await searchClients({});
-    console.log("data: ", data);
     try {
       if (data) {
         const mapped = await Promise.all(
@@ -127,7 +126,6 @@ export default function ClientManagementPage() {
   };
 
   const handleViewBookingHistory = (record: any) => {
-    console.log("record: ", record);
     setSelectedRecord(record);
     setIsViewingHistory(true);
   };

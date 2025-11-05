@@ -199,8 +199,6 @@ export const useClassManagement = () => {
   }) => {
     setLoading(true);
 
-    console.log("userId: ", userId);
-
     let query = supabase.from("classes").select(`
       *,
       class_bookings (
