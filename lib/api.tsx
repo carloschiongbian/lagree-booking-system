@@ -33,7 +33,30 @@ export const useSearchUser = () => {
   const searchClients = async ({ name }: { name?: string }) => {
     setLoading(true);
 
-    let query = supabase.from("user_profiles").select("*").eq("is_user", true);
+    let query = supabase
+      .from("user_profiles")
+      .select(
+        `*,
+        user_credits (
+          id,
+          credits
+        ),
+        class_bookings(
+        *,
+        classes (
+          id,
+          start_time,
+          end_time,
+          instructor_id,
+          instructors (
+            id,
+            full_name,
+            avatar_path
+          )
+        )
+      )`
+      )
+      .eq("is_user", true);
 
     if (!!name?.length) {
       query = query.ilike("full_name", `%${name}%`);

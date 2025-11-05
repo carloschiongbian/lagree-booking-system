@@ -5,6 +5,11 @@ import { ChartData } from "./props";
 import { Day } from "react-day-picker";
 
 export const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export const attendanceStatus: any = {
+  attended: "Attended",
+  cancelled: "Cancelled",
+  missed: "Missed",
+};
 export const ganttColors = [
   "#F28B82", // Muted Coral
   "#FDD663", // Soft Honey Yellow

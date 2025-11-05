@@ -14,6 +14,7 @@ import {
   GetProp,
   Upload,
   Image,
+  InputNumber,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -31,6 +32,7 @@ interface EditClientProps {
     email: string;
     contact_number: string;
     avatar_url?: string;
+    credits?: number;
   } | null;
   isEdit?: boolean;
 }
@@ -71,6 +73,7 @@ const EditClientForm = ({
         last_name: initialValues.last_name,
         contact_number: initialValues.contact_number,
         email: initialValues.email,
+        credits: initialValues.credits,
       });
     } else {
       form.resetFields();
@@ -147,6 +150,7 @@ const EditClientForm = ({
         imageURL = response;
       }
     }
+
     const formData = {
       ...values,
       ...(!!imageURL.length && { avatar_path: imageURL }),
@@ -154,7 +158,6 @@ const EditClientForm = ({
     };
 
     onSubmit(formData);
-    console.log("Form Values:", formData);
   };
   return (
     <Form layout="vertical" form={form} onFinish={handleSubmit}>
@@ -211,24 +214,6 @@ const EditClientForm = ({
             </Form.Item>
           </Col>
 
-          {/* Birthday */}
-          {/* <Col xs={24} sm={12}>
-          <Form.Item
-            label="Birthday"
-            name="birthday"
-            rules={[{ required: true, message: "Please select your birthday" }]}
-          >
-            <DatePicker
-              className="w-full"
-              format="YYYY-MM-DD"
-              placeholder="Select date"
-              disabledDate={(current) =>
-                current && current > dayjs().endOf("day")
-              }
-            />
-          </Form.Item>
-        </Col> */}
-
           {/* Contact Number */}
           <Col xs={24} sm={12}>
             <Form.Item
@@ -248,53 +233,6 @@ const EditClientForm = ({
               <Input placeholder="Enter contact number" />
             </Form.Item>
           </Col>
-
-          {/* Address */}
-          {/* <Col xs={24}>
-          <Form.Item
-            label="Address"
-            name="location"
-            rules={[{ required: true, message: "Please enter your address" }]}
-          >
-            <Input.TextArea placeholder="Enter address" rows={3} />
-          </Form.Item>
-        </Col> */}
-
-          {/* Emergency Contact Name */}
-          {/* <Col xs={24} sm={12}>
-          <Form.Item
-            label="Emergency Contact Name"
-            name="emergency_contact_name"
-            rules={[
-              {
-                required: true,
-                message: "Please enter emergency contact name",
-              },
-            ]}
-          >
-            <Input placeholder="Enter emergency contact name" />
-          </Form.Item>
-        </Col> */}
-
-          {/* Emergency Contact Number */}
-          {/* <Col xs={24} sm={12}>
-          <Form.Item
-            label="Emergency Contact Number"
-            name="emergency_contact_number"
-            rules={[
-              {
-                required: true,
-                message: "Please enter emergency contact number",
-              },
-              {
-                pattern: /^[0-9]+$/,
-                message: "Emergency contact must be digits only",
-              },
-            ]}
-          >
-            <Input placeholder="Enter emergency contact number" />
-          </Form.Item>
-        </Col> */}
         </Row>
       </Col>
 
@@ -314,6 +252,78 @@ const EditClientForm = ({
             ]}
           >
             <Input placeholder="Enter email address" />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Title level={3}>Package and Credits</Title>
+      <Row gutter={[16, 0]}>
+        {/* Remaining Credits */}
+        <Col xs={24} sm={12}>
+          <Form.Item
+            label="Remaining Credits"
+            name="credits"
+            rules={[
+              {
+                required: true,
+                message: "Please enter amount of credits",
+              },
+            ]}
+          >
+            <InputNumber
+              placeholder="Enter credits"
+              // prefix={<TeamOutlined className="text-slate-400" />}
+              className="w-full"
+              min={1}
+              precision={0}
+              onKeyDown={(e) => {
+                if (!/[0-9]/.test(e.key) && e.code !== "Backspace") {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => {
+                const paste = e.clipboardData.getData("text");
+                if (!/^\d+$/.test(paste)) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Title level={3}>Booking and Attendance</Title>
+      <Row gutter={[16, 0]}>
+        {/* Remaining Credits */}
+        <Col xs={24} sm={12}>
+          <Form.Item
+            label="Remaining Credits"
+            name="credits"
+            rules={[
+              {
+                required: true,
+                message: "Please enter amount of credits",
+              },
+            ]}
+          >
+            <InputNumber
+              placeholder="Enter credits"
+              // prefix={<TeamOutlined className="text-slate-400" />}
+              className="w-full"
+              min={0}
+              precision={0}
+              onKeyDown={(e) => {
+                if (!/[0-9]/.test(e.key) && e.code !== "Backspace") {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => {
+                const paste = e.clipboardData.getData("text");
+                if (!/^\d+$/.test(paste)) {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
         </Col>
       </Row>

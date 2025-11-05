@@ -34,7 +34,7 @@ export default function CreateClassForm({
   useEffect(() => {
     handleSearchInstructors();
     if (initialValues) {
-      const totalSlots = initialValues.slots.split("/")[1].trim();
+      const totalSlots = (initialValues.slots as string).split("/")[1].trim();
       form.setFieldsValue({
         instructor_name: initialValues.instructor_name,
         instructor_id: initialValues.instructor_id,
