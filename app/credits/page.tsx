@@ -1,11 +1,12 @@
 "use client";
 
-import { Card, Row, Col, Typography, Avatar, List, Button } from "antd";
-import { CalendarOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Typography, Button } from "antd";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import { useRouter } from "next/navigation";
+import { MdErrorOutline } from "react-icons/md";
+import { LiaCoinsSolid } from "react-icons/lia";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export default function CreditsPage() {
   const router = useRouter();
@@ -46,26 +47,49 @@ export default function CreditsPage() {
   return (
     <AuthenticatedLayout>
       <div className="space-y-6">
-        <div>
+        {/* <div>
           <Title level={2} className="!mb-2">
             Your Credits
           </Title>
-        </div>
+        </div> */}
 
-        {/* <Row gutter={[16, 16]}>
+        <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={8}>
-            <Card className="shadow-sm hover:shadow-md transition-shadow">
-              <Statistic
-                title="Total Bookings"
-                value={12}
-                prefix={<CalendarOutlined className="text-blue-600" />}
-                valueStyle={{ color: "#1e293b" }}
-              />
+            <Card className="shadow-sm hover:shadow-md transition-shadow max-h-[150px]">
+              <Title level={3}>Current Package</Title>
+
+              <Row
+                wrap={false}
+                justify={"start"}
+                className="p-[10px] bg-slate-200 rounded-lg items-center gap-[10px]"
+              >
+                <MdErrorOutline size={30} />
+
+                <Text>Package has expired or hasn&apos;t been purchased</Text>
+              </Row>
             </Card>
           </Col>
-        </Row> */}
 
-        <Card className="shadow-sm">
+          <Col xs={24} sm={12} lg={8}>
+            <Card className="shadow-sm hover:shadow-md transition-shadow max-h-[150px]">
+              <Title level={3}>Credits</Title>
+
+              <Row
+                wrap={false}
+                justify={"start"}
+                className="p-[10px] bg-slate-200 rounded-lg items-center gap-[10px]"
+              >
+                <LiaCoinsSolid size={30} />
+
+                <Row className="w-[90%] justify-center">
+                  <Text>No credits available</Text>
+                </Row>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+
+        <Card className="shadow-sm" title={"Package Purchase History"}>
           {/* <List
             itemLayout="horizontal"
             dataSource={data}
@@ -119,13 +143,18 @@ export default function CreditsPage() {
           /> */}
           {data.length === 0 && (
             <div className="text-center py-12 text-slate-500">
-              <Button
-                onClick={() => router.push("/packages")}
-                type="primary"
-                className="!bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
-              >
-                Purchase a package
-              </Button>
+              <Row className="justify-center">
+                <Col className="flex flex-col justify-center items-center gap-y-[10px]">
+                  <Text>You haven&apos;t purchased any packages yet</Text>
+                  <Button
+                    type="primary"
+                    onClick={() => router.push("/packages")}
+                    className="w-fit !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                  >
+                    Purchase a package
+                  </Button>
+                </Col>
+              </Row>
             </div>
           )}
         </Card>
