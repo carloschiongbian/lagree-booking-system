@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Row, Button, Modal, Drawer, message, Divider } from "antd";
+import {
+  Row,
+  Button,
+  Modal,
+  Drawer,
+  message,
+  Divider,
+  Col,
+  Typography,
+  List,
+  Select,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
@@ -12,16 +23,31 @@ import { CreateClassProps } from "@/lib/props";
 import { IoMdPersonAdd } from "react-icons/io";
 import ManualBookingForm from "@/components/forms/ManualBookingForm";
 import { useClassManagement } from "@/lib/api";
+import { formatTime } from "@/lib/utils";
+import { HiOutlineSwitchHorizontal } from "react-icons/hi";
+
+const { Text } = Typography;
 
 export default function ClassManagementPage() {
-  const { createClass, updateClass, fetchClasses, loading } =
-    useClassManagement();
+  const {
+    loading,
+    createClass,
+    updateClass,
+    fetchClasses,
+    markAttendance,
+    rebookAttendee,
+    fetchClassAttendees,
+  } = useClassManagement();
   const [classes, setClasses] = useState<any[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [attendees, setAttendees] = useState<any[]>([]);
+
   const [isMobile, setIsMobile] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<CreateClassProps | null>(
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  const [selectedDate, setSelectedDate] = useState<Dayjs>();
+  const [selectedRecord, setSelectedRecord] = useState<CreateClassProps | null>(
     null
   );
 
@@ -77,28 +103,52 @@ export default function ClassManagementPage() {
   };
 
   const handleOpenModal = () => {
-    setEditingRecord(null);
-    setIsModalOpen(true);
+    setSelectedRecord(null);
+    setIsFormModalOpen(true);
   };
 
   const handleEdit = (record: CreateClassProps) => {
-    setEditingRecord(record);
-    setIsModalOpen(true);
+    setSelectedRecord(record);
+    setIsFormModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingRecord(null);
+    setIsFormModalOpen(false);
+    setSelectedRecord(null);
   };
   const handleCloseBookingModal = () => {
     setIsBookingModalOpen(false);
   };
 
+  const handleView = async (record: CreateClassProps) => {
+    const response = await fetchClassAttendees({
+      classID: record.id as string,
+    });
+
+    const mapped = response?.map((classBookings) => {
+      return {
+        ...classBookings,
+        attendanceStatus: classBookings.attendance_status,
+        attendeeName: classBookings.user_profiles.full_name,
+      };
+    });
+
+    setSelectedRecord(record);
+    setViewModalOpen(true);
+    setAttendees(mapped as []);
+  };
+
+  const handleCloseView = () => {
+    setAttendees([]);
+    setViewModalOpen(false);
+    setSelectedRecord(null);
+  };
+
   const handleSubmit = async (values: any) => {
     try {
-      if (editingRecord) {
+      if (selectedRecord) {
         await updateClass({
-          id: editingRecord.id as string,
+          id: selectedRecord.id as string,
           values: { ...values, class_date: selectedDate?.format("YYYY-MM-DD") },
         });
 
@@ -121,11 +171,24 @@ export default function ClassManagementPage() {
         }
       }
 
-      setIsModalOpen(false);
-      setEditingRecord(null);
+      setIsFormModalOpen(false);
+      setSelectedRecord(null);
     } catch (error) {
       message.error("An error occurred. Please try again.");
     }
+  };
+
+  const handleChange = async ({
+    bookingID,
+    status,
+  }: {
+    bookingID: string;
+    status: string;
+  }) => {
+    console.log(`selected ${status}`);
+
+    const response = await markAttendance({ bookingID, status });
+    console.log("response: ", response);
   };
 
   return (
@@ -154,6 +217,14 @@ export default function ClassManagementPage() {
             </Button>
             <Button
               type="primary"
+              icon={<HiOutlineSwitchHorizontal />}
+              onClick={handleOpenModal}
+              className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+            >
+              Rebook Attendee
+            </Button>
+            <Button
+              type="primary"
               icon={<IoMdPersonAdd />}
               onClick={handleOpenBookingModal}
               className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
@@ -165,8 +236,10 @@ export default function ClassManagementPage() {
             loading={loading}
             data={[...classes]}
             onEdit={handleEdit}
+            onView={handleView}
           />
         </div>
+        {/* Manual Booking */}
         {isMobile ? (
           <Drawer
             title={"Manual Booking"}
@@ -183,8 +256,8 @@ export default function ClassManagementPage() {
               selectedDate={selectedDate}
               onSubmit={handleSubmit}
               onCancel={handleCloseBookingModal}
-              initialValues={editingRecord}
-              isEdit={!!editingRecord}
+              initialValues={selectedRecord}
+              isEdit={!!selectedRecord}
             />
           </Drawer>
         ) : (
@@ -201,18 +274,20 @@ export default function ClassManagementPage() {
                 selectedDate={selectedDate}
                 onSubmit={handleSubmit}
                 onCancel={handleCloseBookingModal}
-                initialValues={editingRecord}
-                isEdit={!!editingRecord}
+                initialValues={selectedRecord}
+                isEdit={!!selectedRecord}
               />
             </div>
           </Modal>
         )}
+
+        {/* Class form modal */}
         {isMobile ? (
           <Drawer
-            title={editingRecord ? "Edit Class" : "Create New Class"}
+            title={selectedRecord ? "Edit Class" : "Create New Class"}
             placement="right"
             onClose={handleCloseModal}
-            open={isModalOpen}
+            open={isFormModalOpen}
             width={"100%"}
             styles={{
               body: { paddingTop: 24 },
@@ -222,14 +297,14 @@ export default function ClassManagementPage() {
               loading={loading}
               onSubmit={handleSubmit}
               onCancel={handleCloseModal}
-              initialValues={editingRecord}
-              isEdit={!!editingRecord}
+              initialValues={selectedRecord}
+              isEdit={!!selectedRecord}
             />
           </Drawer>
         ) : (
           <Modal
-            title={editingRecord ? "Edit Class" : "Create New Class"}
-            open={isModalOpen}
+            title={selectedRecord ? "Edit Class" : "Create New Class"}
+            open={isFormModalOpen}
             onCancel={handleCloseModal}
             footer={null}
             width={600}
@@ -239,10 +314,388 @@ export default function ClassManagementPage() {
                 loading={loading}
                 onSubmit={handleSubmit}
                 onCancel={handleCloseModal}
-                initialValues={editingRecord}
-                isEdit={!!editingRecord}
+                initialValues={selectedRecord}
+                isEdit={!!selectedRecord}
               />
             </div>
+          </Modal>
+        )}
+
+        {/* View class details */}
+        {isMobile ? (
+          <Drawer
+            loading={loading}
+            title="View Class Details"
+            placement="right"
+            onClose={handleCloseView}
+            open={viewModalOpen}
+            width="100%"
+            styles={{
+              body: { paddingTop: 24 },
+            }}
+          >
+            <div className="space-y-4">
+              <Col className="flex flex-col pt-0 space-y-4">
+                <Row wrap={false} className="justify-between">
+                  <Text className="!mt-[10px]">
+                    <span className="font-semibold">Instructor:</span>{" "}
+                    {selectedRecord?.instructor_name}
+                  </Text>
+                  <Text className="!mt-[10px]">
+                    <span className="font-semibold">Time:</span>{" "}
+                    {`${formatTime(
+                      dayjs(selectedRecord?.start_time)
+                    )} - ${formatTime(dayjs(selectedRecord?.end_time))}`}
+                  </Text>
+                </Row>
+
+                <Divider />
+
+                <Col>
+                  <div className="mb-[15px]">
+                    <span className="font-semibold">Attendees</span>
+                  </div>
+
+                  {/* Empty State for 0 attendees */}
+                  {attendees.length === 0 && (
+                    <Row wrap={false} className="justify-center">
+                      <span className="font-semibold p-4">
+                        Nobody has booked this class yet
+                      </span>
+                    </Row>
+                  )}
+
+                  {/* Non-empty state */}
+                  <div
+                    style={{
+                      overflowY: "auto",
+                      maxHeight: "30vh",
+                      scrollbarWidth: "none", // Firefox
+                      msOverflowStyle: "none", // IE and Edge
+                    }}
+                    className="overflow-y-auto"
+                  >
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={attendees}
+                      loading={loading}
+                      renderItem={(item, index) => (
+                        <Row
+                          key={index}
+                          wrap={false}
+                          className={`${
+                            attendees.length > 1 && "border-b"
+                          } py-3 justify-between`}
+                        >
+                          <List.Item.Meta
+                            title={item.attendeeName}
+                            className="flex items-center"
+                          />
+
+                          <Select
+                            className="!outline-none"
+                            defaultValue={
+                              !item.attendanceStatus
+                                ? "no-show"
+                                : item.attendanceStatus
+                            }
+                            style={{ width: 120 }}
+                            onChange={(e) =>
+                              handleChange({ bookingID: item.id, status: e })
+                            }
+                            options={[
+                              { value: "no-show", label: "No Show" },
+                              { value: "attended", label: "Attended" },
+                              { value: "cancelled", label: "Cancelled" },
+                            ]}
+                          />
+                        </Row>
+                      )}
+                    />
+                  </div>
+                </Col>
+              </Col>
+            </div>
+          </Drawer>
+        ) : (
+          <Modal
+            loading={loading}
+            title="View Class Details"
+            open={viewModalOpen}
+            onCancel={handleCloseView}
+            footer={null}
+            width={600}
+            maskClosable={false}
+          >
+            <Col className="flex flex-col pt-0 space-y-4">
+              <Row wrap={false} className="justify-between">
+                <Text className="!mt-[10px]">
+                  <span className="font-semibold">Instructor:</span>{" "}
+                  {selectedRecord?.instructor_name}
+                </Text>
+                <Text className="!mt-[10px]">
+                  <span className="font-semibold">Time:</span>{" "}
+                  {`${formatTime(
+                    dayjs(selectedRecord?.start_time)
+                  )} - ${formatTime(dayjs(selectedRecord?.end_time))}`}
+                </Text>
+              </Row>
+
+              <Divider />
+
+              <Col>
+                <div className="mb-[15px]">
+                  <span className="font-semibold">Attendees</span>
+                </div>
+
+                {/* Empty State for 0 attendees */}
+                {attendees.length === 0 && (
+                  <Row wrap={false} className="justify-center">
+                    <span className="font-semibold p-4">
+                      Nobody has booked this class yet
+                    </span>
+                  </Row>
+                )}
+
+                {/* Non-empty state */}
+                <div
+                  style={{
+                    overflowY: "auto",
+                    maxHeight: "30vh",
+                    scrollbarWidth: "none", // Firefox
+                    msOverflowStyle: "none", // IE and Edge
+                  }}
+                  className="overflow-y-auto"
+                >
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={attendees}
+                    loading={loading}
+                    renderItem={(item, index) => (
+                      <Row
+                        key={index}
+                        wrap={false}
+                        className={`${
+                          attendees.length > 1 && "border-b"
+                        } py-3 justify-between`}
+                      >
+                        <List.Item.Meta
+                          title={item.attendeeName}
+                          className="flex items-center"
+                        />
+
+                        <Select
+                          className="!outline-none"
+                          defaultValue={
+                            !item.attendanceStatus
+                              ? "no-show"
+                              : item.attendanceStatus
+                          }
+                          style={{ width: 120 }}
+                          onChange={(e) =>
+                            handleChange({ bookingID: item.id, status: e })
+                          }
+                          options={[
+                            { value: "no-show", label: "No Show" },
+                            { value: "attended", label: "Attended" },
+                            { value: "cancelled", label: "Cancelled" },
+                          ]}
+                        />
+                      </Row>
+                    )}
+                  />
+                </div>
+              </Col>
+            </Col>
+          </Modal>
+        )}
+
+        {/* Rebooking Modal */}
+        {isMobile ? (
+          <Drawer
+            loading={loading}
+            title="Rebook Attendee"
+            placement="right"
+            onClose={handleCloseView}
+            open={viewModalOpen}
+            width="100%"
+            styles={{
+              body: { paddingTop: 24 },
+            }}
+          >
+            <div className="space-y-4">
+              <Col className="flex flex-col pt-0 space-y-4">
+                <Row wrap={false} className="justify-between">
+                  <Text className="!mt-[10px]">
+                    <span className="font-semibold">Instructor:</span>{" "}
+                    {selectedRecord?.instructor_name}
+                  </Text>
+                  <Text className="!mt-[10px]">
+                    <span className="font-semibold">Time:</span>{" "}
+                    {`${formatTime(
+                      dayjs(selectedRecord?.start_time)
+                    )} - ${formatTime(dayjs(selectedRecord?.end_time))}`}
+                  </Text>
+                </Row>
+
+                <Divider />
+
+                <Col>
+                  <div className="mb-[15px]">
+                    <span className="font-semibold">Attendees</span>
+                  </div>
+
+                  {/* Empty State for 0 attendees */}
+                  {attendees.length === 0 && (
+                    <Row wrap={false} className="justify-center">
+                      <span className="font-semibold p-4">
+                        Nobody has booked this class yet
+                      </span>
+                    </Row>
+                  )}
+
+                  {/* Non-empty state */}
+                  <div
+                    style={{
+                      overflowY: "auto",
+                      maxHeight: "30vh",
+                      scrollbarWidth: "none", // Firefox
+                      msOverflowStyle: "none", // IE and Edge
+                    }}
+                    className="overflow-y-auto"
+                  >
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={attendees}
+                      loading={loading}
+                      renderItem={(item, index) => (
+                        <Row
+                          key={index}
+                          wrap={false}
+                          className={`${
+                            attendees.length > 1 && "border-b"
+                          } py-3 justify-between`}
+                        >
+                          <List.Item.Meta
+                            title={item.attendeeName}
+                            className="flex items-center"
+                          />
+
+                          <Select
+                            className="!outline-none"
+                            defaultValue={
+                              !item.attendanceStatus
+                                ? "no-show"
+                                : item.attendanceStatus
+                            }
+                            style={{ width: 120 }}
+                            onChange={(e) =>
+                              handleChange({ bookingID: item.id, status: e })
+                            }
+                            options={[
+                              { value: "no-show", label: "No Show" },
+                              { value: "attended", label: "Attended" },
+                              { value: "cancelled", label: "Cancelled" },
+                            ]}
+                          />
+                        </Row>
+                      )}
+                    />
+                  </div>
+                </Col>
+              </Col>
+            </div>
+          </Drawer>
+        ) : (
+          <Modal
+            loading={loading}
+            title="Rebook Attendee"
+            open={viewModalOpen}
+            onCancel={handleCloseView}
+            footer={null}
+            width={600}
+            maskClosable={false}
+          >
+            <Col className="flex flex-col pt-0 space-y-4">
+              <Row wrap={false} className="justify-between">
+                <Text className="!mt-[10px]">
+                  <span className="font-semibold">Instructor:</span>{" "}
+                  {selectedRecord?.instructor_name}
+                </Text>
+                <Text className="!mt-[10px]">
+                  <span className="font-semibold">Time:</span>{" "}
+                  {`${formatTime(
+                    dayjs(selectedRecord?.start_time)
+                  )} - ${formatTime(dayjs(selectedRecord?.end_time))}`}
+                </Text>
+              </Row>
+
+              <Divider />
+
+              <Col>
+                <div className="mb-[15px]">
+                  <span className="font-semibold">Attendees</span>
+                </div>
+
+                {/* Empty State for 0 attendees */}
+                {attendees.length === 0 && (
+                  <Row wrap={false} className="justify-center">
+                    <span className="font-semibold p-4">
+                      Nobody has booked this class yet
+                    </span>
+                  </Row>
+                )}
+
+                {/* Non-empty state */}
+                <div
+                  style={{
+                    overflowY: "auto",
+                    maxHeight: "30vh",
+                    scrollbarWidth: "none", // Firefox
+                    msOverflowStyle: "none", // IE and Edge
+                  }}
+                  className="overflow-y-auto"
+                >
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={attendees}
+                    loading={loading}
+                    renderItem={(item, index) => (
+                      <Row
+                        key={index}
+                        wrap={false}
+                        className={`${
+                          attendees.length > 1 && "border-b"
+                        } py-3 justify-between`}
+                      >
+                        <List.Item.Meta
+                          title={item.attendeeName}
+                          className="flex items-center"
+                        />
+
+                        <Select
+                          className="!outline-none"
+                          defaultValue={
+                            !item.attendanceStatus
+                              ? "no-show"
+                              : item.attendanceStatus
+                          }
+                          style={{ width: 120 }}
+                          onChange={(e) =>
+                            handleChange({ bookingID: item.id, status: e })
+                          }
+                          options={[
+                            { value: "no-show", label: "No Show" },
+                            { value: "attended", label: "Attended" },
+                            { value: "cancelled", label: "Cancelled" },
+                          ]}
+                        />
+                      </Row>
+                    )}
+                  />
+                </div>
+              </Col>
+            </Col>
           </Modal>
         )}
       </div>

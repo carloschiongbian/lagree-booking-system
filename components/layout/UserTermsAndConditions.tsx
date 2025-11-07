@@ -7,7 +7,7 @@ const { Title, Text, Paragraph } = Typography;
 const UserTermsAndConditions = () => {
   return (
     <Card
-      className="max-w-3xl mx-auto mt-10 rounded-2xl shadow-sm p-6 text-justify"
+      className="max-w-3xl mx-auto mt-10 rounded-2xl shadow-sm py-6 px-0 text-justify"
       title={
         <Title level={4} className="!mb-0">
           Terms & Conditions
@@ -15,7 +15,8 @@ const UserTermsAndConditions = () => {
       }
     >
       <Title level={4}>
-        SUPRA8 LAGREE — MEMBER’S ASSUMPTION OF RISK AND RELEASE OF LIABILITY
+        SUPRA8 LAGREE — MEMBER&apos;S ASSUMPTION OF RISK AND RELEASE OF
+        LIABILITY
       </Title>
       <Text underline>Assumption of Risk</Text>
       <Paragraph>

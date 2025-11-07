@@ -274,7 +274,7 @@ export default function PackagesPage() {
         width={isMobile ? "100%" : "30%"}
         styles={{
           body: {
-            paddingTop: 0,
+            paddingTop: 24,
             overflow:
               carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto", // Drawer itself never scrolls
           },
@@ -294,12 +294,14 @@ export default function PackagesPage() {
             </div>
 
             <div className="flex flex-col items-center h-full overflow-y-hidden">
-              <Avatar
-                className="!text-[50px] bg-[#36013F] border w-full"
-                size={200}
-              >
-                30
-              </Avatar>
+              <Row className="w-full justify-center">
+                <Avatar
+                  className="!text-[50px] bg-[#36013F] border w-full"
+                  size={200}
+                >
+                  30
+                </Avatar>
+              </Row>
               <Divider />
               <div className="items-start w-full">
                 <Row wrap={false} className="mb-[20px] items-start w-full">
@@ -327,14 +329,14 @@ export default function PackagesPage() {
               </div>
               <Row justify={"start"} className="w-full mb-[10px]">
                 <Checkbox onChange={handleAcceptTermsChange}>
-                  I have read the
+                  I have read the{" "}
+                  <span
+                    onClick={handleShowTermsAndConditions}
+                    className="text-blue-400"
+                  >
+                    Terms and Conditions
+                  </span>
                 </Checkbox>
-                <a
-                  onClick={handleShowTermsAndConditions}
-                  className="text-blue-400"
-                >
-                  Terms and Conditions
-                </a>
               </Row>
               <Button
                 onClick={handleNext}

@@ -352,7 +352,7 @@ export default function BookingsPage() {
         width={isMobile ? "100%" : "30%"}
         styles={{
           body: {
-            paddingTop: 0,
+            paddingTop: 24,
             overflow:
               carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto", // Drawer itself never scrolls
           },
@@ -370,12 +370,14 @@ export default function BookingsPage() {
             <div className="h-full overflow-y-auto">
               <UserTermsAndConditions />
             </div>
-            <Col className="flex flex-col items-center">
-              <Avatar
-                className="border-gray-500 border w-full"
-                size={200}
-                src={selectedRecord?.avatar_url}
-              />
+            <Row className="flex flex-col items-center">
+              <Row className="w-full justify-center">
+                <Avatar
+                  className="border-gray-500 border w-full"
+                  size={200}
+                  src={selectedRecord?.avatar_url}
+                />
+              </Row>
               <Divider />
               <Col className="mb-[20px] items-start w-full">
                 <Title>
@@ -397,7 +399,7 @@ export default function BookingsPage() {
               </Col>
               <Row justify={"start"} className="w-full mb-[10px]">
                 <Checkbox onChange={handleAcceptTermsChange}>
-                  Accept{" "}
+                  I have read the{" "}
                   <span
                     onClick={handleShowTermsAndConditions}
                     className="text-blue-400"
@@ -416,7 +418,7 @@ export default function BookingsPage() {
               >
                 Book
               </Button>
-            </Col>
+            </Row>
           </Carousel>
         </div>
       </Drawer>

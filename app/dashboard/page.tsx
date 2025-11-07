@@ -97,14 +97,14 @@ export default function DashboardPage() {
         </Row>
 
         <Col>
-          <Title level={2}>Upcoming Schedules</Title>
+          <Title level={2}>Upcoming Classes</Title>
           <Row gutter={[16, 16]}>
             {upcomingBookings &&
               upcomingBookings.map((data, idx) => (
                 <Col key={idx} xs={24} sm={12} md={8} lg={6} xl={6} xxl={6}>
                   <Card
                     // onClick={() => handleEdit(data)}
-                    hoverable
+                    hoverable={false}
                     cover={
                       <div
                         style={{
@@ -120,7 +120,7 @@ export default function DashboardPage() {
                         )}
                         {data?.avatar_url && (
                           <img
-                            className="rounded-t-lg"
+                            className="rounded-t-lg border"
                             src={data.avatar_url}
                             alt={data.full_name}
                             style={{
@@ -132,9 +132,18 @@ export default function DashboardPage() {
                         )}
                       </div>
                     }
+                    className="border"
+                    styles={{ actions: { paddingInline: "10px" } }}
+                    actions={[
+                      <Button className="w-full hover:!bg-red-700 hover:!border-red-600 border-red-600 bg-red-200 text-slate-50 hover:!text-slate-50">
+                        Cancel
+                      </Button>,
+                    ]}
                   >
                     <Card.Meta
-                      title={dayjs(data.classDate).format("MMM DD")}
+                      title={`${dayjs(data.classDate).format(
+                        "MMM DD"
+                      )} (${dayjs(data.classDate).format("dddd")})`}
                       description={
                         <Col className="m-0 !p-0">
                           <Text>Class with {data.instructorName}</Text>

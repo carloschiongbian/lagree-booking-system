@@ -186,6 +186,78 @@ export const useInstructorManagement = () => {
 export const useClassManagement = () => {
   const [loading, setLoading] = useState(false);
 
+  const markAttendance = async ({
+    bookingID,
+    status,
+  }: {
+    bookingID: string;
+    status: string;
+  }) => {
+    let query = supabase
+      .from("class_bookings")
+      .update({ attendance_status: status })
+      .eq("id", bookingID);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching attendees:", error);
+      return null;
+    }
+
+    setLoading(false);
+    return data;
+  };
+
+  const rebookAttendee = async ({
+    newClassID,
+    bookingID,
+  }: {
+    bookingID: string;
+    newClassID: string;
+  }) => {
+    let query = supabase
+      .from("class_bookings")
+      .update({ class_id: newClassID })
+      .eq("id", bookingID);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error rebooking attendee:", error);
+      return null;
+    }
+
+    setLoading(false);
+    return data;
+  };
+
+  const fetchClassAttendees = async ({ classID }: { classID: string }) => {
+    setLoading(true);
+
+    let query = supabase
+      .from("class_bookings")
+      .select(
+        `
+        *, 
+        user_profiles(
+          full_name
+        )
+        `
+      )
+      .eq("class_id", classID);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching attendees:", error);
+      return null;
+    }
+
+    setLoading(false);
+    return data;
+  };
+
   const fetchClasses = async ({
     userId,
     startDate,
@@ -271,6 +343,26 @@ export const useClassManagement = () => {
     return data;
   };
 
+  const cancelClass = async ({
+    id,
+    values,
+  }: {
+    id: string;
+    values: CreateClassProps;
+  }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("class_bookings")
+      .update(values)
+      .eq("id", id);
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
+
   const bookClass = async ({
     classDate,
     bookerId,
@@ -293,7 +385,16 @@ export const useClassManagement = () => {
     return data;
   };
 
-  return { loading, bookClass, updateClass, fetchClasses, createClass };
+  return {
+    loading,
+    bookClass,
+    markAttendance,
+    rebookAttendee,
+    fetchClassAttendees,
+    updateClass,
+    fetchClasses,
+    createClass,
+  };
 };
 
 export const usePackageManagement = () => {
@@ -361,8 +462,8 @@ export const useClientBookings = () => {
     class_date,
     classes (
       id,
-      start_time,
       end_time,
+      start_time,
       instructor_id,
       instructors (
         id,

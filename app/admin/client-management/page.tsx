@@ -167,9 +167,13 @@ export default function ClientManagementPage() {
                 </Row>
               </Col>
               <Row>
-                <Text strong>
-                  {attendanceStatus[booking.classDetails.attendance] ??
-                    "No Show"}
+                <Text
+                  strong
+                  className={`text-[${
+                    attendanceStatus?.[booking.attendance]?.color
+                  }]`}
+                >
+                  {attendanceStatus?.[booking.attendance]?.status ?? "No Show"}
                 </Text>
               </Row>
             </Row>

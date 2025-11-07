@@ -6,9 +6,9 @@ import { Day } from "react-day-picker";
 
 export const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 export const attendanceStatus: any = {
-  attended: "Attended",
-  cancelled: "Cancelled",
-  missed: "Missed",
+  attended: { status: "Attended", color: "green" },
+  cancelled: { status: "Cancelled", color: "red" },
+  missed: { status: "Missed", color: "red" },
 };
 export const ganttColors = [
   "#F28B82", // Muted Coral
