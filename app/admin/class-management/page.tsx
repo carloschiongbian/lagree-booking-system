@@ -215,14 +215,14 @@ export default function ClassManagementPage() {
             >
               Create
             </Button>
-            <Button
+            {/* <Button
               type="primary"
               icon={<HiOutlineSwitchHorizontal />}
               onClick={handleOpenModal}
               className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
             >
               Rebook Attendee
-            </Button>
+            </Button> */}
             <Button
               type="primary"
               icon={<IoMdPersonAdd />}
