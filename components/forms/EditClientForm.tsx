@@ -292,42 +292,6 @@ const EditClientForm = ({
         </Col>
       </Row>
 
-      <Title level={3}>Booking and Attendance</Title>
-      <Row gutter={[16, 0]}>
-        {/* Remaining Credits */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Remaining Credits"
-            name="credits"
-            rules={[
-              {
-                required: true,
-                message: "Please enter amount of credits",
-              },
-            ]}
-          >
-            <InputNumber
-              placeholder="Enter credits"
-              // prefix={<TeamOutlined className="text-slate-400" />}
-              className="w-full"
-              min={0}
-              precision={0}
-              onKeyDown={(e) => {
-                if (!/[0-9]/.test(e.key) && e.code !== "Backspace") {
-                  e.preventDefault();
-                }
-              }}
-              onPaste={(e) => {
-                const paste = e.clipboardData.getData("text");
-                if (!/^\d+$/.test(paste)) {
-                  e.preventDefault();
-                }
-              }}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-
       <div className="flex justify-center sm:justify-end mt-6">
         <Button
           type="primary"

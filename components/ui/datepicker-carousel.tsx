@@ -81,7 +81,7 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
   };
 
   const handleSelect = (date: Dayjs) => {
-    if (date.isBefore(today, "day")) return;
+    if (!isAdmin && date.isBefore(today, "day")) return;
     setSelectedDate(date);
   };
 
@@ -114,7 +114,9 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
                 "rounded-2xl shadow-sm hover:shadow-md py-3 sm:py-4",
                 "w-20 sm:w-24 md:w-28", // responsive width
                 isSelected ? "bg-[#36013F] text-white" : "bg-white text-black",
-                isPast && "opacity-40 cursor-not-allowed hover:shadow-none"
+                !isAdmin &&
+                  isPast &&
+                  "opacity-40 cursor-not-allowed hover:shadow-none"
               )}
             >
               <span
