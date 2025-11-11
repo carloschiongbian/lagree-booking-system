@@ -11,6 +11,7 @@ import {
   Checkbox,
   Divider,
   Carousel,
+  Tooltip,
 } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
@@ -168,6 +169,10 @@ export default function PackagesPage() {
     setCarouselSlide(CAROUSEL_SLIDES.TERMS);
     carouselRef.current.goTo(CAROUSEL_SLIDES.TERMS);
   };
+
+  useEffect(() => {
+    console.log("user :", user);
+  }, []);
   return (
     <AuthenticatedLayout>
       <div className="space-y-6">
@@ -195,7 +200,7 @@ export default function PackagesPage() {
                       paddingTop: "15px",
                     },
                   }}
-                  className="border-[#fbe2ff] rounded-[24px] shadow-sm hover:shadow-md transition-all duration-300"
+                  className="border-[#fbe2ff] rounded-[24px] shadow-sm transition-all duration-300"
                 >
                   <Col className="flex flex-col gap-y-[10px]">
                     <Col>
@@ -214,12 +219,25 @@ export default function PackagesPage() {
                       </p>
                     </Col>
 
-                    <Button
-                      onClick={() => handleOpenModal(item)}
-                      className="!bg-[#36013F] h-[40px] hover:!bg-[#36013F] !border-[#36013F] !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                    <Tooltip
+                      title="You still have an active package"
+                      popupVisible={!user?.currentPackage}
                     >
-                      Purchase
-                    </Button>
+                      <Button
+                        disabled={user?.currentPackage}
+                        onClick={() => handleOpenModal(item)}
+                        className={`${
+                          !user?.currentPackage
+                            ? "!bg-[#36013F] !border-[#36013F]"
+                            : "!bg-[#c8c7c7]"
+                        } ${
+                          !user?.currentPackage &&
+                          "hover:!bg-[#36013F]  hover:scale-[1.03]"
+                        }  h-[40px] !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+                      >
+                        Purchase
+                      </Button>
+                    </Tooltip>
                   </Col>
                 </Card>
               </Col>

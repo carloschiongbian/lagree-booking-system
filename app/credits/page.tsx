@@ -147,7 +147,7 @@ export default function CreditsPage() {
           {/* Credits */}
           <Col xs={24} sm={12} lg={8} className="flex">
             <Card className="shadow-sm transition-shadow flex flex-col justify-between w-full h-full min-h-[120px]">
-              <Title level={3}>Sessions</Title>
+              <Title level={3}>Package Credits</Title>
 
               <Row
                 wrap={false}
