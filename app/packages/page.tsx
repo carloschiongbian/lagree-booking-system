@@ -67,6 +67,18 @@ export default function PackagesPage() {
     },
   ];
 
+  const [delayedOverflow, setDelayedOverflow] = useState("hidden");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDelayedOverflow(
+        carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto"
+      );
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [carouselSlide]);
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -275,8 +287,7 @@ export default function PackagesPage() {
         styles={{
           body: {
             paddingTop: 24,
-            overflow:
-              carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto", // Drawer itself never scrolls
+            overflow: delayedOverflow,
           },
         }}
       >

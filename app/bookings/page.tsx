@@ -16,7 +16,7 @@ import {
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import DatePickerCarousel from "@/components/ui/datepicker-carousel";
 import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LiaCoinsSolid } from "react-icons/lia";
 import { useRouter } from "next/navigation";
 import { useClassManagement, useManageCredits } from "@/lib/api";
@@ -50,7 +50,17 @@ export default function BookingsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Dayjs>();
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [delayedOverflow, setDelayedOverflow] = useState("hidden");
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDelayedOverflow(
+        carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto"
+      );
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [carouselSlide]);
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -73,7 +83,6 @@ export default function BookingsPage() {
       window.removeEventListener("resize", onResize);
     };
   }, []);
-
   useEffect(() => {
     if (selectedDate && user) {
       handleFetchClasses();
@@ -129,8 +138,9 @@ export default function BookingsPage() {
 
   const handleCloseModal = () => {
     if (carouselSlide === CAROUSEL_SLIDES.TERMS) {
+      carouselRef.current.next();
       setCarouselSlide(CAROUSEL_SLIDES.BOOKING_DETAILS);
-      carouselRef.current.goTo(CAROUSEL_SLIDES.BOOKING_DETAILS);
+      // carouselRef.current.goTo(CAROUSEL_SLIDES.BOOKING_DETAILS);
       return;
     }
 
@@ -353,8 +363,7 @@ export default function BookingsPage() {
         styles={{
           body: {
             paddingTop: 24,
-            overflow:
-              carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto", // Drawer itself never scrolls
+            overflow: delayedOverflow,
           },
         }}
       >
