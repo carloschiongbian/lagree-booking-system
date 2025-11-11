@@ -105,7 +105,7 @@ export default function PackagesPage() {
         values: { credits },
       });
 
-      dispatch(setUser({ ...user, credits }));
+      dispatch(setUser({ ...user, credits, currentPackage: selectedRecord }));
     } catch (error) {
       console.log(error);
     }
@@ -216,10 +216,25 @@ export default function PackagesPage() {
                       </p>
                     </Col>
 
-                    <Tooltip
-                      title="You still have an active package"
-                      popupVisible={!user?.currentPackage}
-                    >
+                    {user?.currentPackage && (
+                      <Tooltip title="You still have an active package">
+                        <Button
+                          disabled={user?.currentPackage}
+                          onClick={() => handleOpenModal(item)}
+                          className={`${
+                            !user?.currentPackage
+                              ? "!bg-[#36013F] !border-[#36013F]"
+                              : "!bg-[#c8c7c7]"
+                          } ${
+                            !user?.currentPackage &&
+                            "hover:!bg-[#36013F]  hover:scale-[1.03]"
+                          }  h-[40px] !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+                        >
+                          Purchase
+                        </Button>
+                      </Tooltip>
+                    )}
+                    {user?.currentPackage === undefined && (
                       <Button
                         disabled={user?.currentPackage}
                         onClick={() => handleOpenModal(item)}
@@ -234,7 +249,7 @@ export default function PackagesPage() {
                       >
                         Purchase
                       </Button>
-                    </Tooltip>
+                    )}
                   </Col>
                 </Card>
               </Col>
