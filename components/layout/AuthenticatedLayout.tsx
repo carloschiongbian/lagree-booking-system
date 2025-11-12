@@ -151,12 +151,12 @@ export default function AuthenticatedLayout({
     {
       key: "3",
       icon: <CreditCardOutlined />,
-      label: <Link href="/credits">Credits</Link>,
+      label: <Link href="/credits">Your Credits</Link>,
     },
     {
       key: "4",
       icon: <LuPackage />,
-      label: <Link href="/packages">Packages</Link>,
+      label: <Link href="/packages">Session Packages</Link>,
     },
     {
       key: "5",
