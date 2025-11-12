@@ -25,40 +25,6 @@ export default function CreditsPage() {
   const [packages, setPackages] = useState<ClientPackageProps[]>([]);
   const user = useAppSelector((state) => state.auth.user);
   const { fetchClientPackages } = usePackageManagement();
-  const data = [
-    // {
-    //   time: "07:00AM",
-    //   duration: "50 mins",
-    //   date: "2024-10-10",
-    //   instructor: "Jane Doe",
-    //   limit: 10,
-    //   available: 3,
-    // },
-    // {
-    //   time: "07:00AM",
-    //   duration: "50 mins",
-    //   date: "2024-10-10",
-    //   instructor: "Jane Doe",
-    //   limit: 10,
-    //   available: 0,
-    // },
-    // {
-    //   time: "07:00AM",
-    //   duration: "50 mins",
-    //   date: "2024-10-10",
-    //   instructor: "Jane Doe",
-    //   limit: 10,
-    //   available: 1,
-    // },
-    // {
-    //   time: "07:00AM",
-    //   duration: "50 mins",
-    //   date: "2024-10-10",
-    //   instructor: "Jane Doe",
-    //   limit: 10,
-    //   available: 7,
-    // },
-  ];
 
   useEffect(() => {
     if (user?.id) {
@@ -145,7 +111,7 @@ export default function CreditsPage() {
           {/* Credits */}
           <Col xs={24} sm={12} lg={8} className="flex">
             <Card className="shadow-sm transition-shadow flex flex-col justify-between w-full h-full min-h-[120px]">
-              <Title level={3}>Package Credits</Title>
+              <Title level={3}>Credit Tracker</Title>
 
               <Row
                 wrap={false}
@@ -155,7 +121,12 @@ export default function CreditsPage() {
                 } rounded-lg items-center gap-[10px]`}
               >
                 {activePackage ? (
+                  /**
+                   * make sure to indicate total sessions
+                   * and how many sessions remaining
+                   */
                   <Row className="items-center gap-x-[7px]">
+                    <LiaCoinsSolid size={25} />
                     {!activePackage.packages.packageCredits && (
                       <Row className="items-center gap-x-[10px]">
                         <ImInfinite size={25} className="!font-normal" />
@@ -166,11 +137,11 @@ export default function CreditsPage() {
                     )}
                     {activePackage.packages.packageCredits && (
                       <Title level={4} className="!mb-0 !font-normal">
-                        {activePackage.packages.packageCredits}
+                        {`${user?.credits} / ${activePackage.packages.packageCredits}`}
                       </Title>
                     )}
                     <Title level={4} className="!m-0 !font-normal">
-                      Sessions
+                      sessions remaining
                     </Title>
                   </Row>
                 ) : (

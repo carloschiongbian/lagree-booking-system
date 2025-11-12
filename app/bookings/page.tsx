@@ -337,6 +337,9 @@ export default function BookingsPage() {
                           </span>
                         </p>
                         <p>
+                          <span>{item.slots}</span>
+                        </p>
+                        <p>
                           <span
                             className={`${
                               // calc available slots
@@ -350,7 +353,7 @@ export default function BookingsPage() {
                               ? "Full"
                               : item.available_slots === 1
                               ? "Last Slot"
-                              : `${item.slots} slots left`}
+                              : `${item.available_slots} slots left`}
                           </span>
                         </p>
                       </Col>

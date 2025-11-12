@@ -90,7 +90,7 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
     currentDate.diff(today, "day") + daysToShow >= maxDaysAhead;
 
   return (
-    <div className="flex items-center justify-center gap-2 bg-transparent p-4 rounded-xl w-full max-w-full mx-auto">
+    <Row className="flex items-center justify-center gap-[20px] bg-transparent p-4 rounded-xl w-full mx-auto">
       {/* Left Arrow */}
       <Button
         shape="circle"
@@ -101,7 +101,7 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
       />
 
       {/* Date Cards */}
-      <Row className="flex flex-row mx-auto wrap-none items-center gap-2 overflow-x-auto scrollbar-hide justify-center sm:justify-start py-2">
+      <Row className="flex flex-row wrap-none items-center gap-2 overflow-x-auto scrollbar-hide justify-center sm:justify-start py-2">
         {dates.map((date) => {
           const isSelected = date.isSame(selectedDate, "day");
           const isPast = date.isBefore(today, "day");
@@ -144,7 +144,7 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
         onClick={handleNext}
         disabled={isNextDisabled}
       />
-    </div>
+    </Row>
   );
 };
 
