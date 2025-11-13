@@ -111,7 +111,17 @@ export default function CreditsPage() {
           {/* Credits */}
           <Col xs={24} sm={12} lg={8} className="flex">
             <Card className="shadow-sm transition-shadow flex flex-col justify-between w-full h-full min-h-[120px]">
-              <Title level={3}>Credit Tracker</Title>
+              <Row justify={"space-between"}>
+                <Title level={3}>Credit Tracker</Title>
+                {user?.credits === 0 && (
+                  <Button
+                    onClick={() => router.push("/packages")}
+                    className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg px-[15px] shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+                  >
+                    Get Credits
+                  </Button>
+                )}
+              </Row>
 
               <Row
                 wrap={false}
@@ -136,7 +146,12 @@ export default function CreditsPage() {
                       </Row>
                     )}
                     {activePackage.packages.packageCredits && (
-                      <Title level={4} className="!mb-0 !font-normal">
+                      <Title
+                        level={4}
+                        className={`${
+                          user?.credits === 0 && "!text-red-400"
+                        } !mb-0 !font-normal`}
+                      >
                         {`${user?.credits} / ${activePackage.packages.packageCredits}`}
                       </Title>
                     )}
@@ -199,50 +214,39 @@ export default function CreditsPage() {
                   className="w-full shadow-sm transition-shadow border-none relative"
                   style={{
                     minWidth: 200,
-                    cursor: checkIfExpired(dayjs(item.expirationDate))
-                      ? "not-allowed"
-                      : "pointer",
+                    cursor:
+                      item.status === "expired" ? "not-allowed" : "pointer",
                   }}
                   title={item.packages.title}
                   styles={{
                     header: {
-                      ...(checkIfExpired(dayjs(item.expirationDate))
+                      ...(item.status === "expired"
                         ? {}
                         : {
                             transition: "box-shadow 0.3s ease",
                             borderInline: "3px solid #22c55e",
                             borderTop: "3px solid #22c55e",
                           }),
-                      color: checkIfExpired(dayjs(item.expirationDate))
-                        ? "#888"
-                        : "white",
+                      color: item.status === "expired" ? "#888" : "white",
                       fontSize: 20,
                       paddingInline: 15,
-                      backgroundColor: checkIfExpired(
-                        dayjs(item.expirationDate)
-                      )
-                        ? "rgba(0,0,0,0.3)"
-                        : "#36013F",
+                      backgroundColor:
+                        item.status === "expired"
+                          ? "rgba(0,0,0,0.3)"
+                          : "#36013F",
                     },
                     body: {
-                      ...(checkIfExpired(dayjs(item.expirationDate))
+                      ...(item.status === "expired"
                         ? { border: "1px solid gray" }
                         : {
                             transition: "box-shadow 0.3s ease",
                             borderInline: "3px solid #22c55e",
                             borderBottom: "3px solid #22c55e",
                           }),
-                      backgroundColor: checkIfExpired(
-                        dayjs(item.expirationDate)
-                      )
-                        ? "rgba(0,0,0,0.1)"
-                        : "white",
-                      color: checkIfExpired(dayjs(item.expirationDate))
-                        ? "#888"
-                        : "inherit",
-                      opacity: checkIfExpired(dayjs(item.expirationDate))
-                        ? 0.6
-                        : 1,
+                      backgroundColor:
+                        item.status === "expired" ? "rgba(0,0,0,0.1)" : "white",
+                      color: item.status === "expired" ? "#888" : "inherit",
+                      opacity: item.status === "expired" ? 0.6 : 1,
                       paddingInline: 15,
                     },
                   }}

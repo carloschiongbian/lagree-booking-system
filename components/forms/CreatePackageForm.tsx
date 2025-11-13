@@ -3,7 +3,7 @@
 import { Form, Input, InputNumber, Button, Row, Col, Checkbox } from "antd";
 import { TeamOutlined } from "@ant-design/icons";
 import { LuCalendarDays, LuPackage } from "react-icons/lu";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CreatePackageProps } from "@/lib/props";
 
 interface CreatePackageFormProps {
@@ -22,9 +22,12 @@ export default function CreatePackageForm({
   isEdit = false,
 }: CreatePackageFormProps) {
   const [form] = Form.useForm();
+  const [isUnlimited, setIsUnlimited] = useState<boolean>(false);
 
   useEffect(() => {
     if (initialValues) {
+      setIsUnlimited(initialValues.package_credits ? true : false);
+
       form.setFieldsValue({
         name: initialValues.title,
         price: initialValues.price,
@@ -153,7 +156,56 @@ export default function CreatePackageForm({
           </Form.Item>
         </Col>
 
-        <Col>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            className="!mb-[5px] !pb-[5px]"
+            name="package_credits"
+            label="Number of Sessions"
+            rules={[
+              {
+                required: !isUnlimited,
+                message: "Please enter number of sessions",
+              },
+              {
+                type: "number",
+                min: 1,
+                message: "Number must be more than 0",
+              },
+            ]}
+          >
+            <InputNumber
+              size="large"
+              disabled={isUnlimited}
+              placeholder="Enter number of sessions"
+              prefix={<TeamOutlined className="text-slate-400" />}
+              className="w-full"
+              min={1}
+              precision={0}
+              onKeyDown={(e) => {
+                if (!/[0-9]/.test(e.key) && e.code !== "Backspace") {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => {
+                const paste = e.clipboardData.getData("text");
+                if (!/^\d+$/.test(paste)) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          </Form.Item>
+          <Checkbox
+            defaultChecked={isUnlimited}
+            onChange={(e) => {
+              form.setFieldValue("package_credits", undefined);
+              setIsUnlimited(e.target.checked);
+            }}
+          >
+            Unlimited Sessions
+          </Checkbox>
+        </Col>
+
+        {/* <Col>
           <Form.Item
             name="promo"
             label="Promo"
@@ -162,7 +214,7 @@ export default function CreatePackageForm({
           >
             <Checkbox>Checkbox</Checkbox>
           </Form.Item>
-        </Col>
+        </Col> */}
       </Row>
 
       <Form.Item className="mb-0 mt-6">

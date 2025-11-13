@@ -512,6 +512,43 @@ export const usePackageManagement = () => {
     return data;
   };
 
+  const updateClientPackage = async ({
+    clientPackageID,
+    values,
+  }: {
+    clientPackageID: string;
+    values?: {
+      status?: string;
+      packageCredits?: number;
+      validityPeriod?: number;
+      expirationDate?: Dayjs;
+    };
+  }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("client_packages")
+      .update({
+        ...(values?.status && { status: values.status }),
+        ...(values?.expirationDate && {
+          expiration_date: values.expirationDate,
+        }),
+        ...(values?.packageCredits && {
+          package_credits: values.packageCredits,
+        }),
+        ...(values?.validityPeriod && {
+          validity_period: values.validityPeriod,
+        }),
+      })
+      .eq("id", clientPackageID)
+      .select();
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
+
   const fetchClientPackages = async ({ clientID }: { clientID: string }) => {
     setLoading(true);
 
@@ -529,6 +566,7 @@ export const usePackageManagement = () => {
 
   return {
     loading,
+    updateClientPackage,
     fetchClientPackages,
     purchasePackage,
     updatePackage,

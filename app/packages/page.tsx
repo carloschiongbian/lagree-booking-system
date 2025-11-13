@@ -13,6 +13,7 @@ import {
   Carousel,
   Tooltip,
 } from "antd";
+import { ImInfinite } from "react-icons/im";
 import { CalendarOutlined } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import { formatPrice } from "@/lib/utils";
@@ -24,6 +25,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/lib/features/authSlice";
 import UserTermsAndConditions from "@/components/layout/UserTermsAndConditions";
 import { PackageProps } from "@/lib/props";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 const CAROUSEL_SLIDES = {
@@ -37,7 +39,8 @@ export default function PackagesPage() {
   const carouselRef = useRef<any>(null);
   const { updateUserCredits } = useManageCredits();
   const user = useAppSelector((state) => state.auth.user);
-  const { fetchPackages, purchasePackage } = usePackageManagement();
+  const { fetchPackages, purchasePackage, updateClientPackage } =
+    usePackageManagement();
 
   const [isMobile, setIsMobile] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -153,15 +156,26 @@ export default function PackagesPage() {
   };
 
   const handlePurchasePackage = async () => {
-    const response = await purchasePackage({
-      userID: user?.id as string,
-      packageID: selectedRecord.id,
-      paymentMethod: "debit",
-      validityPeriod: selectedRecord.validityPeriod,
-      packageCredits: selectedRecord.packageCredits,
-    });
+    try {
+      if (user?.credits === 0) {
+        await updateClientPackage({
+          clientPackageID: user.currentPackage?.id as string,
+          values: { status: "expired", expirationDate: dayjs() },
+        });
+      }
 
-    return response;
+      const response = await purchasePackage({
+        userID: user?.id as string,
+        packageID: selectedRecord.id,
+        paymentMethod: "debit",
+        validityPeriod: selectedRecord.validityPeriod,
+        packageCredits: selectedRecord.packageCredits,
+      });
+
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handlePrev = () => {
@@ -183,13 +197,23 @@ export default function PackagesPage() {
           </Title>
         </div>
 
-        <Row gutter={[20, 20]} justify="start">
+        <Row wrap={false} gutter={[20, 20]} justify="start">
           {packages &&
             packages.map((item, index) => (
               <Col key={index} xs={24} sm={12} md={8} lg={6} xl={5}>
                 <Card
-                  title={`${item.validityPeriod} days`}
+                  title={
+                    item.packageCredits
+                      ? `${item.packageCredits} sessions`
+                      : `Unlimited`
+                  }
                   styles={{
+                    title: {
+                      gap: 0,
+                      textWrap: "wrap",
+                      textAlign: "center",
+                      marginInline: "auto",
+                    },
                     header: {
                       backgroundColor: "#36013F",
                       color: "white",
@@ -198,32 +222,49 @@ export default function PackagesPage() {
                       height: "120px",
                     },
                     body: {
+                      paddingInline: "10px",
                       paddingTop: "15px",
                     },
                   }}
-                  className="border-[#fbe2ff] rounded-[24px] shadow-sm transition-all duration-300"
+                  className="border-[#fbe2ff] rounded-[24px] shadow-sm transition-all duration-300 flex-nowrap"
                 >
                   <Col className="flex flex-col gap-y-[10px]">
                     <Col>
                       <p>
-                        <span className="font-light">{item.title}</span>
-                      </p>
-                      <p>
-                        <span className="font-light">
-                          PHP {formatPrice(item.price)}
+                        <span className="font-bold text-[16px]">
+                          {item.title}
                         </span>
                       </p>
                       <p>
                         <span className="font-light">
-                          Valid for {item.validityPeriod} days
+                          {item.packageCredits
+                            ? `${item.packageCredits} sessions`
+                            : "Unlimited Sessions"}
+                        </span>
+                      </p>
+                      <p>
+                        <span className="font-light">
+                          Valid for{" "}
+                          <span className="font-semibold">
+                            {item.validityPeriod}
+                          </span>{" "}
+                          days
+                        </span>
+                      </p>
+                      <p>
+                        <span className="font-normal">
+                          PHP {formatPrice(item.price)}
                         </span>
                       </p>
                     </Col>
 
-                    {user?.currentPackage && (
+                    {user?.currentPackage && user?.credits !== 0 && (
                       <Tooltip title="You still have an active package">
                         <Button
-                          disabled={user?.currentPackage}
+                          disabled={
+                            user?.currentPackage !== null ||
+                            user?.currentPackage !== undefined
+                          }
                           onClick={() => handleOpenModal(item)}
                           className={`${
                             !user?.currentPackage
@@ -238,18 +279,11 @@ export default function PackagesPage() {
                         </Button>
                       </Tooltip>
                     )}
-                    {user?.currentPackage === undefined && (
+                    {(user?.currentPackage === undefined ||
+                      user?.credits === 0) && (
                       <Button
-                        disabled={user?.currentPackage}
                         onClick={() => handleOpenModal(item)}
-                        className={`${
-                          !user?.currentPackage
-                            ? "!bg-[#36013F] !border-[#36013F]"
-                            : "!bg-[#c8c7c7]"
-                        } ${
-                          !user?.currentPackage &&
-                          "hover:!bg-[#36013F]  hover:scale-[1.03]"
-                        }  h-[40px] !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+                        className={`!bg-[#36013F] !border-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03] h-[40px] !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
                       >
                         Purchase
                       </Button>

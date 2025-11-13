@@ -38,6 +38,7 @@ export interface CreatePackageProps {
   price?: number;
   promo?: boolean;
   validity_period?: number;
+  package_credits?: number | null;
 }
 
 export interface ChartData {

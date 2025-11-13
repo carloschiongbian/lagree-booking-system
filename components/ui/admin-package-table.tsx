@@ -201,24 +201,37 @@ const AdminPackageTable = ({
         ),
       },
       {
+        title: "Package Credits",
+        dataIndex: "package_credits",
+        key: "package_credits",
+        width: isMobile ? undefined : "20%",
+        render: (_, record) => (
+          <Row>
+            <Text>
+              {(record.package_credits as number) ?? "Unlimited"} Sessions
+            </Text>
+          </Row>
+        ),
+      },
+      {
         title: "Validity Period (days)",
         dataIndex: "validity_period",
         key: "validity_period",
         width: isMobile ? undefined : "20%",
         ...getColumnSearchProps("validity_period"),
       },
-      {
-        title: "Package Type",
-        dataIndex: "promo",
-        key: "promo",
-        width: isMobile ? undefined : "20%",
-        ...getColumnSearchProps("promo"),
-        render: (_, record) => (
-          <Row>
-            <Text>{record.promo ? "Promo" : "Regular"}</Text>
-          </Row>
-        ),
-      },
+      // {
+      //   title: "Package Type",
+      //   dataIndex: "promo",
+      //   key: "promo",
+      //   width: isMobile ? undefined : "20%",
+      //   ...getColumnSearchProps("promo"),
+      //   render: (_, record) => (
+      //     <Row>
+      //       <Text>{record.promo ? "Promo" : "Regular"}</Text>
+      //     </Row>
+      //   ),
+      // },
       {
         title: "Action",
         key: "action",

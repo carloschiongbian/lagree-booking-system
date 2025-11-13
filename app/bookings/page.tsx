@@ -273,7 +273,9 @@ export default function BookingsPage() {
                 <Col>
                   <p>
                     <span className="font-semibold">
-                      {dayjs(item.start_time).format("hh:mm")}
+                      {`${dayjs(item.start_time).format("hh:mm")} ${dayjs(
+                        item.start_time
+                      ).format("A")}`}
                     </span>
                   </p>
                   <p>
@@ -308,7 +310,7 @@ export default function BookingsPage() {
         }}
       />
     );
-  }, [classes]);
+  }, [classes, loading]);
 
   return (
     <AuthenticatedLayout>

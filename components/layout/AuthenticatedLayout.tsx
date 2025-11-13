@@ -21,11 +21,13 @@ import {
 } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { CurrentPackageProps, supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
 import { LuPackage } from "react-icons/lu";
 import { FaBook } from "react-icons/fa";
+import { useManageCredits, usePackageManagement } from "@/lib/api";
+import dayjs from "dayjs";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -37,11 +39,14 @@ interface AuthenticatedLayoutProps {
 export default function AuthenticatedLayout({
   children,
 }: AuthenticatedLayoutProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
+  const { updateClientPackage, loading } = usePackageManagement();
+  const { updateUserCredits, loading: updatingCredits } = useManageCredits();
   const user = useAppSelector((state) => state.auth.user);
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     checkUser();
@@ -102,22 +107,46 @@ export default function AuthenticatedLayout({
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )[0];
 
-    const activePackage = profile?.client_packages?.find(
+    const activePackage: CurrentPackageProps = profile?.client_packages?.find(
       (p: any) => p.status === "active"
     );
 
-    if (profile) {
-      if (profile.is_user === false) {
-        router.push("/admin/dashboard");
-        return;
-      }
-      dispatch(
-        setUser({
-          ...profile,
-          currentPackage: activePackage,
-          credits: activePackage ? latestCredit.credits : 0,
+    if (
+      activePackage &&
+      dayjs(activePackage?.expiration_date).isBefore(dayjs())
+    ) {
+      let promises = [];
+      promises.push(
+        updateClientPackage({
+          clientPackageID: activePackage.id as string,
+          values: { status: "expired" },
         })
       );
+
+      promises.push(
+        updateUserCredits({
+          userID: session.user.id,
+          values: { credits: 0 },
+        })
+      );
+
+      await Promise.all(promises);
+
+      checkUser();
+    } else {
+      if (profile) {
+        if (profile.is_user === false) {
+          router.push("/admin/dashboard");
+          return;
+        }
+        dispatch(
+          setUser({
+            ...profile,
+            currentPackage: activePackage,
+            credits: activePackage ? latestCredit.credits : 0,
+          })
+        );
+      }
     }
   };
 

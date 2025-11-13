@@ -87,6 +87,7 @@ export default function PackageManagementPage() {
         title: pkg.title,
         price: pkg.price,
         validity_period: pkg.validity_period,
+        package_credits: pkg.package_credits,
         promo: pkg.package_type === "promo",
       }));
       setPackages(mapped);
@@ -108,11 +109,13 @@ export default function PackageManagementPage() {
     setEditingRecord(null);
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: CreatePackageProps) => {
     const formData = {
       title: values.name,
       price: values.price,
-      package_type: values.promo ? "promo" : "regular",
+      // package_type: values.promo ? "promo" : "regular",
+      package_type: "regular",
+      package_credits: values.package_credits ?? null,
       validity_period: values.validity_period,
     };
     try {
