@@ -197,15 +197,13 @@ export default function PackagesPage() {
           </Title>
         </div>
 
-        <Row wrap={false} gutter={[20, 20]} justify="start">
+        <Row gutter={[20, 20]} justify="start">
           {packages &&
             packages.map((item, index) => (
               <Col key={index} xs={24} sm={12} md={8} lg={6} xl={5}>
                 <Card
                   title={
-                    item.packageCredits
-                      ? `${item.packageCredits} sessions`
-                      : `Unlimited`
+                    item.packageCredits ? `${item.packageCredits}` : `Unlimited`
                   }
                   styles={{
                     title: {

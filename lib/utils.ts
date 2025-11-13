@@ -100,6 +100,12 @@ export const calculateDuration = (start: Dayjs, end: Dayjs): string => {
   return `${minutes} mins`;
 };
 
+export const calculateTimeDiff = (startTime: Dayjs) => {
+  const hoursPassed = startTime.diff(dayjs(), "hour");
+
+  return hoursPassed;
+};
+
 export const getSlotsLeft = (
   availableSlots: number,
   takenSlots: number

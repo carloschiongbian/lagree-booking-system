@@ -10,6 +10,7 @@ import {
 } from "./props";
 import dayjs, { Dayjs } from "dayjs";
 import { getDateFromToday } from "./utils";
+import { useAppSelector } from "./hooks";
 
 export const useSearchUser = () => {
   const [loading, setLoading] = useState(false);
@@ -186,6 +187,8 @@ export const useInstructorManagement = () => {
 
 export const useClassManagement = () => {
   const [loading, setLoading] = useState(false);
+  const { updateUserCredits } = useManageCredits();
+  const user = useAppSelector((state) => state.auth.user);
 
   const markAttendance = async ({
     bookingID,
@@ -282,6 +285,7 @@ export const useClassManagement = () => {
     *,
     class_bookings (
       id,
+      attendance_status,
       booker_id,
       class_id
     ),
@@ -378,19 +382,34 @@ export const useClassManagement = () => {
 
   const cancelClass = async ({
     id,
-    values,
+    classID,
+    takenSlots,
   }: {
     id: string;
-    values: CreateClassProps;
+    classID: string;
+    takenSlots: number;
   }) => {
     setLoading(true);
 
     const { data, error } = await supabase
       .from("class_bookings")
-      .update(values)
-      .eq("id", id);
+      .update({ attendance_status: "cancelled" })
+      .eq("id", id)
+      .select();
 
-    if (error) return null;
+    const updateClassResponse = await updateClass({
+      id: classID,
+      values: { taken_slots: takenSlots - 1 },
+    });
+    const updateCreditsResponse = await updateUserCredits({
+      userID: user?.id as string,
+      ...(user?.credits && {
+        values: { credits: (user.credits as number) + 1 },
+      }),
+    });
+
+    if (error || updateClassResponse === null || updateCreditsResponse === null)
+      return null;
 
     setLoading(false);
     return data;
@@ -421,6 +440,7 @@ export const useClassManagement = () => {
   return {
     loading,
     bookClass,
+    cancelClass,
     markAttendance,
     rebookAttendee,
     fetchClassAttendees,
@@ -595,6 +615,8 @@ export const useClientBookings = () => {
       end_time,
       start_time,
       instructor_id,
+      taken_slots,
+      available_slots,
       instructors (
         id,
         full_name,
@@ -604,6 +626,7 @@ export const useClientBookings = () => {
   `
       )
       .eq("booker_id", userID)
+      .or("attendance_status.is.null,attendance_status.neq.cancelled")
       .gte("class_date", today);
 
     if (error) return null;
@@ -643,7 +666,7 @@ export const useManageCredits = () => {
     values,
   }: {
     userID: string;
-    values: { credits: number };
+    values?: { credits: number };
   }) => {
     setLoading(true);
 

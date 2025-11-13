@@ -127,7 +127,7 @@ export default function BookingsPage() {
           };
         })
       );
-
+      console.log("mapped: ", mapped);
       setClasses(mapped);
     }
   };
@@ -205,15 +205,21 @@ export default function BookingsPage() {
   };
 
   const renderActionButton = useMemo(
-    () => (item: any) =>
-      (
+    () => (item: any) => {
+      const isCancelled =
+        item?.class_bookings?.[0]?.attendance_status === "cancelled";
+      return (
         <>
           {!!item.class_bookings.length && (
             <Button
               type="primary"
-              className={`bg-[green] hover:!bg-[green] !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+              className={`${
+                isCancelled
+                  ? "bg-red-700 hover:!bg-red-700"
+                  : "bg-[green] hover:!bg-[green]"
+              } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
             >
-              Joined
+              {isCancelled ? "You Cancelled" : "Joined"}
             </Button>
           )}
           {!item.class_bookings.length && (
@@ -237,7 +243,8 @@ export default function BookingsPage() {
             </Button>
           )}
         </>
-      ),
+      );
+    },
     [classes, user?.credits]
   );
 
