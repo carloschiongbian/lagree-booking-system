@@ -114,8 +114,7 @@ export default function DashboardPage() {
   };
 
   const handleCancelClass = async () => {
-    console.log("selectedRecord: ", selectedRecord);
-    const response = await cancelClass({
+    await cancelClass({
       id: selectedRecord.id,
       classID: selectedRecord.classes.id,
       takenSlots: selectedRecord.classes.taken_slots,
@@ -123,7 +122,6 @@ export default function DashboardPage() {
 
     handleFetchBookings();
     handleCloseCancelConfirmation();
-    console.log("response: ", response);
   };
   return (
     <AuthenticatedLayout>
@@ -171,7 +169,6 @@ export default function DashboardPage() {
                     <Card
                       hoverable={false}
                       onClick={() => setSelectedRecord(data)}
-                      // onClick={() => console.log(data)}
                       cover={
                         <div
                           style={{
@@ -210,7 +207,7 @@ export default function DashboardPage() {
                         >
                           <Button
                             onClick={handleOpenCancelConfirmation}
-                            // disabled={notCancellable}
+                            disabled={notCancellable}
                             className={`w-full ${
                               !notCancellable &&
                               "hover:!bg-red-700 hover:!border-red-600 hover:!text-white"
