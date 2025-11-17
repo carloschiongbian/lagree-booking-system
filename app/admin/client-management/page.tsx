@@ -126,7 +126,6 @@ export default function ClientManagementPage() {
           })
         );
 
-        console.log("mapped: ", mapped);
         setClients(mapped);
       }
     } catch (error) {
@@ -247,7 +246,7 @@ export default function ClientManagementPage() {
         <Drawer
           maskClosable={false}
           open={isEditing}
-          width={"30%"}
+          width={"35%"}
           onClose={handleCloseModal}
           footer={null}
           styles={{
@@ -291,7 +290,7 @@ export default function ClientManagementPage() {
           title={"Booking History"}
           maskClosable={false}
           open={isViewingHistory}
-          width={"30%"}
+          width={"35%"}
           onClose={handleCloseBookingHistory}
           // onCancel={handleCloseModal}
           footer={null}

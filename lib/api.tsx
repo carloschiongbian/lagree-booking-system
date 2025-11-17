@@ -414,7 +414,8 @@ export const useClassManagement = () => {
     const { data, error } = await supabase
       .from("classes")
       .update(values)
-      .eq("id", id);
+      .eq("id", id)
+      .select();
 
     if (error) return null;
 

@@ -28,6 +28,8 @@ interface EditClientProps {
   isModalOpen?: boolean;
   loading?: boolean;
   initialValues?: {
+    currentPackage?: any;
+    clientPackage?: any;
     first_name: string;
     last_name: string;
     email: string;
@@ -59,7 +61,6 @@ const EditClientForm = ({
 
   useEffect(() => {
     if (initialValues) {
-      console.log("initialValues: ", initialValues);
       if (initialValues?.avatar_url) {
         setFile([
           {
@@ -160,6 +161,14 @@ const EditClientForm = ({
     };
 
     onSubmit(formData);
+  };
+
+  const handleClose = () => {
+    form.resetFields();
+    setFile(null);
+    setPreviewImage("");
+    setPreviewOpen(false);
+    onCancel();
   };
   return (
     <Form layout="vertical" form={form} onFinish={handleSubmit}>
@@ -316,7 +325,7 @@ const EditClientForm = ({
 
       <Row className="flex gap-x-[10px] justify-center sm:justify-end mt-6">
         <Button
-          onClick={() => console.log(form)}
+          onClick={handleClose}
           loading={loading}
           disabled={loading}
           className=" font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
