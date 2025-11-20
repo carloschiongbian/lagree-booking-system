@@ -1,35 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Card, Button, Typography, Space } from "antd";
-import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
-import dynamic from "next/dynamic";
+import { Card, Typography } from "antd";
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
 import "react-quill/dist/quill.snow.css";
 
 const { Title, Text, Paragraph } = Typography;
 
-// Dynamically import Quill to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-
 const TermsAndConditionsManager = () => {
-  const [terms, setTerms] = useState<string>(
-    `<p>Welcome to Lagree Studio! <strong>By booking a class</strong>, you agree to follow all studio safety protocols.</p>`
-  );
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedTerms, setEditedTerms] = useState(terms);
-
-  const handleSave = () => {
-    setTerms(editedTerms);
-    setIsEditing(false);
-    // ✅ Optionally save to Supabase here
-  };
-
-  const handleCancel = () => {
-    setEditedTerms(terms);
-    setIsEditing(false);
-  };
-
   return (
     <AdminAuthenticatedLayout>
       <Card
@@ -41,7 +18,8 @@ const TermsAndConditionsManager = () => {
         }
       >
         <Title level={4}>
-          SUPRA8 LAGREE — MEMBER’S ASSUMPTION OF RISK AND RELEASE OF LIABILITY
+          SUPRA8 LAGREE — MEMBER&apos;S ASSUMPTION OF RISK AND RELEASE OF
+          LIABILITY
         </Title>
         <Text underline>Assumption of Risk</Text>
         <Paragraph>

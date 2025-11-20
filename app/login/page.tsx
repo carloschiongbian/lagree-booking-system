@@ -6,12 +6,14 @@ import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { useAppMessage } from "@/components/ui/message-popup";
 
 const { Title, Text } = Typography;
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showMessage, contextHolder } = useAppMessage();
+  const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
@@ -29,7 +31,7 @@ export default function LoginPage() {
         .eq("id", data.user.id)
         .maybeSingle();
 
-      message.success("Login successful!");
+      showMessage({ type: "success", content: "Login successful!" });
 
       if (profile?.is_user === false) {
         router.push("/admin/dashboard");
@@ -37,7 +39,7 @@ export default function LoginPage() {
         router.push("/dashboard");
       }
     } catch (error: any) {
-      message.error(error.message || "Login failed");
+      showMessage({ type: "error", content: "Login failed" });
     } finally {
       setLoading(false);
     }
@@ -45,13 +47,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
+      {contextHolder}
       <Card
         className="w-full max-w-md shadow-xl border-0"
         style={{ borderRadius: 12 }}
       >
         <div className="text-center mb-8">
           <Title level={2} className="!mb-2">
-            Lagree Studio
+            Supra8 Lagree
           </Title>
           <Text type="secondary">Sign in to your account</Text>
         </div>

@@ -6,7 +6,7 @@ import { AntdProvider } from "@/components/providers/AntdProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = { title: "Lagree Studios" };
+export const metadata: Metadata = { title: "Supra8 Lagree" };
 
 export default function RootLayout({
   children,

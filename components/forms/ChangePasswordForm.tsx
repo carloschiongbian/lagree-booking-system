@@ -223,15 +223,16 @@ const ChangePasswordForm = ({ clearSignal, onSubmit, form }: Props) => {
           type="primary"
           className="!bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
         >
-          Reset
+          Cancel
         </Button>
         <Button
           disabled={invalidCurrentPassword}
           type="primary"
           htmlType="submit"
           className={`${
-            !invalidCurrentPassword && "!bg-[#36013F] hover:!bg-[#36013F]"
-          } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+            !invalidCurrentPassword &&
+            "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+          } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
         >
           Change Password
         </Button>

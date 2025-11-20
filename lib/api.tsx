@@ -20,7 +20,7 @@ export const useSearchUser = () => {
 
     let query = supabase
       .from("user_profiles")
-      .select()
+      .select("*")
       .eq("email", email)
       .single();
 

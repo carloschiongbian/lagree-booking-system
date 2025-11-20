@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Row, Col, Typography, Button, List, Divider } from "antd";
+import { Card, Row, Col, Typography, Button, List } from "antd";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import { useRouter } from "next/navigation";
 import { MdErrorOutline } from "react-icons/md";
@@ -10,7 +10,7 @@ import { useAppSelector } from "@/lib/hooks";
 import { usePackageManagement } from "@/lib/api";
 import { ClientPackageProps } from "@/lib/props";
 import { TfiPackage } from "react-icons/tfi";
-import { checkIfExpired, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { ImInfinite } from "react-icons/im";
 
 import dayjs from "dayjs";
@@ -114,7 +114,7 @@ export default function CreditsPage() {
             <Card className="shadow-sm transition-shadow flex flex-col justify-between w-full h-full min-h-[120px]">
               <Row justify={"space-between"}>
                 <Title level={3}>Credit Tracker</Title>
-                {user?.credits === 0 && (
+                {!!packages.length && user?.credits === 0 && (
                   <Button
                     onClick={() => router.push("/packages")}
                     className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg px-[15px] shadow-sm transition-all duration-200 hover:scale-[1.03]`}
@@ -214,24 +214,25 @@ export default function CreditsPage() {
                 <PackageHistoryCard item={item} />
               </List.Item>
             )}
+            locale={{
+              emptyText: (
+                <div className="text-center py-12 text-slate-500">
+                  <Row className="justify-center">
+                    <Col className="flex flex-col justify-center items-center gap-y-[10px]">
+                      <Text>You haven&apos;t purchased any packages yet</Text>
+                      <Button
+                        type="primary"
+                        onClick={() => router.push("/packages")}
+                        className="w-fit !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                      >
+                        Purchase a package
+                      </Button>
+                    </Col>
+                  </Row>
+                </div>
+              ),
+            }}
           />
-
-          {packages.length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              <Row className="justify-center">
-                <Col className="flex flex-col justify-center items-center gap-y-[10px]">
-                  <Text>You haven&apos;t purchased any packages yet</Text>
-                  <Button
-                    type="primary"
-                    onClick={() => router.push("/packages")}
-                    className="w-fit !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
-                  >
-                    Purchase a package
-                  </Button>
-                </Col>
-              </Row>
-            </div>
-          )}
         </Card>
       </div>
     </AuthenticatedLayout>

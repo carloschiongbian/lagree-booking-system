@@ -15,6 +15,12 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
           fontSize: 14,
         },
         components: {
+          Tabs: {
+            itemActiveColor: "#36013F",
+            itemSelectedColor: "#36013F",
+            itemHoverColor: "#36013F",
+            inkBarColor: "#36013F",
+          },
           Checkbox: {
             colorPrimary: "#36013F",
             colorPrimaryHover: "#36013F",

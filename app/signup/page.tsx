@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -23,25 +23,26 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { MdContactEmergency } from "react-icons/md";
 import { useManageCredits, useSearchUser } from "@/lib/api";
+import useDebounce from "@/hooks/use-debounce";
+import { useAppMessage } from "@/components/ui/message-popup";
 
 const { Title, Text } = Typography;
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [form] = Form.useForm();
   const [stepOneData, setStepOneData] = useState<any>(null);
-  const router = useRouter();
+  const { showMessage, contextHolder } = useAppMessage();
   const { validateEmail, loading: validatingEmail } = useSearchUser();
   const { createUserCredits, loading: creatingCredits } = useManageCredits();
+
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const onFinishStepOne = async (values: any) => {
     setStepOneData(values);
     setCurrentStep(1);
-  };
-
-  const handleValidateEmail = async (email: string) => {
-    const response = await validateEmail({ email: email });
   };
 
   const onFinishStepTwo = async (values: any) => {
@@ -78,18 +79,35 @@ export default function SignupPage() {
         if (profileError) throw profileError;
       }
 
-      message.success("Account created successfully!");
-      router.push("/dashboard");
+      showMessage({
+        type: "success",
+        content: "Success! Redirecting you to your account!",
+        duration: 7000,
+      });
+
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 5000);
     } catch (error: any) {
+      console.log(JSON.stringify(error));
+      if (JSON.parse(JSON.stringify(error)).code === "user_already_exists") {
+        setCurrentStep(0);
+
+        showMessage({
+          type: "error",
+          content: "Email has already been taken.",
+          duration: 10000,
+        });
+      }
       console.log("error: ", error);
       message.error(error.message || "Sign up failed");
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-8">
+      {contextHolder}
       <Card
         className="w-full max-w-md shadow-xl border-0"
         style={{ borderRadius: 12 }}
@@ -290,13 +308,20 @@ export default function SignupPage() {
             </Form.Item>
 
             <div className="flex gap-3">
-              <Button onClick={() => setCurrentStep(0)} block className="h-11">
+              <Button
+                disabled={loading}
+                loading={loading}
+                onClick={() => setCurrentStep(0)}
+                block
+                className="h-11"
+              >
                 Back
               </Button>
               <Button
                 type="primary"
                 htmlType="submit"
                 loading={loading}
+                disabled={loading}
                 block
                 className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
               >

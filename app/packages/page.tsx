@@ -26,6 +26,7 @@ import { setUser } from "@/lib/features/authSlice";
 import UserTermsAndConditions from "@/components/layout/UserTermsAndConditions";
 import { PackageProps } from "@/lib/props";
 import dayjs from "dayjs";
+import { useAppMessage } from "@/components/ui/message-popup";
 
 const { Title } = Typography;
 const CAROUSEL_SLIDES = {
@@ -41,6 +42,7 @@ export default function PackagesPage() {
   const user = useAppSelector((state) => state.auth.user);
   const { fetchPackages, purchasePackage, updateClientPackage } =
     usePackageManagement();
+  const { showMessage, contextHolder } = useAppMessage();
 
   const [isMobile, setIsMobile] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -153,25 +155,31 @@ export default function PackagesPage() {
   };
 
   const handleNext = async () => {
-    setIsSubmitting(true);
-    const purchasedPackage = await handlePurchasePackage();
+    try {
+      setIsSubmitting(true);
+      const purchasedPackage = await handlePurchasePackage();
 
-    console.log("purchasedPackage: ", purchasedPackage);
-    const response = await handleUpdateUserCredits({
-      credits: selectedRecord.packageCredits,
-    });
-    console.log("response: ", response);
+      const response = await handleUpdateUserCredits({
+        credits: selectedRecord.packageCredits,
+      });
 
-    await handleSendConfirmationEmail();
+      await handleSendConfirmationEmail();
 
-    // temporarily commented out until payments is integrated
-    // setCarouselSlide(2);
-    // carouselRef.current.next();
+      // temporarily commented out until payments is integrated
+      // setCarouselSlide(2);
+      // carouselRef.current.next();
 
-    //temporary behavior
-    setIsModalOpen(false);
-    setSelectedRecord(null);
-    setIsSubmitting(false);
+      //temporary behavior
+      showMessage({
+        type: "success",
+        content: "Successfully purchased package!",
+      });
+      setIsModalOpen(false);
+      setSelectedRecord(null);
+      setIsSubmitting(false);
+    } catch (error) {
+      showMessage({ type: "error", content: "Failed to purchase package" });
+    }
   };
 
   const handlePurchasePackage = async () => {
@@ -209,12 +217,13 @@ export default function PackagesPage() {
 
   return (
     <AuthenticatedLayout>
+      {contextHolder}
       <div className="space-y-6">
-        <div>
+        {/* <div>
           <Title level={2} className="!mb-2">
             Available Packages
           </Title>
-        </div>
+        </div> */}
 
         <Row gutter={[20, 20]} className="gap-x-[20px] xl:justify-start">
           {packages &&

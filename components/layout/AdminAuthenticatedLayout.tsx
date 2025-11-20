@@ -162,7 +162,7 @@ export default function AuthenticatedLayout({
       >
         <div className="h-16 flex items-center justify-center border-b border-slate-200 bg-[#36013F]">
           <Text className="text-xl font-semibold text-slate-200">
-            Lagree Studio
+            Supra8 Lagree Admin
           </Text>
         </div>
         <Menu

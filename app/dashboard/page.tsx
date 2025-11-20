@@ -133,7 +133,7 @@ export default function DashboardPage() {
         </div>
 
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={8}>
+          {/* <Col xs={24} sm={12} lg={8}>
             <Card className="shadow-sm hover:shadow-md transition-shadow">
               <Statistic
                 title="Total Bookings"
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                 valueStyle={{ color: "#1e293b" }}
               />
             </Card>
-          </Col>
+          </Col> */}
           <Col xs={24} sm={12} lg={8}>
             <Card className="shadow-sm hover:shadow-md transition-shadow">
               <Statistic
@@ -156,7 +156,7 @@ export default function DashboardPage() {
         </Row>
 
         <Col>
-          <Title level={2}>Upcoming Classes</Title>
+          {/* <Title level={2}>Upcoming Classes</Title> */}
           <Row gutter={[16, 16]}>
             {upcomingBookings &&
               upcomingBookings.map((data, idx) => {
@@ -234,7 +234,7 @@ export default function DashboardPage() {
               })}
 
             {!upcomingBookings?.length && (
-              <Card className="shadow-sm w-full">
+              <Card title="No upcoming bookings" className="shadow-sm w-full">
                 <Row className="w-full flex-col flex items-center justify-center">
                   <Button
                     onClick={() => router.push("/bookings")}
