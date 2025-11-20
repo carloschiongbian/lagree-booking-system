@@ -6,7 +6,7 @@ export const packagePurchase = ({
   packageTitle?: string;
 }) => {
   return {
-    subject: "Your Supra8 Lagree Package is Confirmed",
+    subject: "Your Supra8 Lagree Payment and Package is Confirmed",
     body: `
     <div style="width:100%; background:#f4f4f4; padding:40px 0;">
   <div style="
@@ -60,59 +60,59 @@ export const packagePurchase = ({
   };
 };
 
-export const successfulPayment = () => {
-  return {
-    subject: "Supra8 Lagree Payment Successful",
-    body: `
-    <div style="width:100%; background:#f4f4f4; padding:40px 0;">
-  <div style="
-    max-width:480px;
-    margin:0 auto;
-    background:#ffffff;
-    padding:32px;
-    border-radius:10px;
-    border:1px solid #e6e6e6;
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    color:#333333;
-  ">
+// export const successfulPayment = () => {
+//   return {
+//     subject: "Supra8 Lagree Payment Successful",
+//     body: `
+//     <div style="width:100%; background:#f4f4f4; padding:40px 0;">
+//   <div style="
+//     max-width:480px;
+//     margin:0 auto;
+//     background:#ffffff;
+//     padding:32px;
+//     border-radius:10px;
+//     border:1px solid #e6e6e6;
+//     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+//     color:#333333;
+//   ">
 
-    <!-- Header -->
-    <h2 style="
-      margin:0 0 20px 0;
-      font-size:30px;
-      font-weight:600;
-      color:#36013F;
-      text-align:left;
-    ">
-      Thank you for your payment!
-    </h2>
+//     <!-- Header -->
+//     <h2 style="
+//       margin:0 0 20px 0;
+//       font-size:30px;
+//       font-weight:600;
+//       color:#36013F;
+//       text-align:left;
+//     ">
+//       Thank you for your payment!
+//     </h2>
 
-    <!-- Package -->
-    <h2 style="
-      margin:0 0 20px 0;
-      font-size:16px;
-      font-weight:600;
-      color:#36013F;
-      text-align:center;
-    ">
-      Your payment has been received and processed.
-    </h2>
+//     <!-- Package -->
+//     <h2 style="
+//       margin:0 0 20px 0;
+//       font-size:16px;
+//       font-weight:600;
+//       color:#36013F;
+//       text-align:center;
+//     ">
+//       Your payment has been received and processed.
+//     </h2>
 
-    <!-- Body Paragraph (your exact content) -->
-    <p style="
-      font-size:16px;
-      line-height:1.6;
-      color:#333;
-      margin:0 0 10px 0;
-    ">
-      You can now view your updated credits in your account.
-    </p> 
+//     <!-- Body Paragraph (your exact content) -->
+//     <p style="
+//       font-size:16px;
+//       line-height:1.6;
+//       color:#333;
+//       margin:0 0 10px 0;
+//     ">
+//       You can now view your updated credits in your account.
+//     </p>
 
-  </div>
-</div>
-    `,
-  };
-};
+//   </div>
+// </div>
+//     `,
+//   };
+// };
 
 export const classBookingConfirmation = ({
   className,
