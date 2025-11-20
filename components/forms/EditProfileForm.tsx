@@ -3,19 +3,28 @@
 import useDebounce from "@/hooks/use-debounce";
 import { useManagePassword } from "@/lib/api";
 import { useAppSelector } from "@/lib/hooks";
+import { supabase } from "@/lib/supabase";
 import {
   Button,
   Col,
   DatePicker,
   Form,
   FormInstance,
+  GetProp,
   Input,
   Row,
   Spin,
   Typography,
+  Upload,
+  UploadFile,
+  UploadProps,
+  Image,
 } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useAppMessage } from "../ui/message-popup";
+import { keys, omit } from "lodash";
 
 interface Props {
   clearSignal: any;
@@ -23,18 +32,44 @@ interface Props {
   loading?: boolean;
   onSubmit: (values: any) => void;
 }
+type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 const { Text } = Typography;
 
 const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
+  const BUCKET_NAME = "user-photos";
   const user = useAppSelector((state) => state.auth.user);
-
   const initialValuesRef = useRef<any>(null);
   const [isModified, setIsModified] = useState<boolean>(false);
   const watchedValues = Form.useWatch([], form);
+  const { showMessage, contextHolder } = useAppMessage();
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [file, setFile] = useState<UploadFile[] | null>(null);
+  const [initialFileState, setInitialFileState] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
+      if (user?.avatar_url) {
+        setInitialFileState([
+          {
+            uid: "-1",
+            name: "existing_image.png",
+            status: "done",
+            url: user?.avatar_url,
+          },
+        ]);
+
+        setFile([
+          {
+            uid: "-1",
+            name: "existing_image.png",
+            status: "done",
+            url: user?.avatar_url,
+          },
+        ]);
+      }
       const initial = {
         first_name: user.first_name,
         last_name: user.last_name,
@@ -44,24 +79,30 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
         location: user.location,
         emergency_contact_name: user.emergency_contact_name,
         emergency_contact_number: user.emergency_contact_number,
+        avatar_url: user?.avatar_url,
       };
 
-      form.setFieldsValue(initial);
-      initialValuesRef.current = initial;
+      const values = omit(initial, ["avatar_url"]);
+      form.setFieldsValue(values);
+      initialValuesRef.current = values;
     } else {
       form.resetFields();
     }
   }, [user]);
 
   useEffect(() => {
+    const fileKeys = keys(file?.[0]);
     if (
-      JSON.stringify(watchedValues) !== JSON.stringify(initialValuesRef.current)
+      JSON.stringify(watchedValues) !==
+        JSON.stringify(initialValuesRef.current) ||
+      (!!fileKeys.length && !fileKeys.includes("url")) ||
+      file?.length !== initialFileState?.length
     ) {
       setIsModified(true);
     } else {
       setIsModified(false);
     }
-  }, [watchedValues]);
+  }, [watchedValues, file]);
 
   useEffect(() => {
     handleClear();
@@ -80,6 +121,19 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
         emergency_contact_number:
           initialValuesRef.current.emergency_contact_number,
       });
+
+      if (user?.avatar_url) {
+        setFile([
+          {
+            uid: "-1",
+            name: "existing_image.png",
+            status: "done",
+            url: user?.avatar_url,
+          },
+        ]);
+      } else {
+        setFile([]);
+      }
     }
   };
 
@@ -88,9 +142,19 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
     handleResetProfileForm();
   };
 
-  const handleSubmit = (formData: any) => {
+  const handleSubmit = async (formData: any) => {
+    let imageURL: string = "";
+
+    if (file) {
+      const response = await handleUpload(file);
+      if (response) {
+        imageURL = response;
+      }
+    }
+
     const values = {
       ...formData,
+      avatar_path: imageURL.length ? imageURL : null,
       location: formData.location,
       birthday: dayjs(formData.birthday).toISOString(),
       full_name: `${formData.first_name} ${formData.last_name}`,
@@ -99,160 +163,245 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
     onSubmit(values);
   };
 
+  const handleUpload = async (file: any) => {
+    try {
+      if (user && !!file.length) {
+        const filePath = `${user?.id}_${dayjs().toDate().getTime()}`;
+        const fileExt = (file[0] as File).name.split(".").pop();
+        const fileName = `${filePath}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from(BUCKET_NAME)
+          .upload(fileName, file[0].originFileObj as File, {
+            upsert: true, // overwrite if exists
+            contentType: (file[0] as File).type,
+          });
+
+        if (uploadError) throw uploadError;
+
+        const imageURL = fileName;
+
+        return imageURL;
+      }
+    } catch (err: any) {
+      console.error(err);
+      showMessage({ type: "error", content: "Failed to upload image." });
+    }
+  };
+
+  const uploadButton = (
+    <button style={{ border: 0, background: "none" }} type="button">
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>User Photo</div>
+    </button>
+  );
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as FileType);
+    }
+
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+  };
+
+  const getBase64 = (file: FileType): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    console.log(newFileList);
+    setFile(newFileList);
+  };
+
   return (
-    <Form layout="vertical" form={form} onFinish={handleSubmit}>
-      <Row gutter={[16, 16]}>
-        {/* First Name */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="First Name"
-            name="first_name"
-            rules={[
-              { required: true, message: "Please enter your first name" },
-            ]}
-          >
-            <Input placeholder="Enter first name" />
-          </Form.Item>
-        </Col>
-
-        {/* Last Name */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Last Name"
-            name="last_name"
-            rules={[{ required: true, message: "Please enter your last name" }]}
-          >
-            <Input placeholder="Enter last name" />
-          </Form.Item>
-        </Col>
-
-        {/* Birthday */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Birthday"
-            name="birthday"
-            rules={[{ required: true, message: "Please select your birthday" }]}
-          >
-            <DatePicker
-              className="w-full"
-              format="YYYY-MM-DD"
-              placeholder="Select date"
-              disabledDate={(current) =>
-                current && current > dayjs().endOf("day")
-              }
-            />
-          </Form.Item>
-        </Col>
-
-        {/* Contact Number */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Contact Number"
-            name="contact_number"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your contact number",
-              },
-              {
-                pattern: /^[0-9]+$/,
-                message: "Contact number must be digits only",
-              },
-            ]}
-          >
-            <Input placeholder="Enter contact number" />
-          </Form.Item>
-        </Col>
-
-        {/* Email */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Email Address"
-            name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your email address",
-              },
-              { type: "email", message: "Please enter a valid email" },
-            ]}
-          >
-            <Input placeholder="Enter email address" />
-          </Form.Item>
-        </Col>
-
-        {/* Address */}
-        <Col xs={24}>
-          <Form.Item
-            label="Address"
-            name="location"
-            rules={[{ required: true, message: "Please enter your address" }]}
-          >
-            <Input.TextArea placeholder="Enter address" rows={3} />
-          </Form.Item>
-        </Col>
-
-        {/* Emergency Contact Name */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Emergency Contact Name"
-            name="emergency_contact_name"
-            rules={[
-              {
-                required: true,
-                message: "Please enter emergency contact name",
-              },
-            ]}
-          >
-            <Input placeholder="Enter emergency contact name" />
-          </Form.Item>
-        </Col>
-
-        {/* Emergency Contact Number */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Emergency Contact Number"
-            name="emergency_contact_number"
-            rules={[
-              {
-                required: true,
-                message: "Please enter emergency contact number",
-              },
-              {
-                pattern: /^[0-9]+$/,
-                message: "Emergency contact must be digits only",
-              },
-            ]}
-          >
-            <Input placeholder="Enter emergency contact number" />
-          </Form.Item>
-        </Col>
+    <>
+      {contextHolder}
+      <Row justify={"center"} className="w-full mb-4">
+        <Upload
+          listType="picture-circle"
+          fileList={file as UploadFile[]}
+          onPreview={handlePreview}
+          onChange={handleChange}
+          accept="image/*"
+          onDrop={(e) => console.log(e)}
+        >
+          {file && file.length > 0 ? null : uploadButton}
+        </Upload>
       </Row>
+      {previewImage && (
+        <Image
+          wrapperStyle={{ display: "none" }}
+          preview={{
+            visible: previewOpen,
+            onVisibleChange: (visible) => setPreviewOpen(visible),
+            afterOpenChange: (visible) => !visible && setPreviewImage(""),
+          }}
+          src={previewImage}
+        />
+      )}
+      <Form layout="vertical" form={form} onFinish={handleSubmit}>
+        <Row gutter={[16, 16]}>
+          {/* First Name */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="First Name"
+              name="first_name"
+              rules={[
+                { required: true, message: "Please enter your first name" },
+              ]}
+            >
+              <Input placeholder="Enter first name" />
+            </Form.Item>
+          </Col>
 
-      <div className="flex justify-center sm:justify-end mt-6 gap-x-[10px]">
-        <Button
-          disabled={loading}
-          type="primary"
-          onClick={handleResetProfileForm}
-          className={`${
-            !loading && "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
-          } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="primary"
-          disabled={!isModified || loading}
-          loading={loading}
-          htmlType="submit"
-          className={`${
-            isModified && "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
-          } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
-        >
-          Save Changes
-        </Button>
-      </div>
-    </Form>
+          {/* Last Name */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Last Name"
+              name="last_name"
+              rules={[
+                { required: true, message: "Please enter your last name" },
+              ]}
+            >
+              <Input placeholder="Enter last name" />
+            </Form.Item>
+          </Col>
+
+          {/* Birthday */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Birthday"
+              name="birthday"
+              rules={[
+                { required: true, message: "Please select your birthday" },
+              ]}
+            >
+              <DatePicker
+                className="w-full"
+                format="YYYY-MM-DD"
+                placeholder="Select date"
+                disabledDate={(current) =>
+                  current && current > dayjs().endOf("day")
+                }
+              />
+            </Form.Item>
+          </Col>
+
+          {/* Contact Number */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Contact Number"
+              name="contact_number"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your contact number",
+                },
+                {
+                  pattern: /^[0-9]+$/,
+                  message: "Contact number must be digits only",
+                },
+              ]}
+            >
+              <Input placeholder="Enter contact number" />
+            </Form.Item>
+          </Col>
+
+          {/* Email */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Email Address"
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your email address",
+                },
+                { type: "email", message: "Please enter a valid email" },
+              ]}
+            >
+              <Input placeholder="Enter email address" />
+            </Form.Item>
+          </Col>
+
+          {/* Address */}
+          <Col xs={24}>
+            <Form.Item
+              label="Address"
+              name="location"
+              rules={[{ required: true, message: "Please enter your address" }]}
+            >
+              <Input.TextArea placeholder="Enter address" rows={3} />
+            </Form.Item>
+          </Col>
+
+          {/* Emergency Contact Name */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Emergency Contact Name"
+              name="emergency_contact_name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter emergency contact name",
+                },
+              ]}
+            >
+              <Input placeholder="Enter emergency contact name" />
+            </Form.Item>
+          </Col>
+
+          {/* Emergency Contact Number */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Emergency Contact Number"
+              name="emergency_contact_number"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter emergency contact number",
+                },
+                {
+                  pattern: /^[0-9]+$/,
+                  message: "Emergency contact must be digits only",
+                },
+              ]}
+            >
+              <Input placeholder="Enter emergency contact number" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <div className="flex justify-center sm:justify-end mt-6 gap-x-[10px]">
+          <Button
+            disabled={loading}
+            type="primary"
+            onClick={handleResetProfileForm}
+            className={`${
+              !loading && "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+            } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            disabled={!isModified || loading}
+            loading={loading}
+            htmlType="submit"
+            className={`${
+              isModified &&
+              "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+            } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+          >
+            Save Changes
+          </Button>
+        </div>
+      </Form>
+    </>
   );
 };
 

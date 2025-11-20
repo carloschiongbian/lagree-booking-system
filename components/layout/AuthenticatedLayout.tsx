@@ -103,6 +103,22 @@ export default function AuthenticatedLayout({
       console.error(error);
     }
 
+    let signedUrl: string | undefined = "";
+
+    //if user has an avatar
+    if (profile.avatar_path) {
+      const { data, error: urlError } = await supabase.storage
+        .from("user-photos")
+        .createSignedUrl(`${profile?.avatar_path}`, 3600);
+
+      if (urlError) {
+        console.error("Error generating signed URL:", urlError);
+        signedUrl = undefined;
+      }
+
+      signedUrl = data?.signedUrl;
+    }
+
     const latestCredit = profile?.user_credits?.sort(
       (a: any, b: any) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -143,6 +159,7 @@ export default function AuthenticatedLayout({
         dispatch(
           setUser({
             ...profile,
+            avatar_url: signedUrl,
             currentPackage: activePackage,
             credits: activePackage ? latestCredit.credits : 0,
           })
@@ -261,8 +278,9 @@ export default function AuthenticatedLayout({
               </div>
               <Avatar
                 size="large"
+                src={user?.avatar_url}
                 icon={<UserOutlined />}
-                className="bg-slate-200"
+                className="bg-slate-200 border-slate-500"
               >
                 {user?.first_name?.[0]?.toUpperCase() || "U"}
               </Avatar>

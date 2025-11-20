@@ -31,6 +31,7 @@ export interface UserProfile {
   id?: string;
   email?: string;
   contact_number?: string;
+  avatar_url?: string;
   full_name?: string;
   first_name?: string;
   last_name?: string;

@@ -105,7 +105,10 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
       />
 
       {/* Date Cards */}
-      <Row className="flex flex-row wrap-none items-center gap-2 overflow-x-auto scrollbar-hide justify-center sm:justify-start py-2">
+      <Row
+        wrap={false}
+        className="flex flex-row items-center gap-2 overflow-x-auto scrollbar-hide justify-center sm:justify-start py-2"
+      >
         {dates.map((date) => {
           const isSelected = date.isSame(selectedDate, "day");
           const isPast = date.isBefore(today, "day");

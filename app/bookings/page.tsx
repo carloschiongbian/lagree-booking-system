@@ -357,30 +357,38 @@ export default function BookingsPage() {
               className="items-center"
               justify={"space-between"}
             >
-              <p className="!mb-0 !pb-0 text-[42px] font-[400]">
+              <p className="!mb-0 !pb-0 text-[24px] sm:text-[28px] md:text-[34px] xl:text-[42px] font-[400]">
                 {`${dayjs().format("MMMM").toLowerCase()} ${dayjs().format(
                   "YYYY"
                 )}`}
               </p>
 
               <Row
-                wrap={false}
+                wrap
                 onClick={() => router.push("/credits")}
-                className="cursor-pointer items-center gap-[10px] text-[20px] font-[400] bg-white rounded-lg py-[7px] px-[10px] shadow-sm border border-slate-300"
+                className="cursor-pointer items-center gap-[5px] sm:gap-3 md:gap-[10px] text-[16px] sm:text-[18px] md:text-[20px] font-[400] bg-white rounded-lg py-2 px-3 shadow-sm border border-slate-300 md:w-auto
+  "
               >
-                {user?.credits && <LiaCoinsSolid size={30} />}
+                {user?.credits && <LiaCoinsSolid size={24} />}
                 {user?.credits === null && <ImInfinite />}
-                {user?.credits !== null && user?.credits !== 0 && user?.credits}
-                <span>
-                  {user?.credits && user?.credits >= 0 && user?.credits !== 1
-                    ? "credits"
-                    : user?.credits === 1
-                    ? "credit"
-                    : "credits"}
+
+                <span className="flex flex-row flex-nowrap gap-x-[5px]">
+                  <span>
+                    {user?.credits !== null &&
+                      user?.credits !== 0 &&
+                      user?.credits}
+                  </span>
+                  <span>
+                    {user?.credits && user?.credits >= 0 && user?.credits !== 1
+                      ? "credits"
+                      : user?.credits === 1
+                      ? "credit"
+                      : "credits"}
+                  </span>
                 </span>
               </Row>
             </Row>
-            <Divider className="m-0 pb-[10px]" />
+            <Divider className="md:m-0 pb-[10px]" />
             <DatePickerCarousel
               isAdmin={false}
               onDateSelect={(e) => setSelectedDate(dayjs(e))}
