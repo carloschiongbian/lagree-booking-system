@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  output: "export",
+  // output: "export",
   experimental: { turbo: false }, // <- explicitly disable turbopack
   webpack: (config) => {
     config.module.exprContextCritical = false;
