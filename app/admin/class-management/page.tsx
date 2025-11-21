@@ -151,6 +151,7 @@ export default function ClassManagementPage() {
         setAllBookings(allBookings);
 
         const grouped = allBookings.reduce((acc, booking) => {
+          console.log("booking: ", booking);
           if (!acc[booking.value]) {
             acc[booking.value] = {
               bookingID: booking.bookingID,
@@ -168,6 +169,7 @@ export default function ClassManagementPage() {
                   takenSlots: booking.taken_slots,
                   availableSlots: booking.available_slots,
                   bookingID: booking.bookingID,
+                  startTime: booking.start_time,
                 },
               ],
             };
@@ -180,6 +182,7 @@ export default function ClassManagementPage() {
               )} - ${dayjs(booking.end_time).format("HH:mm A")}`,
               takenSlots: booking.taken_slots,
               availableSlots: booking.available_slots,
+              startTime: booking.start_time,
             });
           }
           return acc;

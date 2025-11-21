@@ -3,7 +3,9 @@
 import { Select, Row, Typography, Divider, Button, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { useSearchUser } from "@/lib/api";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+
+dayjs.extend(isSameOrAfter);
 
 interface RebookAttendeeProps {
   onSubmit: (values: any) => void;
@@ -26,10 +28,18 @@ export default function RebookAttendeeForm({
     useState<any>(null);
   const [selectedNewSchedule, setSelectedNewSchedule] = useState<any>(null);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [availableAttendees, setAvailableAttendees] = useState<any[]>([]);
 
   useEffect(() => {
-    console.log("attendees: ", attendees);
-    console.log("classes: ", classes);
+    const now = dayjs();
+
+    const rebookableAttendees = attendees.flatMap((attendee) =>
+      attendee.originalClasses.filter((oc: any) =>
+        dayjs(oc.startTime).isSameOrAfter(now)
+      )
+    );
+
+    setAvailableAttendees(rebookableAttendees);
   }, []);
 
   const handleSelect = (selected: string) => {
@@ -95,12 +105,18 @@ export default function RebookAttendeeForm({
           <Text>Attendee</Text>
           <Select
             allowClear
+            disabled={!availableAttendees.length}
             value={selectedRecord?.bookerName}
             onClear={handleClear}
             onSelect={(e) => handleSelect(e)}
             placeholder="Select an attendee from today"
-            options={attendees}
+            options={availableAttendees}
           />
+          {!availableAttendees.length && (
+            <span className="text-red-400">
+              There are currently no attendees in classes now or later
+            </span>
+          )}
         </Row>
         <Tooltip
           title={

@@ -2,19 +2,23 @@
 export const dynamic = "force-dynamic";
 
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
-import { Row, Typography, Spin, Drawer, Col, Segmented } from "antd";
+import { Row, Typography, Spin, Drawer, Segmented } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import { useManageCredits, useSearchUser, useUpdateUser } from "@/lib/api";
+import {
+  useDeleteUser,
+  useManageCredits,
+  useSearchUser,
+  useUpdateUser,
+} from "@/lib/api";
 import { useEffect, useState } from "react";
-import useDebounce from "@/hooks/use-debounce";
 import EditClientForm from "@/components/forms/EditClientForm";
 import { supabase } from "@/lib/supabase";
 import AdminClientTable from "@/components/ui/admin-client-table";
 import { omit } from "lodash";
-import { useAppSelector } from "@/lib/hooks";
-import dayjs from "dayjs";
-import { attendanceStatus } from "@/lib/utils";
 import UserBookingHistory from "@/components/ui/user-booking-history";
+import { useAppMessage } from "@/components/ui/message-popup";
+import UserPurchaseHistory from "@/components/ui/user-purchase-history";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
@@ -27,6 +31,11 @@ export default function ClientManagementPage() {
   const { updateUserCredits } = useManageCredits();
   const { searchClients, loading } = useSearchUser();
   const { updateUser, loading: updating } = useUpdateUser();
+  const { showMessage, contextHolder } = useAppMessage();
+  const [historyTab, setHistoryTab] = useState<
+    "Bookings" | "Purchases" | "Payments"
+  >("Bookings");
+  const { deleteUser } = useDeleteUser();
 
   useEffect(() => {
     handleSearchClients();
@@ -56,25 +65,31 @@ export default function ClientManagementPage() {
   }, []);
 
   const handleSearchClients = async () => {
-    // const data = await searchClients({ name: debouncedValue });
     const data = await searchClients({});
 
     try {
       if (data) {
         const mapped = await Promise.all(
           data.map(async (user: any) => {
+            let mappedClientPackages: any[] = [];
             let classBookings: any[] = [];
             let signedUrl: string | undefined = "";
-            let clientPackage = !!user.client_packages.length
-              ? user.client_packages[0]
-              : null;
+
+            const activePackage = user.client_packages.find(
+              (x: any) => x.status === "active"
+            );
+
+            let clientPackage =
+              !!user.client_packages.length && activePackage
+                ? activePackage
+                : null;
 
             //if user has an avatar
             if (user.avatar_path) {
               // generate signed URL valid for 1 hour (3600s)
               const { data, error: urlError } = await supabase.storage
                 .from("user-photos")
-                .createSignedUrl(`${user?.avatar_path}`, 3600);
+                .createSignedUrl(`${user?.avatar_path}`, 7000);
 
               if (urlError) {
                 console.error("Error generating signed URL:", urlError);
@@ -115,13 +130,35 @@ export default function ClientManagementPage() {
               };
             }
 
+            if (!!user.client_packages.length) {
+              mappedClientPackages = user.client_packages
+                .map((x: any) => {
+                  return {
+                    packages: {
+                      title: x.package_name,
+                    },
+                    status: x.status,
+                    packageCredits: x.package_credits,
+                    validityPeriod: x.validity_period,
+                    purchaseDate: x.purchase_date,
+                    expiration_date: x.expiration_date,
+                  };
+                })
+                .sort(
+                  (a: any, b: any) =>
+                    dayjs(b.purchaseDate).toDate().getTime() -
+                    dayjs(a.purchaseDate).toDate().getTime()
+                );
+            }
+
             return {
               ...user,
               clientPackage,
+              client_packages: mappedClientPackages,
               key: user.id,
               avatar_url: signedUrl,
               bookingHistory: classBookings,
-              credits: user?.user_credits?.[0]?.credits ?? 0,
+              credits: user?.user_credits?.[0]?.credits ?? null,
             };
           })
         );
@@ -129,6 +166,10 @@ export default function ClientManagementPage() {
         setClients(mapped);
       }
     } catch (error) {
+      showMessage({
+        type: "error",
+        content: "Please try refreshing the website",
+      });
       console.log("error: ", error);
     }
   };
@@ -150,33 +191,56 @@ export default function ClientManagementPage() {
   const handleCloseBookingHistory = (record: any) => {
     setSelectedRecord(record);
     setIsViewingHistory(false);
+    setHistoryTab("Bookings");
   };
 
   const handleSubmit = async (values: any) => {
     try {
       if (selectedRecord) {
-        await Promise.all([
+        let promises = [
           updateUser({
             id: selectedRecord.id,
             values: omit(values, ["credits"]),
           }),
-          updateUserCredits({
-            userID: selectedRecord?.id as string,
-            values: { credits: values.credits },
-          }),
-        ]);
+        ];
+
+        if (values.credits) {
+          promises.push(
+            updateUserCredits({
+              userID: selectedRecord?.id as string,
+              values: { credits: values.credits },
+            })
+          );
+        }
+        await Promise.all(promises);
 
         setIsEditing(false);
         setSelectedRecord(null);
         handleSearchClients();
+
+        showMessage({
+          type: "success",
+          content: "Successfully updated client!",
+        });
       }
     } catch (error) {
-      console.error("Error updating client:", error);
+      showMessage({ type: "error", content: "Error updating client" });
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    try {
+      await deleteUser({ id: id });
+      handleSearchClients();
+      showMessage({ type: "success", content: "Successfully deleted client!" });
+    } catch (error) {
+      showMessage({ type: "error", content: "Error deleting client" });
     }
   };
 
   return (
     <AdminAuthenticatedLayout>
+      {contextHolder}
       <div className="space-y-6">
         <div>
           <Row className="flex flex-col gap-y-[15px]">
@@ -207,6 +271,7 @@ export default function ClientManagementPage() {
                   loading={loading}
                   data={[...clients]}
                   onEdit={handleEdit}
+                  deleteUser={handleDeleteUser}
                   viewBookingHistory={handleViewBookingHistory}
                 />
               </div>
@@ -269,43 +334,43 @@ export default function ClientManagementPage() {
           </div>
         </Drawer>
       )}
-      {isMobile ? (
-        <Drawer
-          title={"Booking History"}
-          maskClosable={false}
-          placement="right"
-          onClose={handleCloseBookingHistory}
-          open={isViewingHistory}
-          width={"100%"}
-          styles={{
-            body: { paddingTop: 24 },
-          }}
-        >
-          <UserBookingHistory
-            bookingHistory={selectedRecord?.bookingHistory ?? []}
-          />
-        </Drawer>
-      ) : (
-        <Drawer
-          title={"Booking History"}
-          maskClosable={false}
-          open={isViewingHistory}
-          width={"35%"}
-          onClose={handleCloseBookingHistory}
-          // onCancel={handleCloseModal}
-          footer={null}
-          styles={{
-            body: { paddingTop: 10 },
-          }}
-        >
-          <Segmented options={["Bookings", "Payments"]} block />
+
+      <Drawer
+        title={"Booking History"}
+        maskClosable={false}
+        open={isViewingHistory}
+        width={isMobile ? "100%" : "35%"}
+        keyboard={false}
+        onClose={handleCloseBookingHistory}
+        // onCancel={handleCloseModal}
+        footer={null}
+        styles={{
+          body: { paddingTop: 10 },
+        }}
+      >
+        <Segmented
+          value={historyTab}
+          options={["Bookings", "Purchases", "Payments"]}
+          onChange={(e: "Bookings" | "Purchases" | "Payments") =>
+            setHistoryTab(e)
+          }
+          block
+        />
+        {historyTab === "Bookings" && (
           <div className="pt-4">
             <UserBookingHistory
               bookingHistory={selectedRecord?.bookingHistory ?? []}
             />
           </div>
-        </Drawer>
-      )}
+        )}
+        {historyTab === "Purchases" && (
+          <div className="pt-4">
+            <UserPurchaseHistory
+              purchaseHistory={selectedRecord?.client_packages ?? []}
+            />
+          </div>
+        )}
+      </Drawer>
     </AdminAuthenticatedLayout>
   );
 }

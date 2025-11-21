@@ -70,7 +70,7 @@ export const useSearchUser = () => {
     `
       )
       .eq("is_user", true)
-      .eq("client_packages.status", "active")
+      // .eq("client_packages.status", "active")
       .order("created_at", {
         ascending: false,
         foreignTable: "class_bookings",
@@ -179,6 +179,27 @@ export const useUpdateUser = () => {
   };
 
   return { loading, updateUser };
+};
+
+export const useDeleteUser = () => {
+  const [loading, setLoading] = useState(false);
+
+  const deleteUser = async ({ id }: { id: string }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .delete()
+      .eq("id", id)
+      .select();
+
+    if (error) return null;
+
+    setLoading(false);
+    return data;
+  };
+
+  return { loading, deleteUser };
 };
 
 export const useManageImage = () => {
@@ -591,17 +612,18 @@ export const usePackageManagement = () => {
     paymentMethod,
     validityPeriod,
     packageCredits,
+    packageName,
   }: {
     userID: string;
     packageID: string;
     paymentMethod: string;
+    packageName: string;
     packageCredits: number;
     validityPeriod: number;
   }) => {
     setLoading(true);
 
     const today = dayjs();
-
     const { data, error } = await supabase
       .from("client_packages")
       .insert({
@@ -611,6 +633,7 @@ export const usePackageManagement = () => {
         validity_period: validityPeriod,
         package_credits: packageCredits,
         purchase_date: today,
+        package_name: packageName,
         payment_method: paymentMethod,
         expiration_date: getDateFromToday(validityPeriod),
       })
@@ -690,30 +713,32 @@ export const useClientBookings = () => {
 
   const fetchClientBookings = async ({ userID }: { userID: string }) => {
     setLoading(true);
+
     const today = dayjs().startOf("day").format("YYYY-MM-DD");
 
     const { data, error } = await supabase
       .from("class_bookings")
       .select(
         `
-    id,
-    booker_id,
-    class_id,
-    class_date,
-    classes (
       id,
-      end_time,
-      start_time,
-      instructor_id,
-      taken_slots,
-      available_slots,
-      instructors (
+      booker_id,
+      class_id,
+      class_date,
+      attendance_status,
+      classes (
         id,
-        full_name,
-        avatar_path
+        end_time,
+        start_time,
+        instructor_id,
+        taken_slots,
+        available_slots,
+        instructors (
+          id,
+          full_name,
+          avatar_path
+        )
       )
-    )
-  `
+    `
       )
       .eq("booker_id", userID)
       .or("attendance_status.is.null,attendance_status.neq.cancelled")
@@ -765,8 +790,6 @@ export const useManageCredits = () => {
       .update(values)
       .eq("user_id", userID)
       .single();
-
-    console.log("error: ", error);
 
     if (error) return null;
 

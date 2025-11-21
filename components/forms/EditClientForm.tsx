@@ -15,12 +15,16 @@ import {
   Upload,
   Image,
   InputNumber,
+  Spin,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "@/lib/hooks";
 import PackageHistoryCard from "../ui/package-history-card";
+import { useSearchUser } from "@/lib/api";
+import useDebounce from "@/hooks/use-debounce";
+import { keys } from "lodash";
 
 interface EditClientProps {
   onSubmit: (values: any) => void;
@@ -28,6 +32,7 @@ interface EditClientProps {
   isModalOpen?: boolean;
   loading?: boolean;
   initialValues?: {
+    id?: string;
     currentPackage?: any;
     clientPackage?: any;
     first_name: string;
@@ -35,6 +40,7 @@ interface EditClientProps {
     email: string;
     contact_number: string;
     avatar_url?: string;
+    avatar_path?: string;
     credits?: number;
   } | null;
   isEdit?: boolean;
@@ -53,14 +59,51 @@ const EditClientForm = ({
 }: EditClientProps) => {
   const BUCKET_NAME = "user-photos";
   const [form] = Form.useForm();
+  const watchedValues = Form.useWatch([], form);
   const user = useAppSelector((state) => state.auth.user);
   const [uploading, setUploading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [file, setFile] = useState<UploadFile[] | null>(null);
+  const [initialFileState, setInitialFileState] = useState<UploadFile[] | null>(
+    null
+  );
+  const [email, setEmail] = useState<string>("");
+  const { validateEmail } = useSearchUser();
+  const { debouncedValue: debouncedEmail, loading: debouncing } = useDebounce(
+    email,
+    1500
+  );
+  const [emailTaken, setEmailTaken] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
+  const initialValuesRef = useRef<any>(null);
+  const [isModified, setIsModified] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (
+      (!!debouncedEmail?.length &&
+        initialValuesRef.current?.email !== debouncedEmail) ||
+      initialValuesRef.current?.email !== email
+    ) {
+      handleValidateEmail({ debouncedEmail: debouncedEmail });
+    } else {
+      setIsValidating(false);
+    }
+  }, [debouncedEmail]);
 
   useEffect(() => {
     if (initialValues) {
+      // exclude avatar data since it's not part of the form
+      const initial = {
+        first_name: initialValues.first_name,
+        last_name: initialValues.last_name,
+        contact_number: initialValues.contact_number,
+        email: initialValues.email,
+        credits: initialValues.credits,
+      };
+
+      form.setFieldsValue({ credits: initialValues.credits });
+
       if (initialValues?.avatar_url) {
         setFile([
           {
@@ -70,14 +113,19 @@ const EditClientForm = ({
             url: initialValues?.avatar_url,
           },
         ]);
+
+        setInitialFileState([
+          {
+            uid: "-1",
+            name: "existing_image.png",
+            status: "done",
+            url: initialValues?.avatar_url,
+          },
+        ]);
       }
-      form.setFieldsValue({
-        first_name: initialValues.first_name,
-        last_name: initialValues.last_name,
-        contact_number: initialValues.contact_number,
-        email: initialValues.email,
-        credits: initialValues.credits,
-      });
+
+      initialValuesRef.current = initial;
+      form.setFieldsValue(initial);
     } else {
       form.resetFields();
       setFile(null);
@@ -86,14 +134,53 @@ const EditClientForm = ({
     }
   }, [initialValues, form]);
 
+  useEffect(() => {
+    const fileKeys = keys(file?.[0]);
+
+    let formCopy = { ...watchedValues };
+    if (!keys(formCopy).includes("credits")) {
+      formCopy.credits = null;
+    }
+
+    if (
+      JSON.stringify(formCopy) !== JSON.stringify(initialValuesRef.current) ||
+      (!!fileKeys.length && !fileKeys.includes("url")) ||
+      file?.length !== initialFileState?.length
+    ) {
+      setIsModified(true);
+    } else {
+      setIsModified(false);
+    }
+  }, [watchedValues, file, initialValuesRef.current]);
+
+  const handleValidateEmail = async ({
+    debouncedEmail,
+  }: {
+    debouncedEmail: string;
+  }) => {
+    const response = await validateEmail({ email: debouncedEmail });
+    const isTaken =
+      response !== null && initialValuesRef.current.email !== debouncedEmail;
+
+    setEmailTaken(isTaken);
+
+    form.setFields([
+      {
+        name: "email",
+        errors: !isTaken ? [] : ["Email has already been taken"],
+      },
+    ]);
+    setIsValidating(false);
+  };
+
   const handleUpload = async (file: any) => {
     try {
-      if (user && !!file.length) {
+      if (initialValues?.id && !!file.length) {
         setUploading(true);
 
-        const filePath = `${user?.id}_${dayjs().toDate().getTime()}`;
+        const filePath = `${initialValues.id}_${dayjs().toDate().getTime()}`;
         const fileExt = (file[0] as File).name.split(".").pop();
-        const fileName = `${filePath}.${fileExt}`;
+        let fileName = `${filePath}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from(BUCKET_NAME)
@@ -145,14 +232,23 @@ const EditClientForm = ({
   };
 
   const handleSubmit = async (values: any) => {
-    let imageURL: string = "";
+    // let imageURL: string = initialValues?.avatar_url as string;
+    let imageURL: string | File = "";
+    const clientFile = file?.[0];
 
-    if (file) {
+    if (clientFile?.name !== "existing_image.png") {
       const response = await handleUpload(file);
+
       if (response) {
         imageURL = response;
       }
     }
+    // else {
+    //   imageURL = await urlToFile({
+    //     url: initialValues?.avatar_url as string,
+    //     filename: initialValues?.avatar_path as string,
+    //   });
+    // }
 
     const formData = {
       ...values,
@@ -250,20 +346,30 @@ const EditClientForm = ({
       <Title level={3}>Account Information</Title>
       <Row gutter={[16, 0]}>
         {/* Email */}
-        <Col xs={24} sm={12}>
-          <Form.Item
-            label="Email Address"
-            name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your email address",
-              },
-              { type: "email", message: "Please enter a valid email" },
-            ]}
-          >
-            <Input placeholder="Enter email address" />
-          </Form.Item>
+        <Col className="!mb-[20px]" xs={24} sm={12}>
+          <>
+            <Form.Item
+              className="!mb-[5px]"
+              label="Email Address"
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your email address",
+                },
+                { type: "email", message: "Please enter a valid email" },
+              ]}
+            >
+              <Input
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setIsValidating(true);
+                }}
+                placeholder="Enter email address"
+              />
+            </Form.Item>
+            {debouncing && <Spin spinning={debouncing} size="small" />}
+          </>
         </Col>
       </Row>
 
@@ -335,9 +441,13 @@ const EditClientForm = ({
         <Button
           type="primary"
           loading={loading}
-          disabled={loading}
+          disabled={loading || isValidating || emailTaken || !isModified}
           htmlType="submit"
-          className="!bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+          className={`${
+            !isValidating && !emailTaken && isModified
+              ? "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+              : "!bg-[gray] hover:!bg-[gray]"
+          } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
         >
           Save Changes
         </Button>

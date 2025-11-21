@@ -9,25 +9,24 @@ import {
   Table,
   Modal,
   Typography,
-  App,
   Image,
 } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
-import { CreatePackageProps, UserProps } from "@/lib/props";
+import { UserProps } from "@/lib/props";
 import { MdDelete, MdEdit } from "react-icons/md";
-import { formatPrice } from "@/lib/utils";
 import { UserIcon } from "lucide-react";
-import { FaBook, FaHistory } from "react-icons/fa";
+import { FaHistory } from "react-icons/fa";
+import { useDeleteUser } from "@/lib/api";
 
 type DataIndex = keyof UserProps;
-
 const { Text } = Typography;
 
 interface AdminClientsTableProps {
   data: UserProps[];
   loading?: boolean;
   onEdit: (record: UserProps) => void;
+  deleteUser: (id: string) => void;
   viewBookingHistory: (event: UserProps) => void;
 }
 
@@ -35,14 +34,16 @@ const AdminClientTable = ({
   data,
   onEdit,
   loading = false,
+  deleteUser,
   viewBookingHistory,
 }: AdminClientsTableProps) => {
+  const searchInput = useRef<InputRef>(null);
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const [isMobile, setIsMobile] = useState(false);
-  const searchInput = useRef<InputRef>(null);
-
-  const { confirm } = Modal;
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedRecordToDelete, setSelectedRecordToDelete] =
+    useState<UserProps | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -82,22 +83,25 @@ const AdminClientTable = ({
     setSearchText("");
   };
 
+  // replaced showDeleteConfirm to open our controlled Modal
   const showDeleteConfirm = (record: UserProps) => {
-    confirm({
-      title: "Delete Package",
-      icon: null,
-      content: `Are you sure you want to delete this package?`,
-      okText: "Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      width: isMobile ? "90%" : 416,
-      onOk() {
-        console.log("Deleted:", record);
-      },
-      onCancel() {
-        console.log("Cancelled delete");
-      },
-    });
+    setSelectedRecordToDelete(record);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedRecordToDelete) {
+      deleteUser(selectedRecordToDelete.id as string);
+      // TODO: call your delete API here
+    }
+    setIsDeleteModalOpen(false);
+    setSelectedRecordToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    console.log("Cancelled delete");
+    setIsDeleteModalOpen(false);
+    setSelectedRecordToDelete(null);
   };
 
   const getColumnSearchProps = (
@@ -240,14 +244,13 @@ const AdminClientTable = ({
         width: isMobile ? undefined : "15%",
         ...getColumnSearchProps("contact_number"),
       },
-
       {
         title: "Action",
         key: "action",
         width: isMobile ? undefined : "5%",
         fixed: isMobile ? undefined : "right",
         render: (_, record) => (
-          <Row className="justify-center cursor-pointer gap-3">
+          <Row wrap={false} className="justify-center cursor-pointer gap-3">
             <FaHistory size={20} onClick={() => viewBookingHistory(record)} />
             <MdEdit size={20} color="#733AC6" onClick={() => onEdit(record)} />
             <MdDelete
@@ -263,22 +266,42 @@ const AdminClientTable = ({
   );
 
   return (
-    <Table<UserProps>
-      loading={loading}
-      columns={columns}
-      dataSource={data}
-      scroll={{ x: isMobile ? 600 : undefined }}
-      pagination={{
-        defaultPageSize: 10,
-        showSizeChanger: true,
-        pageSizeOptions: ["10", "20", "50"],
-        responsive: true,
-        showTotal: (total, range) =>
-          `${range[0]}-${range[1]} of ${total} items`,
-      }}
-      size={isMobile ? "small" : "middle"}
-      className="admin-client-table"
-    />
+    <>
+      <Table<UserProps>
+        loading={loading}
+        columns={columns}
+        dataSource={data}
+        scroll={{ x: isMobile ? 600 : undefined }}
+        pagination={{
+          defaultPageSize: 10,
+          showSizeChanger: true,
+          pageSizeOptions: ["10", "20", "50"],
+          responsive: true,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} items`,
+        }}
+        size={isMobile ? "small" : "middle"}
+        className="admin-client-table"
+      />
+
+      <Modal
+        title="Delete Client"
+        open={isDeleteModalOpen}
+        onOk={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        okText="Delete"
+        okType="danger"
+        cancelText="Cancel"
+        width={isMobile ? "90%" : 430}
+      >
+        <Row className="py-[20px]">
+          <Text>Are you sure you want to delete this user?</Text>
+          <Text>
+            Once deleted, data attached to this user will be gone too.
+          </Text>
+        </Row>
+      </Modal>
+    </>
   );
 };
 

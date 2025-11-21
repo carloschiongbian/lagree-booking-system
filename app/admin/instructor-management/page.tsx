@@ -217,7 +217,7 @@ export default function InstructorManagementPage() {
 
           {!instructors?.length && (
             <Row className="w-full flex justify-center">
-              <Text>No clients by that name</Text>
+              <Text>No instructors by that name</Text>
             </Row>
           )}
         </Row>

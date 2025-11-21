@@ -57,25 +57,14 @@ const ChangePasswordForm = ({ clearSignal, onSubmit, form }: Props) => {
       currentPassword: debouncedCurrentPassword,
     });
 
-    if (!response) {
-      setInvalidCurrentPassword(true);
-      form.setFields([
-        {
-          name: "current_password",
-          errors: ["Incorrect password"],
-        },
-      ]);
-    } else {
-      // Clear error if valid
-      setInvalidCurrentPassword(false);
-      form.setFields([
-        {
-          name: "current_password",
-          errors: [],
-        },
-      ]);
-    }
+    form.setFields([
+      {
+        name: "current_password",
+        errors: response ? [] : ["Incorrect password"],
+      },
+    ]);
 
+    setInvalidCurrentPassword(response ? true : false);
     setIsValidating(false);
   };
 

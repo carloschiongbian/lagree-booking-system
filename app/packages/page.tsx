@@ -157,9 +157,9 @@ export default function PackagesPage() {
   const handleNext = async () => {
     try {
       setIsSubmitting(true);
-      const purchasedPackage = await handlePurchasePackage();
+      await handlePurchasePackage();
 
-      const response = await handleUpdateUserCredits({
+      await handleUpdateUserCredits({
         credits: selectedRecord.packageCredits,
       });
 
@@ -195,6 +195,7 @@ export default function PackagesPage() {
         userID: user?.id as string,
         packageID: selectedRecord.id,
         paymentMethod: "debit",
+        packageName: selectedRecord.title,
         validityPeriod: selectedRecord.validityPeriod,
         packageCredits: selectedRecord.packageCredits,
       });

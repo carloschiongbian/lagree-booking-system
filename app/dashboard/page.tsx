@@ -22,6 +22,10 @@ import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { calculateTimeDiff } from "@/lib/utils";
 
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+
+dayjs.extend(isSameOrAfter);
+
 const { Title, Text } = Typography;
 const MIN_CANCELLATION_HOURS = 24;
 
@@ -73,11 +77,18 @@ export default function DashboardPage() {
 
   const handleFetchBookings = async () => {
     if (user) {
-      const bookings = await fetchClientBookings({ userID: user?.id! });
+      const bookings: any = await fetchClientBookings({ userID: user?.id! });
+
+      // const nowISO = dayjs().toISOString();
+
+      const now = dayjs();
 
       if (bookings) {
+        const filtered = bookings.filter((booking: any) =>
+          dayjs(booking.classes.start_time).isSameOrAfter(now)
+        );
         const mapped = await Promise.all(
-          bookings.map(async (booking: any) => {
+          filtered.map(async (booking: any) => {
             // if (!booking.avatar_path) return booking; // skip if no avatar
 
             // generate signed URL valid for 1 hour (3600s)
@@ -248,6 +259,7 @@ export default function DashboardPage() {
           </Row>
         </Col>
       </div>
+
       {isMobile ? (
         <Drawer
           loading={cancellingClass}
