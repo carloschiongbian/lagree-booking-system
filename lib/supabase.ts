@@ -38,6 +38,7 @@ export interface UserProfile {
   birthday?: string;
   location?: string;
   is_user?: boolean;
+  user_type?: "general" | "admin" | "instructor";
   created_at?: string;
   updated_at?: string;
   credits?: number;

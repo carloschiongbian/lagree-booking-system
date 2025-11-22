@@ -152,9 +152,14 @@ export default function AuthenticatedLayout({
       checkUser();
     } else {
       if (profile) {
-        if (profile.is_user === false) {
+        if (profile.user_type === "admin") {
           router.push("/admin/dashboard");
           return;
+        } else if (profile.user_type === "instructor") {
+          router.push("/admin/dashboard");
+          return;
+        } else {
+          router.push("/dashboard");
         }
         dispatch(
           setUser({

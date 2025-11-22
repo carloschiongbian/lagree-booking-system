@@ -69,7 +69,7 @@ export const useSearchUser = () => {
      )
     `
       )
-      .eq("is_user", true)
+      .eq("user_type", "general")
       .order("created_at", {
         ascending: false,
         foreignTable: "class_bookings",
@@ -377,20 +377,23 @@ export const useClassManagement = () => {
 
   const fetchClasses = async ({
     isAdmin = false,
+    isInstructor = false,
     userId,
     startDate,
     endDate,
     selectedDate,
+    instructorId,
   }: {
     isAdmin?: boolean;
+    isInstructor?: boolean;
     userId?: string;
+    instructorId?: string;
     startDate?: Dayjs;
     endDate?: Dayjs;
     selectedDate?: Dayjs;
   }) => {
     setLoading(true);
 
-    // now in UTC ISO (matches timestamptz stored in DB)
     const nowISO = dayjs().toISOString();
     const today = dayjs().startOf("day");
 
@@ -409,12 +412,17 @@ export const useClassManagement = () => {
       )
     ),
     instructors (
+      id,
       avatar_path
     )
   `);
 
     if (userId) {
       query = query.eq("class_bookings.booker_id", userId);
+    }
+
+    if (isInstructor && instructorId) {
+      query = query.eq("instructor_id", instructorId);
     }
 
     if (startDate && endDate) {

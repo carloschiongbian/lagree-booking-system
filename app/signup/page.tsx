@@ -71,7 +71,7 @@ export default function SignupPage() {
               ? values.birthday.format("YYYY-MM-DD")
               : null,
             location: values.location,
-            is_user: true,
+            user_type: "general",
           });
 
         await createUserCredits({ values: { user_id: authData.user.id } });

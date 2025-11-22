@@ -27,16 +27,18 @@ export default function LoginPage() {
 
       const { data: profile } = await supabase
         .from("user_profiles")
-        .select("is_user")
+        .select("user_type")
         .eq("id", data.user.id)
         .maybeSingle();
 
       showMessage({ type: "success", content: "Login successful!" });
 
-      if (profile?.is_user === false) {
+      if (profile?.user_type === "admin") {
         router.push("/admin/dashboard");
-      } else {
+      } else if (profile?.user_type === "general") {
         router.push("/dashboard");
+      } else if (profile?.user_type === "instructor") {
+        router.push("/instructor/assigned-schedules");
       }
     } catch (error: any) {
       showMessage({ type: "error", content: "Login failed" });

@@ -366,8 +366,7 @@ export default function BookingsPage() {
               <Row
                 wrap
                 onClick={() => router.push("/credits")}
-                className="cursor-pointer items-center gap-[5px] sm:gap-3 md:gap-[10px] text-[16px] sm:text-[18px] md:text-[20px] font-[400] bg-white rounded-lg py-2 px-3 shadow-sm border border-slate-300 md:w-auto
-  "
+                className="cursor-pointer items-center gap-[5px] sm:gap-3 md:gap-[10px] text-[16px] sm:text-[18px] md:text-[20px] font-[400] bg-white rounded-lg py-2 px-3 shadow-sm border border-slate-300 md:w-auto"
               >
                 {user?.credits && <LiaCoinsSolid size={24} />}
                 {user?.credits === null && <ImInfinite />}

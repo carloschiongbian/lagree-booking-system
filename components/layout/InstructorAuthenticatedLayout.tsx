@@ -17,14 +17,13 @@ import {
   LogoutOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-import { FaBook, FaFileContract } from "react-icons/fa";
-
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { CurrentPackageProps, supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
-import { LuPackage, LuUserPen } from "react-icons/lu";
+import { useManageCredits, usePackageManagement } from "@/lib/api";
+import dayjs from "dayjs";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -33,46 +32,27 @@ interface AuthenticatedLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AuthenticatedLayout({
+export default function InstructorAuthenticatedLayout({
   children,
 }: AuthenticatedLayoutProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
+  const { updateClientPackage, loading } = usePackageManagement();
+  const { updateUserCredits, loading: updatingCredits } = useManageCredits();
   const user = useAppSelector((state) => state.auth.user);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  /**
+   *
+   * modify instructor management
+   * when creating an instructor, an account should be created with type "instructor"
+   * refer to email with Andre for form fields
+   *
+   * must include change passwords and all
+   */
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        router.push("/login");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .maybeSingle();
-
-      if (profile) {
-        if (profile.user_type === "general") {
-          router.push("/dashboard");
-          return;
-        } else if (profile.user_type === "instructor") {
-          router.push("/dashboard");
-          return;
-        } else {
-          router.push("/admin/dashboard");
-        }
-        dispatch(setUser(profile));
-      }
-    };
-
     checkUser();
 
     const {
@@ -93,6 +73,107 @@ export default function AuthenticatedLayout({
     };
   }, [dispatch, router]);
 
+  const checkUser = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+
+    const { data: profile, error } = await supabase
+      .from("user_profiles")
+      .select(
+        `
+    *,
+    user_credits (
+      id,
+      credits,
+      created_at
+    ),
+    client_packages (
+      *,
+      packages (*)
+    )
+  `
+      )
+      .eq("id", session.user.id)
+      .single();
+
+    if (error) {
+      console.error(error);
+    }
+
+    let signedUrl: string | undefined = "";
+
+    //if user has an avatar
+    if (profile.avatar_path) {
+      const { data, error: urlError } = await supabase.storage
+        .from("user-photos")
+        .createSignedUrl(`${profile?.avatar_path}`, 3600);
+
+      if (urlError) {
+        console.error("Error generating signed URL:", urlError);
+        signedUrl = undefined;
+      }
+
+      signedUrl = data?.signedUrl;
+    }
+
+    const latestCredit = profile?.user_credits?.sort(
+      (a: any, b: any) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )[0];
+
+    const activePackage: CurrentPackageProps = profile?.client_packages?.find(
+      (p: any) => p.status === "active"
+    );
+
+    if (
+      activePackage &&
+      dayjs(activePackage?.expiration_date).isBefore(dayjs())
+    ) {
+      let promises = [];
+      promises.push(
+        updateClientPackage({
+          clientPackageID: activePackage.id as string,
+          values: { status: "expired" },
+        })
+      );
+
+      promises.push(
+        updateUserCredits({
+          userID: session.user.id,
+          values: { credits: 0 },
+        })
+      );
+
+      await Promise.all(promises);
+
+      checkUser();
+    } else {
+      if (profile) {
+        if (profile.user_type === "admin") {
+          router.push("/admin/dashboard");
+          return;
+        } else if (profile.user_type === "general") {
+          router.push("/dashboard");
+          return;
+        }
+        dispatch(
+          setUser({
+            ...profile,
+            avatar_url: signedUrl,
+            currentPackage: activePackage,
+            credits: activePackage ? latestCredit.credits : 0,
+          })
+        );
+      }
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     dispatch(logoutAction());
@@ -100,12 +181,8 @@ export default function AuthenticatedLayout({
   };
 
   const getSelectedKey = () => {
-    if (pathname === "/admin/dashboard") return "1";
-    if (pathname === "/admin/client-management") return "2";
-    if (pathname === "/admin/instructor-management") return "3";
-    if (pathname === "/admin/class-management") return "4";
-    if (pathname === "/admin/package-management") return "5";
-    if (pathname === "/admin/user-terms-and-conditions") return "6";
+    if (pathname === "/instructor/assigned-schedules") return "1";
+
     return "1";
   };
 
@@ -113,37 +190,8 @@ export default function AuthenticatedLayout({
     {
       key: "1",
       icon: <HomeOutlined />,
-      label: <Link href="/admin/dashboard">Dashboard</Link>,
-    },
-    {
-      key: "2",
-      icon: <LuUserPen size={15} />,
-      label: <Link href="/admin/client-management">Client Management</Link>,
-    },
-    {
-      key: "3",
-      icon: <UserOutlined />,
       label: (
-        <Link href="/admin/instructor-management">Instructor Management</Link>
-      ),
-    },
-    {
-      key: "4",
-      icon: <FaBook />,
-      label: <Link href="/admin/class-management">Class Management</Link>,
-    },
-    {
-      key: "5",
-      icon: <LuPackage />,
-      label: <Link href="/admin/package-management">Package Management</Link>,
-    },
-    {
-      key: "6",
-      icon: <FaFileContract />,
-      label: (
-        <Link href="/admin/user-terms-and-conditions">
-          Terms and Conditions
-        </Link>
+        <Link href="/instructor/assigned-schedules">Assigned Classes</Link>
       ),
     },
   ];
@@ -167,7 +215,7 @@ export default function AuthenticatedLayout({
       >
         <div className="h-16 flex items-center justify-center border-b border-slate-200 bg-[#36013F]">
           <Text className="text-xl font-semibold text-slate-200">
-            Supra8 Lagree Admin
+            Supra8 Lagree
           </Text>
         </div>
         <Menu
@@ -176,6 +224,9 @@ export default function AuthenticatedLayout({
           items={menuItems}
           className="border-r-0 pt-4"
         />
+        <Text className="text-xl font-semibold text-slate-200 lg:hidden">
+          LagreeStudio
+        </Text>
       </Sider>
 
       <Layout>
@@ -183,12 +234,12 @@ export default function AuthenticatedLayout({
           <div className="flex items-center">
             <Button
               type="text"
-              icon={<MenuOutlined className="text-slate-200" />}
+              icon={<MenuOutlined />}
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden mr-2"
+              className="lg:hidden mr-2 text-slate-200"
             />
-            <Text className="text-xl font-semibold text-slate-200 lg:hidden">
-              LagreeStudio
+            <Text className="text-xl font-semibold text-slate-200">
+              {/* LagreeStudio */}
             </Text>
           </div>
 
@@ -204,8 +255,9 @@ export default function AuthenticatedLayout({
               </div>
               <Avatar
                 size="large"
+                src={user?.avatar_url}
                 icon={<UserOutlined />}
-                className="bg-slate-200"
+                className="bg-slate-200 border-slate-500"
               >
                 {user?.first_name?.[0]?.toUpperCase() || "U"}
               </Avatar>
@@ -225,7 +277,7 @@ export default function AuthenticatedLayout({
         onClose={() => setMobileMenuOpen(false)}
         open={mobileMenuOpen}
         className="lg:hidden"
-        styles={{ body: { padding: 0 } }}
+        styles={{ body: { paddingInline: 0 } }}
       >
         <Menu
           mode="inline"
