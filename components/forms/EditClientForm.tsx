@@ -404,7 +404,7 @@ const EditClientForm = ({
                 placeholder="Enter credits"
                 // prefix={<TeamOutlined className="text-slate-400" />}
                 className="w-full"
-                min={1}
+                min={0}
                 precision={0}
                 onKeyDown={(e) => {
                   if (!/[0-9]/.test(e.key) && e.code !== "Backspace") {
