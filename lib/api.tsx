@@ -70,7 +70,6 @@ export const useSearchUser = () => {
     `
       )
       .eq("is_user", true)
-      // .eq("client_packages.status", "active")
       .order("created_at", {
         ascending: false,
         foreignTable: "class_bookings",

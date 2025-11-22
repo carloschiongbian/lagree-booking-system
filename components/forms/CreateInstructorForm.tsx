@@ -49,7 +49,6 @@ export default function CreateInstructorForm({
 
   useEffect(() => {
     if (initialValues) {
-      //   const totalSlots = initialValues.slots.split("/")[1].trim();
       if (initialValues?.avatar_url) {
         setFile([
           {

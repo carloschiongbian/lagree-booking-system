@@ -87,7 +87,7 @@ export default function ManualBookingForm({
       class_date: selectedDate,
     };
     onSubmit(formattedValues);
-    // form.resetFields();
+    form.resetFields();
   };
 
   return (

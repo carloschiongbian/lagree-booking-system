@@ -79,8 +79,6 @@ export default function DashboardPage() {
     if (user) {
       const bookings: any = await fetchClientBookings({ userID: user?.id! });
 
-      // const nowISO = dayjs().toISOString();
-
       const now = dayjs();
 
       if (bookings) {
@@ -144,16 +142,6 @@ export default function DashboardPage() {
         </div>
 
         <Row gutter={[16, 16]}>
-          {/* <Col xs={24} sm={12} lg={8}>
-            <Card className="shadow-sm hover:shadow-md transition-shadow">
-              <Statistic
-                title="Total Bookings"
-                value={12}
-                prefix={<CalendarOutlined className="text-blue-600" />}
-                valueStyle={{ color: "#1e293b" }}
-              />
-            </Card>
-          </Col> */}
           <Col xs={24} sm={12} lg={8}>
             <Card className="shadow-sm hover:shadow-md transition-shadow">
               <Statistic
@@ -167,7 +155,6 @@ export default function DashboardPage() {
         </Row>
 
         <Col>
-          {/* <Title level={2}>Upcoming Classes</Title> */}
           <Row gutter={[16, 16]}>
             {upcomingBookings &&
               upcomingBookings.map((data, idx) => {
@@ -183,11 +170,10 @@ export default function DashboardPage() {
                       cover={
                         <div
                           style={{
-                            height: 200, // same height as an image cover
+                            height: 200,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            backgroundColor: "#f5f5f5", // optional: placeholder background
                           }}
                         >
                           {data?.avatar_url === undefined && (

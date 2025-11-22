@@ -12,37 +12,6 @@ import { useAppMessage } from "@/components/ui/message-popup";
 
 const { Title } = Typography;
 
-let data: CreatePackageProps[] = [
-  {
-    key: "1",
-    name: "12 Sessions",
-    price: 5000,
-    validity_period: 20,
-    promo: false,
-  },
-  {
-    key: "2",
-    name: "Drop In",
-    price: 5000,
-    validity_period: 30,
-    promo: true,
-  },
-  {
-    key: "3",
-    name: "Trial Pack",
-    price: 5000,
-    validity_period: 50,
-    promo: false,
-  },
-  {
-    key: "4",
-    name: "40 Sessions",
-    price: 5000,
-    validity_period: 40,
-    promo: false,
-  },
-];
-
 export default function PackageManagementPage() {
   const [packages, setPackages] = useState<any[]>([]);
   const { showMessage, contextHolder } = useAppMessage();
@@ -96,7 +65,6 @@ export default function PackageManagementPage() {
         price: pkg.price,
         validity_period: pkg.validity_period,
         package_credits: pkg.package_credits,
-        promo: pkg.package_type === "promo",
       }));
       setPackages(mapped);
     }
@@ -121,7 +89,6 @@ export default function PackageManagementPage() {
     const formData = {
       title: values.name,
       price: values.price,
-      // package_type: values.promo ? "promo" : "regular",
       package_type: "regular",
       package_credits: values.package_credits ?? null,
       validity_period: values.validity_period,

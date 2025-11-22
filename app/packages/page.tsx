@@ -144,9 +144,6 @@ export default function PackagesPage() {
       body: JSON.stringify({
         to: user?.email,
         title: selectedRecord.title,
-        // subject: "Hello from Next.js App Router",
-        // text: "This is a test email",
-        // html: "<p style={{fontFamily: 'Inter'}}>This is a <strong>test</strong> email</p>",
         emailType: "package_purchase",
       }),
     });
@@ -220,12 +217,6 @@ export default function PackagesPage() {
     <AuthenticatedLayout>
       {contextHolder}
       <div className="space-y-6">
-        {/* <div>
-          <Title level={2} className="!mb-2">
-            Available Packages
-          </Title>
-        </div> */}
-
         <Row gutter={[20, 20]} className="gap-x-[20px] xl:justify-start">
           {packages &&
             packages.map((item, index) => {
@@ -416,7 +407,6 @@ export default function PackagesPage() {
                  */
                 loading={isSubmitting}
                 disabled={!acceptsTerms || isSubmitting}
-                // disabled={!acceptsTerms}
                 className={`bg-[#36013F] ${
                   acceptsTerms ? "hover:!bg-[#36013F]" : ""
                 } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 w-full h-[50px]`}

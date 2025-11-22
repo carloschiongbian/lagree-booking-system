@@ -81,13 +81,6 @@ export default function DashboardPage() {
 
     const data = await fetchClasses(params);
     if (data) {
-      //  {
-      //   label: "Launching new features",
-      //   day: "Wed",
-      //   startTime: "11:00",
-      //   endTime: "15:45",
-      //   color: "#f9a8d4",
-      // },
       let mapped;
       if (dashboardPeriod === "Weekly") {
         mapped = data?.map((item: any, index: number) => ({
@@ -242,7 +235,7 @@ export default function DashboardPage() {
 
   const WeeklyScheduleChart = useCallback(() => {
     const dataPoints = classes?.map((ev) => ({
-      x: ev.day, // <-- use 'Wed' / 'Thu' etc. (string), not numeric index
+      x: ev.day,
       y: [timeToDecimal(ev.startTime), timeToDecimal(ev.endTime)],
       label: ev.label,
     }));
@@ -266,8 +259,6 @@ export default function DashboardPage() {
         },
       ],
     };
-
-    // uncomment to verify the shape at runtime
 
     const options: ChartOptions<"bar"> = {
       responsive: true,

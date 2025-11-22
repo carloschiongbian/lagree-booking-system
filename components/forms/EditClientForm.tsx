@@ -243,12 +243,6 @@ const EditClientForm = ({
         imageURL = response;
       }
     }
-    // else {
-    //   imageURL = await urlToFile({
-    //     url: initialValues?.avatar_url as string,
-    //     filename: initialValues?.avatar_path as string,
-    //   });
-    // }
 
     const formData = {
       ...values,

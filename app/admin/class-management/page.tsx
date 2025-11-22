@@ -278,7 +278,6 @@ export default function ClassManagementPage() {
         handleFetchClasses();
         showMessage({ type: "success", content: "Class has been updated!" });
       } else {
-        // CREATE INSTRUCTOR MANAGEMENT FIRST
         try {
           await createClass({
             values: {
@@ -362,9 +361,6 @@ export default function ClassManagementPage() {
       newClassID: newClassID,
       newTakenSlots: newClassRecord.taken_slots,
     });
-
-    // CLEAR REBOOK FORM STATES
-    // RE RUN TESTS
 
     handleFetchClasses();
     handleCloseRebookModal();

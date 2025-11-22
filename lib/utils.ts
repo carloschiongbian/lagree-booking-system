@@ -11,13 +11,13 @@ export const attendanceStatus: any = {
   missed: { status: "Missed", color: "red" },
 };
 export const ganttColors = [
-  "#F28B82", // Muted Coral
-  "#FDD663", // Soft Honey Yellow
-  "#A8E6A3", // Gentle Mint
-  "#9EC5E7", // Powder Blue
-  "#C6B6F3", // Soft Lavender
-  "#F9C7B4", // Warm Blush
-  "#AEE6E4", // Pale Aqua
+  "#F28B82",
+  "#FDD663",
+  "#A8E6A3",
+  "#9EC5E7",
+  "#C6B6F3",
+  "#F9C7B4",
+  "#AEE6E4",
 ];
 
 function formatDailyTime(time: string): number {
@@ -27,9 +27,6 @@ function formatDailyTime(time: string): number {
   return parseFloat((hours + minutes / 60).toFixed(2));
 }
 
-/**
- * Converts class records to chart-friendly data.
- */
 export function formatClassesForChart(data: any[]): ChartData[] {
   return data.map((item, index) => ({
     label: `Class with ${item.instructor_name}`,

@@ -92,7 +92,6 @@ const AdminClientTable = ({
   const handleConfirmDelete = () => {
     if (selectedRecordToDelete) {
       deleteUser(selectedRecordToDelete.id as string);
-      // TODO: call your delete API here
     }
     setIsDeleteModalOpen(false);
     setSelectedRecordToDelete(null);

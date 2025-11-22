@@ -146,7 +146,6 @@ export default function BookingsPage() {
     if (carouselSlide === CAROUSEL_SLIDES.TERMS) {
       carouselRef.current.next();
       setCarouselSlide(CAROUSEL_SLIDES.BOOKING_DETAILS);
-      // carouselRef.current.goTo(CAROUSEL_SLIDES.BOOKING_DETAILS);
       return;
     }
 
@@ -414,13 +413,6 @@ export default function BookingsPage() {
             >
               {RenderClassList}
             </div>
-
-            {/* {classes.length === 0 && (
-              <div className="text-center py-12 text-slate-500">
-                <CalendarOutlined className="text-4xl mb-4" />
-                <p>No bookings yet. Start by creating your first booking.</p>
-              </div>
-            )} */}
           </Card>
         </Row>
       </div>

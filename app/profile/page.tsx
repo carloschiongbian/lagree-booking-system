@@ -110,10 +110,6 @@ export default function ProfilePage() {
       {contextHolder}
       <div className="bg-[#F9FAFB] flex justify-center items-center">
         <div className="bg-white w-full max-w-3xl rounded-2xl shadow-sm p-6 sm:p-10">
-          {/* <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
-            Edit Profile
-          </h2> */}
-
           <Tabs
             defaultActiveKey="personal-information"
             onTabClick={(e) => setProfileTab(e)}

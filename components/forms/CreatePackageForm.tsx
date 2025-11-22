@@ -32,7 +32,6 @@ export default function CreatePackageForm({
         name: initialValues.title,
         price: initialValues.price,
         validity_period: initialValues.validity_period,
-        promo: initialValues.promo,
       });
     } else {
       form.resetFields();
@@ -204,17 +203,6 @@ export default function CreatePackageForm({
             Unlimited Sessions
           </Checkbox>
         </Col>
-
-        {/* <Col>
-          <Form.Item
-            name="promo"
-            label="Promo"
-            initialValue={false}
-            valuePropName="checked"
-          >
-            <Checkbox>Checkbox</Checkbox>
-          </Form.Item>
-        </Col> */}
       </Row>
 
       <Form.Item className="mb-0 mt-6">

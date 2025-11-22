@@ -140,10 +140,6 @@ export default function CreditsPage() {
                 } rounded-lg items-center gap-[10px]`}
               >
                 {activePackage ? (
-                  /**
-                   * make sure to indicate total sessions
-                   * and how many sessions remaining
-                   */
                   <Row className="items-center gap-x-[7px]">
                     <LiaCoinsSolid size={25} />
                     {!activePackage.packages.packageCredits && (

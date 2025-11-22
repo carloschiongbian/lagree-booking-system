@@ -46,7 +46,6 @@ export default function ClientManagementPage() {
       setIsMobile(window.innerWidth < 768);
     };
 
-    // rAF throttle
     let rafId: number | null = null;
     const onResize = () => {
       if (rafId !== null) return;
@@ -247,12 +246,6 @@ export default function ClientManagementPage() {
             <Title level={2} className="!mb-0">
               Client Management
             </Title>
-            {/* <Input
-              className="max-w-[300px]"
-              placeholder="Search clients"
-              prefix={<IoIosSearch />}
-              onChange={(e) => setInput(e.target.value)}
-            /> */}
           </Row>
         </div>
 
@@ -275,12 +268,6 @@ export default function ClientManagementPage() {
                   viewBookingHistory={handleViewBookingHistory}
                 />
               </div>
-
-              {/* {!clients?.length && (
-                <div className="flex justify-center w-full">
-                  <Text>No clients by that name</Text>
-                </div>
-              )} */}
             </>
           )}
         </div>
@@ -328,9 +315,6 @@ export default function ClientManagementPage() {
                 isEdit={!!selectedRecord}
               />
             )}
-            {/* {isViewingHistory &&
-
-            } */}
           </div>
         </Drawer>
       )}
@@ -342,7 +326,6 @@ export default function ClientManagementPage() {
         width={isMobile ? "100%" : "35%"}
         keyboard={false}
         onClose={handleCloseBookingHistory}
-        // onCancel={handleCloseModal}
         footer={null}
         styles={{
           body: { paddingTop: 10 },
