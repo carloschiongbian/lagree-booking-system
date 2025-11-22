@@ -28,7 +28,6 @@ interface CreateClassFormProps {
   onCancel: () => void;
   loading?: boolean;
   initialValues?: CreateClassProps | null;
-  isEdit?: boolean;
 }
 
 export default function ManualBookingForm({
@@ -38,11 +37,9 @@ export default function ManualBookingForm({
   onCancel,
   loading = false,
   initialValues = null,
-  isEdit = false,
 }: CreateClassFormProps) {
   const [form] = Form.useForm();
   const [schedules, setSchedules] = useState<any>([]);
-  const { searchInstructors, loading: searchingInstructor } = useSearchUser();
 
   useEffect(() => {
     handleParseClasses();
@@ -59,6 +56,7 @@ export default function ManualBookingForm({
   }, [initialValues, form]);
 
   const handleParseClasses = async () => {
+    console.log("classes: ", classes);
     const mapped = classes.map((cls, key) => {
       return {
         value: cls.id,
@@ -67,6 +65,7 @@ export default function ManualBookingForm({
         )} - ${dayjs(cls.end_time).format("hh:mm A")})`,
         id: cls.instructor_id,
         key: key,
+        takenSlots: cls.taken_slots,
       };
     });
     console.log("mapped: ", mapped);
@@ -74,13 +73,18 @@ export default function ManualBookingForm({
   };
 
   const handleFinish = (values: any) => {
+    const found = schedules.find(
+      (item: any) => item.value === values.class_schedule
+    );
+    console.log("found: ", found);
     const formattedValues = {
       ...values,
-      start_time: values.time[0],
-      end_time: values.time[1],
+      taken_slots: found.takenSlots,
+      class_id: values.class_schedule,
+      class_date: selectedDate,
     };
     onSubmit(formattedValues);
-    form.resetFields();
+    // form.resetFields();
   };
 
   return (
@@ -130,6 +134,26 @@ export default function ManualBookingForm({
             <Input placeholder="Last Name" />
           </Form.Item>
         </Col>
+
+        <Col xs={24} sm={12}>
+          <Form.Item
+            label="Email"
+            name="walk_in_client_email"
+            rules={[{ required: true, message: "Please enter an email" }]}
+          >
+            <Input placeholder="Walk-In Email" />
+          </Form.Item>
+        </Col>
+
+        <Col xs={24} sm={12}>
+          <Form.Item
+            label="Contact Number"
+            name="walk_in_client_contact_number"
+            rules={[{ required: true, message: "Please enter contact number" }]}
+          >
+            <Input placeholder="Walk-In Number" />
+          </Form.Item>
+        </Col>
       </Row>
 
       <Form.Item className="mb-0 mt-6">
@@ -143,7 +167,7 @@ export default function ManualBookingForm({
               block
               className="bg-[#36013F] hover:!bg-[#36013F] !border-none"
             >
-              {isEdit ? "Update" : "Create"}
+              Book
             </Button>
           </Col>
           <Col xs={12} sm={8}>

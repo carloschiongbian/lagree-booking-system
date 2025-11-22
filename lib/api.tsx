@@ -402,6 +402,8 @@ export const useClassManagement = () => {
       attendance_status,
       booker_id,
       class_id,
+      walk_in_first_name,
+      walk_in_last_name,
       user_profiles (
         id,
         full_name
@@ -545,16 +547,46 @@ export const useClassManagement = () => {
     classDate,
     bookerId,
     classId,
+    isWalkIn,
+    walkInFirstName,
+    walkInLastName,
+    walkInClientEmail,
+    walkInClientContactNumber,
   }: {
     classDate: string;
-    bookerId: string;
     classId: string;
+    isWalkIn: boolean;
+    bookerId?: string;
+    walkInFirstName?: string;
+    walkInLastName?: string;
+    walkInClientEmail?: string;
+    walkInClientContactNumber?: string;
   }) => {
     setLoading(true);
 
     const { data, error } = await supabase
       .from("class_bookings")
-      .insert({ booker_id: bookerId, class_id: classId, class_date: classDate })
+      .insert({
+        class_id: classId,
+        class_date: classDate,
+        is_walk_in: isWalkIn,
+        ...(bookerId && { booker_id: bookerId }),
+        /**
+         * walk-ins can only book classes that are on the same day
+         * so we set the sent_email_reminder value to TRUE
+         * meaning that an automated email does not need to be
+         * sent to that client
+         *
+         * DEV NOTE: default value is FALSE and is configured in the DB
+         */
+        ...(isWalkIn === true && { sent_email_reminder: true }),
+        ...(walkInFirstName && { walk_in_first_name: walkInFirstName }),
+        ...(walkInLastName && { walk_in_last_name: walkInLastName }),
+        ...(walkInClientEmail && { walk_in_client_email: walkInClientEmail }),
+        ...(walkInClientContactNumber && {
+          walk_in_client_contact_number: walkInClientContactNumber,
+        }),
+      })
       .select();
 
     if (error) return null;

@@ -185,6 +185,7 @@ export default function BookingsPage() {
             classDate: dayjs().toISOString(),
             classId: selectedRecord.id,
             bookerId: user?.id as string,
+            isWalkIn: false,
           }),
           updateClass({
             id: selectedRecord.id,

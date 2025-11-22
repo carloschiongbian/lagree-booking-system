@@ -52,6 +52,7 @@ interface ClassBooking {
 export default function ClassManagementPage() {
   const {
     loading,
+    bookClass,
     deleteClass,
     createClass,
     updateClass,
@@ -138,7 +139,9 @@ export default function ClassManagementPage() {
           cls.class_bookings.map((booking: any) => ({
             classID: cls.id,
             value: booking.booker_id,
-            label: booking.user_profiles.full_name,
+            label: booking.user_profiles
+              ? booking.user_profiles.full_name
+              : `${booking.walk_in_first_name} ${booking.walk_in_last_name}`,
             class_id: cls.id,
             class_name: cls.instructor_name,
             start_time: cls.start_time,
@@ -200,7 +203,7 @@ export default function ClassManagementPage() {
     } catch (error) {
       showMessage({
         type: "error",
-        content: "Please try refreshing your browser",
+        content: "Error fetching classes. Please try refreshing your browser",
       });
     }
   };
@@ -247,7 +250,9 @@ export default function ClassManagementPage() {
         ...selectedRecord,
         ...classBookings,
         attendanceStatus: classBookings.attendance_status,
-        attendeeName: classBookings.user_profiles.full_name,
+        attendeeName: classBookings.user_profiles
+          ? classBookings.user_profiles.full_name
+          : `${classBookings.walk_in_first_name} ${classBookings.walk_in_last_name}`,
       };
     });
 
@@ -292,7 +297,42 @@ export default function ClassManagementPage() {
       setIsFormModalOpen(false);
       setSelectedRecord(null);
     } catch (error) {
-      showMessage({ type: "error", content: "Error. Please try again" });
+      showMessage({
+        type: "error",
+        content: "Error modifying class. Please try again",
+      });
+    }
+  };
+
+  const handleManualBook = async (values: any) => {
+    try {
+      let promises = [
+        bookClass({
+          classDate: values.classDate,
+          classId: values.class_id,
+          walkInFirstName: values.first_name,
+          walkInLastName: values.last_name,
+          walkInClientEmail: values.walk_in_client_email,
+          walkInClientContactNumber: values.walk_in_client_contact_number,
+          isWalkIn: true,
+        }),
+        updateClass({
+          id: values.class_id,
+          values: {
+            taken_slots: values.taken_slots + 1,
+          },
+        }),
+      ];
+
+      await Promise.all([...promises]);
+      handleCloseBookingModal();
+
+      showMessage({
+        type: "success",
+        content: "Successfully created manual booking",
+      });
+    } catch (error) {
+      showMessage({ type: "error", content: "Error in manual booking" });
     }
   };
 
@@ -342,7 +382,7 @@ export default function ClassManagementPage() {
 
       showMessage({ type: "success", content: "Marked Attendance" });
     } catch (error) {
-      showMessage({ type: "error", content: "Please try refreshing" });
+      showMessage({ type: "error", content: "Error marking attendance" });
     }
   };
 
@@ -531,10 +571,10 @@ export default function ClassManagementPage() {
             <ManualBookingForm
               classes={classes}
               selectedDate={selectedDate}
-              onSubmit={handleSubmit}
+              onSubmit={handleManualBook}
               onCancel={handleCloseBookingModal}
               initialValues={selectedRecord}
-              isEdit={!!selectedRecord}
+              loading={loading}
             />
           </Drawer>
         ) : (
@@ -549,10 +589,10 @@ export default function ClassManagementPage() {
               <ManualBookingForm
                 classes={classes}
                 selectedDate={selectedDate}
-                onSubmit={handleSubmit}
+                onSubmit={handleManualBook}
                 onCancel={handleCloseBookingModal}
                 initialValues={selectedRecord}
-                isEdit={!!selectedRecord}
+                loading={loading}
               />
             </div>
           </Modal>
