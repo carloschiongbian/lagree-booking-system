@@ -72,10 +72,10 @@ export default function ClassManagementPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedDate) {
+    if (user?.id && selectedDate) {
       handleFetchClasses();
     }
-  }, [selectedDate]);
+  }, [user?.id, selectedDate]);
 
   const handleFetchClasses = async () => {
     try {
@@ -89,6 +89,8 @@ export default function ClassManagementPage() {
         isInstructor: true,
         instructorId: user?.id,
       });
+
+      console.log("data: ", data);
 
       if (data) {
         const mapped = data?.map((item: any, index: number) => {

@@ -432,7 +432,7 @@ export const useClassManagement = () => {
     }
 
     if (isInstructor && instructorId) {
-      query = query.eq("instructor_id", instructorId);
+      query = query.eq("instructors.user_id", instructorId);
     }
 
     if (startDate && endDate) {
@@ -455,8 +455,9 @@ export const useClassManagement = () => {
         .gte("class_date", startOfSelectedUTC)
         .lte("class_date", endOfSelectedUTC);
 
-      // If selected day is today AND caller is not admin, only show classes that haven't started yet
-      if (!isAdmin && selectedDate.isSame(today, "day")) {
+      // If selected day is today, and the caller is NOT admin and NOT instructor,
+      // only show classes that haven't started yet.
+      if (!isAdmin && !isInstructor && selectedDate.isSame(today, "day")) {
         query = query.gte("start_time", nowISO);
       }
     }

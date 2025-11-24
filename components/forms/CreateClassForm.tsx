@@ -54,7 +54,6 @@ export default function CreateClassForm({
     const data = await searchInstructors({});
 
     if (data) {
-      console.log("data: ", data);
       const mapped = data.map((inst, key) => {
         return {
           key: inst.id,
@@ -64,7 +63,6 @@ export default function CreateClassForm({
         };
       });
 
-      console.log("mapped: ", mapped);
       setInstructors(mapped);
     }
   };
