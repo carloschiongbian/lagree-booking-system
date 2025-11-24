@@ -98,10 +98,11 @@ export const calculateDuration = (start: Dayjs, end: Dayjs): string => {
   return `${minutes} mins`;
 };
 
-export const calculateTimeDiff = (startTime: Dayjs) => {
-  const hoursPassed = startTime.diff(dayjs(), "hour");
+export const isNotMoreThan24HoursAway = (startTime: Dayjs) => {
+  const diffInHours = startTime.diff(dayjs(), "hour", true); // precise hours
 
-  return hoursPassed;
+  // Return true if startTime is <= 24 hours from now (including past times)
+  return diffInHours <= 24;
 };
 
 export const getSlotsLeft = (

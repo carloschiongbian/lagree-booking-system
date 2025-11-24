@@ -409,6 +409,16 @@ export const useClassManagement = () => {
 
     let query = supabase.from("classes").select(`
     *,
+    instructors (
+      id,
+      user_id,
+      full_name,
+      avatar_path,
+      user_profiles (
+        id,
+        avatar_path
+      )
+    ),
     class_bookings (
       id,
       attendance_status,
@@ -420,10 +430,6 @@ export const useClassManagement = () => {
         id,
         full_name
       )
-    ),
-    instructors (
-      id,
-      avatar_path
     )
   `);
 
@@ -812,12 +818,18 @@ export const useClientBookings = () => {
         end_time,
         start_time,
         instructor_id,
+        instructor_name,
         taken_slots,
         available_slots,
         instructors (
           id,
+          user_id,
           full_name,
-          avatar_path
+          avatar_path,
+          user_profiles (
+            id,
+            avatar_path
+          )
         )
       )
     `

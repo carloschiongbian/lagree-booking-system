@@ -102,7 +102,6 @@ export default function ClientManagementPage() {
             //if user has bookings
             if (!!user.class_bookings.length) {
               classBookings = user.class_bookings.map((classBooking: any) => {
-                console.log("classBooking: ", classBooking);
                 return {
                   id: classBooking.id,
                   attendance: classBooking.attendance_status,

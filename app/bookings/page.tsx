@@ -105,21 +105,27 @@ export default function BookingsPage() {
     if (data) {
       const mapped = await Promise.all(
         data.map(async (lagreeClass) => {
+          let imageURL: any = null;
           // if (!user.avatar_path) return user; // skip if no avatar
 
           // generate signed URL valid for 1 hour (3600s)
           const { data, error: urlError } = await supabase.storage
             .from("user-photos")
-            .createSignedUrl(`${lagreeClass.instructors.avatar_path}`, 3600);
+            .createSignedUrl(
+              `${lagreeClass.instructors.user_profiles.avatar_path}`,
+              3600
+            );
 
           if (urlError) {
             console.error("Error generating signed URL:", urlError);
+            imageURL = null;
           }
+          imageURL = data?.signedUrl;
 
           return {
             ...lagreeClass,
             key: lagreeClass.id,
-            avatar_url: urlError ? null : data?.signedUrl,
+            avatar_url: imageURL,
             instructor_id: lagreeClass.instructor_id,
             instructor_name: lagreeClass.instructor_name,
             start_time: dayjs(lagreeClass.start_time),
@@ -138,6 +144,7 @@ export default function BookingsPage() {
     setAcceptsTerms(e.target.checked);
   };
   const handleOpenModal = (item: any) => {
+    console.log("item: ", item);
     setIsModalOpen(true);
     setSelectedRecord(item);
   };
@@ -155,9 +162,9 @@ export default function BookingsPage() {
   };
 
   const handleSendConfirmationEmail = async () => {
-    const classDate = `${dayjs(selectedRecord?.date).format("MMMM")} ${dayjs(
-      selectedRecord?.date
-    ).format("DD")} ${dayjs(selectedRecord?.date).format("YYYY")}`;
+    const classDate = `${dayjs(selectedDate).format("MMMM")} ${dayjs(
+      selectedDate
+    ).format("DD")} ${dayjs(selectedDate).format("YYYY")}`;
 
     const classTime = dayjs(selectedRecord?.start_time).format("hh:mm A");
 
@@ -181,7 +188,7 @@ export default function BookingsPage() {
 
         promises = [
           bookClass({
-            classDate: dayjs().toISOString(),
+            classDate: dayjs(selectedDate).toISOString(),
             classId: selectedRecord.id,
             bookerId: user?.id as string,
             isWalkIn: false,
@@ -206,7 +213,8 @@ export default function BookingsPage() {
           dispatch(setUser({ ...user, credits: updatedCredits }));
         }
 
-        await Promise.all([...promises, handleSendConfirmationEmail()]);
+        await Promise.all([...promises]);
+        // await Promise.all([...promises, handleSendConfirmationEmail()]);
 
         setIsSubmitting(false);
         handleCloseModal();
@@ -458,7 +466,7 @@ export default function BookingsPage() {
                 <Title>
                   {`${dayjs(selectedDate).format("MMMM")} ${dayjs(
                     selectedDate
-                  ).format("d")} ${dayjs(selectedDate).format("YYYY")}`}
+                  ).format("DD")} ${dayjs(selectedDate).format("YYYY")}`}
                 </Title>
                 <Title level={5}>
                   Class with{" "}
@@ -474,14 +482,14 @@ export default function BookingsPage() {
               </Col>
               <Row justify={"start"} className="w-full mb-[10px]">
                 <Checkbox onChange={handleAcceptTermsChange}>
-                  I have read the{" "}
-                  <span
-                    onClick={handleShowTermsAndConditions}
-                    className="text-blue-400"
-                  >
-                    Terms and Conditions
-                  </span>
+                  I have read the
                 </Checkbox>
+                <span
+                  onClick={handleShowTermsAndConditions}
+                  className="text-blue-400 cursor-pointer"
+                >
+                  Terms and Conditions
+                </span>
               </Row>
 
               <Button

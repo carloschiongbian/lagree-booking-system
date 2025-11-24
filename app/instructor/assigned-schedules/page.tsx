@@ -90,8 +90,6 @@ export default function ClassManagementPage() {
         instructorId: user?.id,
       });
 
-      console.log("data: ", data);
-
       if (data) {
         const mapped = data?.map((item: any, index: number) => {
           return {

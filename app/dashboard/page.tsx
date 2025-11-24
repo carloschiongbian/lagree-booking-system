@@ -20,14 +20,13 @@ import { supabase } from "@/lib/supabase";
 import { User } from "lucide-react";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import { calculateTimeDiff } from "@/lib/utils";
+import { isNotMoreThan24HoursAway } from "@/lib/utils";
 
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 
 dayjs.extend(isSameOrAfter);
 
 const { Title, Text } = Typography;
-const MIN_CANCELLATION_HOURS = 24;
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -87,31 +86,32 @@ export default function DashboardPage() {
         );
         const mapped = await Promise.all(
           filtered.map(async (booking: any) => {
+            let imageURL: any = null;
             // if (!booking.avatar_path) return booking; // skip if no avatar
 
             // generate signed URL valid for 1 hour (3600s)
             const { data, error: urlError } = await supabase.storage
               .from("user-photos")
               .createSignedUrl(
-                `${booking.classes.instructors.avatar_path}`,
+                `${booking.classes.instructors.user_profiles.avatar_path}`,
                 3600
               );
 
             if (urlError) {
               console.error("Error generating signed URL:", urlError);
-              return { ...booking, avatar_url: null };
             }
 
+            imageURL = data?.signedUrl;
             return {
               ...booking,
-              avatar_url: data?.signedUrl,
+              avatar_url: imageURL,
               id: booking.id,
               bookerId: booking.booker_id,
               classId: booking.class_id,
               classStartTime: booking.classes.start_time,
               classEndTime: booking.classes.end_time,
               classDate: booking.class_date,
-              instructorName: booking.classes.instructors.full_name,
+              instructorName: booking.classes.instructor_name,
               instructorAvatarPath: booking.classes.instructors.avatar_path,
             };
           })
@@ -158,9 +158,9 @@ export default function DashboardPage() {
           <Row gutter={[16, 16]}>
             {upcomingBookings &&
               upcomingBookings.map((data, idx) => {
-                const notCancellable =
-                  calculateTimeDiff(dayjs(data.classes.start_time)) <
-                  MIN_CANCELLATION_HOURS;
+                const notCancellable = isNotMoreThan24HoursAway(
+                  dayjs(data.classes.start_time)
+                );
 
                 return (
                   <Col key={idx} xs={24} sm={12} md={8} lg={6} xl={6} xxl={6}>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
                             disabled={notCancellable}
                             className={`w-full ${
                               !notCancellable &&
-                              "hover:!bg-red-700 hover:!border-red-600 hover:!text-white"
+                              "!bg-red-400 hover:!bg-red-700 hover:!border-red-600 hover:!text-white"
                             } border-red-600 bg-red-200 text-white`}
                           >
                             Cancel
@@ -216,9 +216,9 @@ export default function DashboardPage() {
                       ]}
                     >
                       <Card.Meta
-                        title={`${dayjs(data.classDate).format(
-                          "MMM DD"
-                        )} (${dayjs(data.classDate).format("dddd")})`}
+                        title={`${dayjs(data.class_date).format(
+                          "MMM DD (dddd)"
+                        )}`}
                         description={
                           <Col className="m-0 !p-0">
                             <Text>Class with {data.instructorName}</Text>

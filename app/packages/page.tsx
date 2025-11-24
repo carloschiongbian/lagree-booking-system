@@ -389,14 +389,14 @@ export default function PackagesPage() {
               </div>
               <Row justify={"start"} className="w-full mb-[10px]">
                 <Checkbox onChange={handleAcceptTermsChange}>
-                  I have read the{" "}
-                  <span
-                    onClick={handleShowTermsAndConditions}
-                    className="text-blue-400"
-                  >
-                    Terms and Conditions
-                  </span>
+                  I have read the
                 </Checkbox>
+                <span
+                  onClick={handleShowTermsAndConditions}
+                  className="text-blue-400 cursor-pointer"
+                >
+                  Terms and Conditions
+                </span>
               </Row>
               <Button
                 onClick={handleNext}

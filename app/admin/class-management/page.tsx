@@ -628,6 +628,7 @@ export default function ClassManagementPage() {
               onCancel={handleCloseModal}
               initialValues={selectedRecord}
               isEdit={!!selectedRecord}
+              selectedDate={selectedDate}
             />
           </Drawer>
         ) : (
@@ -645,6 +646,7 @@ export default function ClassManagementPage() {
                 onCancel={handleCloseModal}
                 initialValues={selectedRecord}
                 isEdit={!!selectedRecord}
+                selectedDate={selectedDate}
               />
             </div>
           </Modal>

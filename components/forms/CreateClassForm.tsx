@@ -6,7 +6,7 @@ import {
   ClockCircleOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { CreateClassProps } from "@/lib/props";
 import { useSearchUser } from "@/lib/api";
@@ -18,6 +18,7 @@ interface CreateClassFormProps {
   loading?: boolean;
   initialValues?: CreateClassProps | null;
   isEdit?: boolean;
+  selectedDate?: Dayjs;
 }
 
 export default function CreateClassForm({
@@ -26,6 +27,7 @@ export default function CreateClassForm({
   loading = false,
   initialValues = null,
   isEdit = false,
+  selectedDate,
 }: CreateClassFormProps) {
   const [form] = Form.useForm();
   const [instructors, setInstructors] = useState<any>([]);
@@ -71,14 +73,34 @@ export default function CreateClassForm({
     const instructor = instructors.find(
       (inst: any) => inst.value === values.instructor_name
     );
+
+    const [start, end] = values.time;
+
+    const final = [
+      (selectedDate as Dayjs)
+        .hour(start.hour())
+        .minute(start.minute())
+        .second(0)
+        .millisecond(0)
+        .toISOString(),
+      (selectedDate as Dayjs)
+        .hour(end.hour())
+        .minute(end.minute())
+        .second(0)
+        .millisecond(0)
+        .toISOString(),
+    ];
+
+    const [startTime, endTime] = final;
+
     const formattedValues = {
       ...values,
       ...(!isEdit && { taken_slots: 0 }),
       available_slots: values.slots,
       instructor_name: values.instructor_name,
       instructor_id: instructor.id,
-      start_time: values.time[0],
-      end_time: values.time[1],
+      start_time: startTime,
+      end_time: endTime,
     };
 
     onSubmit(omit(formattedValues, ["time", "slots"]));
@@ -133,6 +155,7 @@ export default function CreateClassForm({
               suffixIcon={<ClockCircleOutlined className="text-slate-400" />}
               className="w-full"
               needConfirm={false}
+              onChange={(e) => console.log(e)}
             />
           </Form.Item>
         </Col>
