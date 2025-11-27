@@ -18,6 +18,7 @@ import {
   DatePicker,
   Spin,
   FormInstance,
+  Modal,
 } from "antd";
 import {
   UserOutlined,
@@ -35,10 +36,13 @@ import { MdContactEmergency } from "react-icons/md";
 import useDebounce from "@/hooks/use-debounce";
 import { useSearchUser } from "@/lib/api";
 import { keys } from "lodash";
+import { CERTIFICATIONS } from "@/lib/utils";
 
 interface CreateClassFormProps {
   onSubmit: (values: any) => void;
   onCancel: () => void | boolean;
+  onDelete: (id: string) => void;
+  onDeactivate: (id: string) => void;
   isModalOpen?: boolean;
   loading?: boolean;
   initialValues?: CreateInstructorProps | null;
@@ -49,7 +53,7 @@ interface CreateClassFormProps {
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export default function CreateInstructorForm({
   onSubmit,
@@ -57,6 +61,8 @@ export default function CreateInstructorForm({
   isModalOpen,
   loading = false,
   initialValues = null,
+  onDelete,
+  onDeactivate,
   isEdit = false,
   clearSignal,
   form,
@@ -71,41 +77,44 @@ export default function CreateInstructorForm({
   const [initialFileState, setInitialFileState] = useState<UploadFile[] | null>(
     null
   );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
   const { validateEmail } = useSearchUser();
   const [email, setEmail] = useState<string>("");
   const { debouncedValue: debouncedEmail, loading: debouncing } = useDebounce(
     email,
     1500
   );
+
+  const [isMobile, setIsMobile] = useState(false);
   const [emailTaken, setEmailTaken] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(false);
   const initialValuesRef = useRef<any>(null);
-  const certifications = [
-    { value: "lagree_certified_instructor", label: "Lagree Certified Trainer" },
-    {
-      value: "licensed_physical_therapist",
-      label: "Licensed Physical Therapist",
-    },
-    {
-      value: "pilates_certified_instructor",
-      label: " Pilates Certified Instructor",
-    },
-    { value: "yoga_instructor", label: "Yoga Instructor" },
-    {
-      value: "strength_conditioning_coach",
-      label: "Strength & Conditioning Coach",
-    },
-    {
-      value: "fitness_coach_personal_trainer",
-      label: "Fitness Coach / Personal Trainer",
-    },
-    { value: "group_fitness_instructor", label: "Group Fitness Instructor" },
-  ];
+
   const [isModified, setIsModified] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   handleReset();
-  // }, [clearSignal]);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // rAF throttle
+    let rafId: number | null = null;
+    const onResize = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        handleResize();
+      });
+    };
+
+    handleResize();
+    window.addEventListener("resize", onResize);
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (
@@ -157,6 +166,7 @@ export default function CreateInstructorForm({
         ]);
       }
       const initial = {
+        id: initialValues?.id,
         first_name: initialValues.first_name,
         last_name: initialValues.last_name,
         contact_number: initialValues.contact_number,
@@ -286,280 +296,380 @@ export default function CreateInstructorForm({
     onSubmit(formData);
   };
 
+  const showDeleteConfirm = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const showDeactivateConfirm = () => {
+    setDeactivateModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (initialValuesRef.current.id) {
+      onDelete(initialValuesRef.current.id as string);
+    }
+    handleReset();
+    onCancel();
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleConfirmDeactivate = () => {
+    onDeactivate(initialValuesRef.current.id as string);
+
+    handleReset();
+    onCancel();
+    setDeactivateModalOpen(false);
+  };
+
+  const handleCancelDeactivate = () => {
+    setDeactivateModalOpen(false);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+  };
+
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleSubmit}
-      requiredMark="optional"
-      className="w-full"
-    >
-      <Row gutter={[16, 0]}>
-        <Row justify={"center"} className="w-full mb-4">
-          <Upload
-            listType="picture-circle"
-            fileList={file as UploadFile[]}
-            onPreview={handlePreview}
-            onChange={handleChange}
-            accept="image/*"
-          >
-            {file && file.length > 0 ? null : uploadButton}
-          </Upload>
-        </Row>
-        {previewImage && (
-          <Image
-            wrapperStyle={{ display: "none" }}
-            preview={{
-              visible: previewOpen,
-              onVisibleChange: (visible) => setPreviewOpen(visible),
-              afterOpenChange: (visible) => !visible && setPreviewImage(""),
-            }}
-            src={previewImage}
-          />
-        )}
-      </Row>
-
-      <Title level={4}>Personal Information</Title>
-      <Row gutter={[16, 0]}>
-        <Row wrap={false} className="w-full gap-[10px] px-[8px]">
-          <Form.Item
-            className="w-full"
-            name="first_name"
-            label="First Name"
-            rules={[
-              {
-                required: true,
-                message: "Please enter first name",
-              },
-            ]}
-          >
-            <Input
-              placeholder="First Name"
-              suffix={<UserOutlined className="text-slate-400" />}
+    <>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        requiredMark="optional"
+        className="w-full"
+      >
+        <Row gutter={[16, 0]}>
+          <Row justify={"center"} className="w-full mb-4">
+            <Upload
+              listType="picture-circle"
+              fileList={file as UploadFile[]}
+              onPreview={handlePreview}
+              onChange={handleChange}
+              accept="image/*"
+            >
+              {file && file.length > 0 ? null : uploadButton}
+            </Upload>
+          </Row>
+          {previewImage && (
+            <Image
+              wrapperStyle={{ display: "none" }}
+              preview={{
+                visible: previewOpen,
+                onVisibleChange: (visible) => setPreviewOpen(visible),
+                afterOpenChange: (visible) => !visible && setPreviewImage(""),
+              }}
+              src={previewImage}
             />
-          </Form.Item>
-
-          <Form.Item
-            className="w-full"
-            name="last_name"
-            label="Last Name"
-            rules={[
-              {
-                required: true,
-                message: "Please enter last name",
-              },
-            ]}
-          >
-            <Input
-              placeholder="Last Name"
-              suffix={<UserOutlined className="text-slate-400" />}
-            />
-          </Form.Item>
+          )}
         </Row>
 
-        <Row wrap={false} className="w-full gap-[10px] px-[8px]">
-          <Form.Item
-            label="Contact Number"
-            className="w-[50%]"
-            name="contact_number"
-            rules={[
-              { required: true, message: "Please enter your contact number" },
-              {
-                pattern: /^[0-9+\s-()]+$/,
-                message: "Please enter a valid phone number",
-              },
-            ]}
-          >
-            <Input
-              prefix={<PhoneOutlined className="text-slate-400" />}
-              placeholder="Contact Number"
-            />
-          </Form.Item>
-        </Row>
-      </Row>
-
-      <Divider className="md:m-0 pb-[10px]" />
-
-      <Title level={4}>Account Information</Title>
-      <Row gutter={[16, 0]}>
-        <Row wrap={false} className="w-full gap-[10px] px-[8px] mb-[20px]">
-          <Row wrap={false} className="flex flex-col justify-start">
+        <Title level={4}>Personal Information</Title>
+        <Row gutter={[16, 0]}>
+          <Row wrap={false} className="w-full gap-[10px] px-[8px]">
             <Form.Item
-              className="!mb-[5px]"
-              label={
-                <Row wrap={false} className="items-center gap-x-[10px]">
-                  <p>Email Address</p>
-                  {debouncing && <Spin spinning={debouncing} size="small" />}
-                </Row>
-              }
-              name="email"
+              className="w-full"
+              name="first_name"
+              label="First Name"
               rules={[
                 {
                   required: true,
-                  message: "Please enter your email address",
+                  message: "Please enter first name",
                 },
-                { type: "email", message: "Please enter a valid email" },
               ]}
             >
               <Input
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setIsValidating(true);
-                }}
-                placeholder="Enter email address"
+                placeholder="First Name"
+                suffix={<UserOutlined className="text-slate-400" />}
               />
             </Form.Item>
-            {/* {debouncing && <Spin spinning={debouncing} size="small" />} */}
+
+            <Form.Item
+              className="w-full"
+              name="last_name"
+              label="Last Name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter last name",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Last Name"
+                suffix={<UserOutlined className="text-slate-400" />}
+              />
+            </Form.Item>
           </Row>
-        </Row>
 
-        {/**
-         * think about how to apply change password in the edit
-         * changing password is handled on another tab
-         */}
-
-        {!isEdit && (
           <Row wrap={false} className="w-full gap-[10px] px-[8px]">
             <Form.Item
-              label="Password"
-              className="w-full"
-              name="password"
+              label="Contact Number"
+              className="w-[50%]"
+              name="contact_number"
               rules={[
-                { required: true, message: "Please enter your password" },
-                { min: 6, message: "Password must be at least 6 characters" },
+                { required: true, message: "Please enter your contact number" },
+                {
+                  pattern: /^[0-9+\s-()]+$/,
+                  message: "Please enter a valid phone number",
+                },
               ]}
             >
-              <Input.Password
-                prefix={<LockOutlined className="text-slate-400" />}
-                placeholder="Password"
+              <Input
+                prefix={<PhoneOutlined className="text-slate-400" />}
+                placeholder="Contact Number"
+              />
+            </Form.Item>
+          </Row>
+        </Row>
+
+        <Divider className="md:m-0 pb-[10px]" />
+
+        <Title level={4}>Account Information</Title>
+        <Row gutter={[16, 0]}>
+          <Row wrap={false} className="w-full gap-[10px] px-[8px] mb-[20px]">
+            <Row wrap={false} className="flex flex-col justify-start">
+              <Form.Item
+                className="!mb-[5px]"
+                label={
+                  <Row wrap={false} className="items-center gap-x-[10px]">
+                    <p>Email Address</p>
+                    {debouncing && <Spin spinning={debouncing} size="small" />}
+                  </Row>
+                }
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter your email address",
+                  },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setIsValidating(true);
+                  }}
+                  placeholder="Enter email address"
+                />
+              </Form.Item>
+            </Row>
+          </Row>
+
+          {!isEdit && (
+            <Row wrap={false} className="w-full gap-[10px] px-[8px]">
+              <Form.Item
+                label="Password"
+                className="w-full"
+                name="password"
+                rules={[
+                  { required: true, message: "Please enter your password" },
+                  { min: 6, message: "Password must be at least 6 characters" },
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-slate-400" />}
+                  placeholder="Password"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Confirm Password"
+                className="w-full"
+                name="confirm_password"
+                dependencies={["password"]}
+                rules={[
+                  { required: true, message: "Please confirm your password" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue("password") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("Passwords do not match")
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-slate-400" />}
+                  placeholder="Confirm Password"
+                />
+              </Form.Item>
+            </Row>
+          )}
+        </Row>
+
+        <Divider className="md:m-0 pb-[10px]" />
+
+        <Title level={4}>Professional Information</Title>
+        <Row gutter={[16, 0]}>
+          <Row wrap={false} className="w-full gap-[10px] px-[8px]">
+            <Form.Item
+              label="Certification / Specialty"
+              className="w-full"
+              name="certification"
+              rules={[
+                { required: true, message: "Please select a certification" },
+              ]}
+            >
+              <Select
+                options={CERTIFICATIONS}
+                prefix={<MailOutlined className="text-slate-400" />}
+                placeholder="Select a certification"
               />
             </Form.Item>
 
             <Form.Item
-              label="Confirm Password"
               className="w-full"
-              name="confirm_password"
-              dependencies={["password"]}
+              label="Employment Start Date"
+              name="employment_start_date"
               rules={[
-                { required: true, message: "Please confirm your password" },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("password") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error("Passwords do not match"));
-                  },
-                }),
+                {
+                  required: true,
+                  message: "Please select start of employment",
+                },
               ]}
             >
-              <Input.Password
-                prefix={<LockOutlined className="text-slate-400" />}
-                placeholder="Confirm Password"
+              <DatePicker
+                placeholder="Start Date"
+                className="w-full"
+                format="YYYY-MM-DD"
               />
             </Form.Item>
           </Row>
-        )}
-      </Row>
 
-      <Divider className="md:m-0 pb-[10px]" />
-
-      <Title level={4}>Professional Information</Title>
-      <Row gutter={[16, 0]}>
-        <Row wrap={false} className="w-full gap-[10px] px-[8px]">
-          <Form.Item
-            label="Certification / Specialty"
-            className="w-full"
-            name="certification"
-            rules={[
-              { required: true, message: "Please select a certification" },
-            ]}
-          >
-            <Select
-              options={certifications}
-              prefix={<MailOutlined className="text-slate-400" />}
-              placeholder="Select a certification"
-            />
-          </Form.Item>
-
-          <Form.Item
-            className="w-full"
-            label="Employment Start Date"
-            name="employment_start_date"
-            rules={[
-              { required: true, message: "Please select start of employment" },
-            ]}
-          >
-            <DatePicker
-              placeholder="Start Date"
+          <Row wrap={false} className="w-full gap-[10px] px-[8px]">
+            <Form.Item
               className="w-full"
-              format="YYYY-MM-DD"
-            />
-          </Form.Item>
-        </Row>
-
-        <Row wrap={false} className="w-full gap-[10px] px-[8px]">
-          <Form.Item
-            className="w-full"
-            name="emergency_contact_name"
-            label="Emergency Contact Name"
-            rules={[
-              {
-                required: true,
-                message: "Please enter an emergency contact name",
-              },
-            ]}
-          >
-            <Input
-              prefix={<MdContactEmergency className="text-slate-400" />}
-              placeholder="Emergency Contact Name"
-            />
-          </Form.Item>
-
-          <Form.Item
-            className="w-full"
-            name="emergency_contact_number"
-            label="Emergency Contact Number"
-            rules={[
-              {
-                required: true,
-                message: "Please enter an emergency contact number",
-              },
-            ]}
-          >
-            <Input
-              prefix={<PhoneOutlined className="text-slate-400" />}
-              placeholder="Emergency Contact Number"
-            />
-          </Form.Item>
-        </Row>
-      </Row>
-
-      <Form.Item className="mb-0 mt-6">
-        <Row gutter={12} className="flex-row-reverse">
-          <Col xs={12} sm={8}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              size="large"
-              loading={loading}
-              block
-              disabled={loading || isValidating || emailTaken || !isModified}
-              className={`${
-                !isValidating && !emailTaken && isModified
-                  ? "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
-                  : "!bg-[gray] hover:!bg-[gray]"
-              } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+              name="emergency_contact_name"
+              label="Emergency Contact Name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter an emergency contact name",
+                },
+              ]}
             >
-              {isEdit ? "Update" : "Create"}
-            </Button>
-          </Col>
-          <Col xs={12} sm={8}>
-            <Button size="large" onClick={onCancel} disabled={loading} block>
-              Cancel
-            </Button>
-          </Col>
+              <Input
+                prefix={<MdContactEmergency className="text-slate-400" />}
+                placeholder="Emergency Contact Name"
+              />
+            </Form.Item>
+
+            <Form.Item
+              className="w-full"
+              name="emergency_contact_number"
+              label="Emergency Contact Number"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter an emergency contact number",
+                },
+              ]}
+            >
+              <Input
+                prefix={<PhoneOutlined className="text-slate-400" />}
+                placeholder="Emergency Contact Number"
+              />
+            </Form.Item>
+          </Row>
         </Row>
-      </Form.Item>
-    </Form>
+
+        <Form.Item className="mb-0 mt-6">
+          <Row gutter={12} className="flex-row justify-end" wrap={false}>
+            <Col>
+              <Button size="large" onClick={onCancel} disabled={loading} block>
+                Cancel
+              </Button>
+            </Col>
+            {isEdit && (
+              <Col>
+                <Button
+                  danger
+                  size="large"
+                  onClick={showDeleteConfirm}
+                  disabled={loading}
+                  block
+                >
+                  Delete
+                </Button>
+              </Col>
+            )}
+            {isEdit && (
+              <Col>
+                <Button
+                  className={`!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+                  size="large"
+                  onClick={showDeactivateConfirm}
+                  disabled={loading}
+                  block
+                >
+                  {initialValues?.deactivated === true
+                    ? "Reactivate"
+                    : "Deactivate"}
+                </Button>
+              </Col>
+            )}
+            <Col>
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                loading={loading}
+                block
+                disabled={loading || isValidating || emailTaken || !isModified}
+                className={`${
+                  !isValidating && !emailTaken && isModified
+                    ? "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+                    : "!bg-[gray] hover:!bg-[gray]"
+                } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+              >
+                {isEdit ? "Update" : "Create"}
+              </Button>
+            </Col>
+          </Row>
+        </Form.Item>
+      </Form>
+
+      <Modal
+        title="Delete Instructor"
+        open={isDeleteModalOpen}
+        onOk={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        okText="Delete"
+        okType="danger"
+        cancelText="Cancel"
+        width={isMobile ? "90%" : 430}
+      >
+        <Row className="py-[20px]">
+          <Text>Are you sure you want to delete this instructor?</Text>
+        </Row>
+      </Modal>
+
+      <Modal
+        title={`${
+          initialValues?.deactivated === true ? "Reactivate" : "Deactivate"
+        }  Instructor`}
+        open={deactivateModalOpen}
+        onOk={handleConfirmDeactivate}
+        onCancel={handleCancelDeactivate}
+        okText={
+          initialValues?.deactivated === true ? "Reactivate" : "Deactivate"
+        }
+        okType="danger"
+        cancelText="Cancel"
+        width={isMobile ? "90%" : 430}
+      >
+        <Row className="py-[20px]">
+          <Text>
+            Are you sure you want to{" "}
+            {initialValues?.deactivated === true ? "reactivate" : "deactivate"}{" "}
+            this instructor?
+          </Text>
+        </Row>
+      </Modal>
+    </>
   );
 }

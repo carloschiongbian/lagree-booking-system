@@ -300,10 +300,10 @@ async function checkExpiringPackages() {
 }
 
 // --- CRON: runs every hour at minute 0 ---
-cron.schedule("0 * * * *", checkExpiringPackages);
+cron.schedule("0 * * * *", checkUpcomingClasses);
 
 // --- CRON: runs every minute for testing ---
 // cron.schedule("* * * * *", checkUpcomingClasses);
 
 // --- TEST MODE: run immediately when script starts ---
-checkExpiringPackages();
+checkUpcomingClasses();

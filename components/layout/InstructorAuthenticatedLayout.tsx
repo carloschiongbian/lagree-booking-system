@@ -10,6 +10,7 @@ import {
   Typography,
   Button,
   Drawer,
+  Row,
 } from "antd";
 import {
   HomeOutlined,
@@ -22,11 +23,10 @@ import Link from "next/link";
 import { CurrentPackageProps, supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
-import { useManageCredits, usePackageManagement } from "@/lib/api";
 import dayjs from "dayjs";
 
 const { Header, Sider, Content } = Layout;
-const { Text } = Typography;
+const { Title, Text } = Typography;
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -38,19 +38,8 @@ export default function InstructorAuthenticatedLayout({
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const { updateClientPackage, loading } = usePackageManagement();
-  const { updateUserCredits, loading: updatingCredits } = useManageCredits();
   const user = useAppSelector((state) => state.auth.user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  /**
-   *
-   * modify instructor management
-   * when creating an instructor, an account should be created with type "instructor"
-   * refer to email with Andre for form fields
-   *
-   * must include change passwords and all
-   */
 
   useEffect(() => {
     checkUser();
@@ -87,18 +76,18 @@ export default function InstructorAuthenticatedLayout({
       .from("user_profiles")
       .select(
         `
-    *,
-    user_credits (
-      id,
-      credits,
-      created_at
-    ),
-    client_packages (
-      *,
-      packages (*)
-    ),
-    instructors (*)
-  `
+          *,
+          user_credits (
+            id,
+            credits,
+            created_at
+          ),
+          client_packages (
+            *,
+            packages (*)
+          ),
+          instructors (*)
+      `
       )
       .eq("id", session.user.id)
       .single();
@@ -132,46 +121,23 @@ export default function InstructorAuthenticatedLayout({
       (p: any) => p.status === "active"
     );
 
-    if (
-      activePackage &&
-      dayjs(activePackage?.expiration_date).isBefore(dayjs())
-    ) {
-      let promises = [];
-      promises.push(
-        updateClientPackage({
-          clientPackageID: activePackage.id as string,
-          values: { status: "expired" },
-        })
-      );
-
-      promises.push(
-        updateUserCredits({
-          userID: session.user.id,
-          values: { credits: 0 },
-        })
-      );
-
-      await Promise.all(promises);
-
-      checkUser();
-    } else {
-      if (profile) {
-        if (profile.user_type === "admin") {
-          router.push("/admin/dashboard");
-          return;
-        } else if (profile.user_type === "general") {
-          router.push("/dashboard");
-          return;
-        }
-        dispatch(
-          setUser({
-            ...profile,
-            avatar_url: signedUrl,
-            currentPackage: activePackage,
-            credits: activePackage ? latestCredit.credits : 0,
-          })
-        );
+    if (profile) {
+      if (profile.user_type === "admin") {
+        router.push("/admin/dashboard");
+        return;
+      } else if (profile.user_type === "general") {
+        router.push("/dashboard");
+        return;
       }
+
+      dispatch(
+        setUser({
+          ...profile,
+          avatar_url: signedUrl,
+          currentPackage: activePackage,
+          credits: activePackage ? latestCredit.credits : 0,
+        })
+      );
     }
   };
 
@@ -208,86 +174,108 @@ export default function InstructorAuthenticatedLayout({
 
   return (
     <Layout className="min-h-screen">
-      <Sider
-        breakpoint="lg"
-        collapsedWidth="0"
-        className="!bg-white border-r border-slate-200 hidden lg:block"
-        width={240}
-      >
-        <div className="h-16 flex items-center justify-center border-b border-slate-200 bg-[#36013F]">
-          <Text className="text-xl font-semibold text-slate-200">
-            Supra8 Lagree
+      {user?.deactivated === true && (
+        <Row
+          wrap={false}
+          className="flex flex-col bg-slate-200 justify-center items-center w-[100vw] h-[100vh]"
+        >
+          <Title>Your instructor account has been disabled</Title>
+          <Text>
+            If you think this is a mistake, please contact{" "}
+            <span className="font-bold">Supra8 Lagree Admin.</span>
           </Text>
-        </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[getSelectedKey()]}
-          items={menuItems}
-          className="border-r-0 pt-4"
-        />
-        <Text className="text-xl font-semibold text-slate-200 lg:hidden">
-          LagreeStudio
-        </Text>
-      </Sider>
-
-      <Layout>
-        <Header className="!bg-[#36013F] border-b border-slate-200 !px-4 md:!px-6 flex items-center justify-between !h-16">
-          <div className="flex items-center">
-            <Button
-              type="text"
-              icon={<MenuOutlined />}
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden mr-2 text-slate-200"
+          <Button
+            onClick={handleLogout}
+            className={`mt-[20px] bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+          >
+            Logout
+          </Button>
+        </Row>
+      )}
+      {user?.deactivated !== true && (
+        <>
+          <Sider
+            breakpoint="lg"
+            collapsedWidth="0"
+            className="!bg-white border-r border-slate-200 hidden lg:block"
+            width={240}
+          >
+            <div className="h-16 flex items-center justify-center border-b border-slate-200 bg-[#36013F]">
+              <Text className="text-xl font-semibold text-slate-200">
+                Supra8 Lagree
+              </Text>
+            </div>
+            <Menu
+              mode="inline"
+              selectedKeys={[getSelectedKey()]}
+              items={menuItems}
+              className="border-r-0 pt-4"
             />
-            <Text className="text-xl font-semibold text-slate-200">
-              {/* LagreeStudio */}
+            <Text className="text-xl font-semibold text-slate-200 lg:hidden">
+              LagreeStudio
             </Text>
-          </div>
+          </Sider>
 
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <div className="flex items-center gap-3 cursor-pointer px-3 py-2 rounded-lg transition-colors">
-              <div className="text-right hidden md:block">
-                <Text className="block text-sm font-medium !text-slate-200">
-                  {user?.first_name || "User"}
-                </Text>
-                <Text className="block text-xs text-slate-500">
-                  {user?.email}
+          <Layout>
+            <Header className="!bg-[#36013F] border-b border-slate-200 !px-4 md:!px-6 flex items-center justify-between !h-16">
+              <div className="flex items-center">
+                <Button
+                  type="text"
+                  icon={<MenuOutlined />}
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="lg:hidden mr-2 text-slate-200"
+                />
+                <Text className="text-xl font-semibold text-slate-200">
+                  {/* LagreeStudio */}
                 </Text>
               </div>
-              <Avatar
-                size="large"
-                src={user?.avatar_url}
-                icon={<UserOutlined />}
-                className="bg-slate-200 border-slate-500"
-              >
-                {user?.first_name?.[0]?.toUpperCase() || "U"}
-              </Avatar>
-            </div>
-          </Dropdown>
-        </Header>
 
-        <Content className="p-4 md:p-6 bg-slate-50">
-          <div className="max-w-7xl mx-auto">{children}</div>
-        </Content>
-      </Layout>
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                <div className="flex items-center gap-3 cursor-pointer px-3 py-2 rounded-lg transition-colors">
+                  <div className="text-right hidden md:block">
+                    <Text className="block text-sm font-medium !text-slate-200">
+                      {user?.first_name || "User"}
+                    </Text>
+                    <Text className="block text-xs text-slate-500">
+                      {user?.email}
+                    </Text>
+                  </div>
+                  <Avatar
+                    size="large"
+                    src={user?.avatar_url}
+                    icon={<UserOutlined />}
+                    className="bg-slate-200 border-slate-500"
+                  >
+                    {user?.first_name?.[0]?.toUpperCase() || "U"}
+                  </Avatar>
+                </div>
+              </Dropdown>
+            </Header>
 
-      <Drawer
-        title="Menu"
-        placement="left"
-        width={"70%"}
-        onClose={() => setMobileMenuOpen(false)}
-        open={mobileMenuOpen}
-        className="lg:hidden"
-        styles={{ body: { paddingInline: 0 } }}
-      >
-        <Menu
-          mode="inline"
-          selectedKeys={[getSelectedKey()]}
-          items={menuItems}
-          className="border-r-0"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      </Drawer>
+            <Content className="p-4 md:p-6 bg-slate-50">
+              <div className="max-w-7xl mx-auto">{children}</div>
+            </Content>
+          </Layout>
+
+          <Drawer
+            title="Menu"
+            placement="left"
+            width={"70%"}
+            onClose={() => setMobileMenuOpen(false)}
+            open={mobileMenuOpen}
+            className="lg:hidden"
+            styles={{ body: { paddingInline: 0 } }}
+          >
+            <Menu
+              mode="inline"
+              selectedKeys={[getSelectedKey()]}
+              items={menuItems}
+              className="border-r-0"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+          </Drawer>
+        </>
+      )}
     </Layout>
   );
 }

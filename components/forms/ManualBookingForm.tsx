@@ -62,17 +62,20 @@ export default function ManualBookingForm({
   }, [initialValues, form]);
 
   const handleParseClasses = async () => {
-    const mapped = classes.map((cls, key) => {
-      return {
+    const now = dayjs();
+
+    const mapped = classes
+      .filter((cls) => dayjs(cls.start_time).isAfter(now)) // only classes that started before now
+      .map((cls, key) => ({
         value: cls.id,
         label: `${cls.instructor_name} (${dayjs(cls.start_time).format(
           "hh:mm A"
         )} - ${dayjs(cls.end_time).format("hh:mm A")})`,
         id: cls.instructor_id,
-        key: key,
+        key,
         takenSlots: cls.taken_slots,
-      };
-    });
+      }));
+
     setSchedules(mapped);
   };
 

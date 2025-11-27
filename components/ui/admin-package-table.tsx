@@ -74,11 +74,6 @@ const AdminPackageTable = ({
     setSearchText("");
   };
 
-  const showDeleteConfirm = (record: any) => {
-    setSelectedRecordToDelete(record);
-    setIsDeleteModalOpen(true);
-  };
-
   const getColumnSearchProps = (
     dataIndex: DataIndex
   ): TableColumnType<CreatePackageProps> => ({
@@ -171,6 +166,11 @@ const AdminPackageTable = ({
         text
       ),
   });
+
+  const showDeleteConfirm = (record: any) => {
+    setSelectedRecordToDelete(record);
+    setIsDeleteModalOpen(true);
+  };
 
   const handleConfirmDelete = () => {
     if (selectedRecordToDelete) {

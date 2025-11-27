@@ -10,6 +10,7 @@ import {
   Modal,
   Typography,
   Tooltip,
+  Tag,
 } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
@@ -206,6 +207,18 @@ const AdminBookingTable = ({
         key: "instructor_name",
         width: isMobile ? undefined : "20%",
         ...getColumnSearchProps("instructor_name"),
+        render: (_, record) => {
+          return (
+            <Row className="gap-x-[5px]">
+              <Text>{record.instructor_name}</Text>
+              {record.instructor_id === null && (
+                <Tag key={record.id} color={"red"}>
+                  Need to replace
+                </Tag>
+              )}
+            </Row>
+          );
+        },
       },
       {
         title: "Start Time",

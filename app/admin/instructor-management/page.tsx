@@ -13,6 +13,7 @@ import {
   message,
   Form,
   Tabs,
+  Tag,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
@@ -30,6 +31,7 @@ import { supabase } from "@/lib/supabase";
 import { useAppMessage } from "@/components/ui/message-popup";
 import axios from "axios";
 import ChangePasswordForm from "@/components/forms/ChangePasswordForm";
+import { CERTIFICATIONS } from "@/lib/utils";
 
 const { Title, Text } = Typography;
 
@@ -48,6 +50,9 @@ export default function InstructorManagementPage() {
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const { searchInstructors, loading } = useSearchUser();
   const {
+    reactivateInstructor,
+    deactivateInstructor,
+    deleteInstructor,
     updateInstructor,
     createInstructor,
     loading: loadingInstructor,
@@ -91,10 +96,14 @@ export default function InstructorManagementPage() {
   const handleSearchInstructors = async () => {
     const data = await searchInstructors({ name: debouncedValue });
     try {
+      console.log("data: ", data);
       if (data) {
         const usersWithSignedUrls = await Promise.all(
           data.map(async (record) => {
             let imageURL: string | null | undefined = undefined;
+            const certification: any = CERTIFICATIONS.find(
+              (x) => x.value === record.certification
+            );
             const instructor = {
               ...record,
               ...record.user_profiles,
@@ -102,6 +111,8 @@ export default function InstructorManagementPage() {
               last_name: record?.user_profiles?.last_name,
               full_name: record?.user_profiles?.full_name,
               avatar_path: record?.user_profiles?.avatar_path,
+              deactivated: record?.user_profiles?.deactivated,
+              certification: certification.label,
             };
 
             // generate signed URL valid for 1 hour (3600s)
@@ -164,15 +175,6 @@ export default function InstructorManagementPage() {
       emergency_contact_number: values.emergency_contact_number,
       user_type: "instructor",
     };
-
-    /**
-     *
-     * in updating email, we need to make sure that we're also updating the email in Authentication
-     * this also MUST be applied to client management and user profile editing
-     *
-     * DEV NOTE:
-     * Server-side routing is created. Refer to /update-user-email
-     */
 
     if (instructors && selectedRecord) {
       try {
@@ -238,6 +240,7 @@ export default function InstructorManagementPage() {
             .insert({
               id: data.user.id,
               ...userProfile,
+              deactivated: false,
             });
 
           if (profileError) {
@@ -312,12 +315,66 @@ export default function InstructorManagementPage() {
     }
   };
 
+  const handleConfirmDelete = async (id: string) => {
+    try {
+      await deleteInstructor({ id: id as string });
+
+      showMessage({
+        type: "success",
+        content: "Successfully deleted the instructor!",
+      });
+
+      handleSearchInstructors();
+    } catch (error) {
+      showMessage({
+        type: "error",
+        content: "Failed to delete the instructor",
+      });
+    }
+  };
+
+  const handleConfirmDeactivate = async (id: string) => {
+    try {
+      await deactivateInstructor({ id: id as string });
+
+      showMessage({
+        type: "success",
+        content: "Successfully deactivated the instructor!",
+      });
+
+      handleSearchInstructors();
+    } catch (error) {
+      showMessage({
+        type: "error",
+        content: "Failed to deactivate the instructor",
+      });
+    }
+  };
+  const handleConfirmReactivate = async (id: string) => {
+    try {
+      await reactivateInstructor({ id: id as string });
+
+      showMessage({
+        type: "success",
+        content: "Successfully reactivated the instructor!",
+      });
+
+      handleSearchInstructors();
+    } catch (error) {
+      showMessage({
+        type: "error",
+        content: "Failed to reactivate the instructor",
+      });
+    }
+  };
+
   const formTabs = [
     {
       key: "account-creation",
       label: "Account Creation",
       children: (
         <CreateInstructorForm
+          onDelete={(e) => handleConfirmDelete(e)}
           loading={loadingInstructor || modifyingInstructor}
           isModalOpen={isModalOpen}
           onSubmit={handleSubmit}
@@ -326,6 +383,17 @@ export default function InstructorManagementPage() {
           isEdit={!!selectedRecord}
           clearSignal={isModalOpen || profileTab}
           form={accountCreationForm}
+          onDeactivate={(e) => {
+            const instructor = instructors?.find((x) => x.id === e);
+            if (
+              instructor.deactivated === null ||
+              instructor.deactivated === false
+            ) {
+              handleConfirmDeactivate(instructor.id);
+            } else {
+              handleConfirmReactivate(instructor.id);
+            }
+          }}
         />
       ),
     },
@@ -382,43 +450,58 @@ export default function InstructorManagementPage() {
 
         <Row gutter={[16, 16]}>
           {instructors &&
-            instructors.map((data, idx) => (
-              <Col key={idx} xs={24} sm={12} md={8} lg={6} xl={6} xxl={6}>
-                <Card
-                  onClick={() => handleEdit(data)}
-                  hoverable
-                  cover={
-                    <div
-                      style={{
-                        height: 200, // same height as an image cover
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#f5f5f5", // optional: placeholder background
-                      }}
-                    >
-                      {data?.avatar_url === undefined && (
-                        <User style={{ fontSize: 64, color: "#999" }} />
-                      )}
-                      {data?.avatar_url && (
-                        <img
-                          className="rounded-t-lg"
-                          src={data.avatar_url}
-                          alt={data.full_name}
-                          style={{
-                            objectFit: "cover",
-                            height: 200,
-                            width: "100%",
-                          }}
-                        />
-                      )}
-                    </div>
-                  }
-                >
-                  <Card.Meta title={data.first_name} description={data.role} />
-                </Card>
-              </Col>
-            ))}
+            instructors.map((data, idx) => {
+              return (
+                <Col key={idx} xs={24} sm={12} md={8} lg={6} xl={6} xxl={6}>
+                  <Card
+                    onClick={() => handleEdit(data)}
+                    hoverable
+                    cover={
+                      <div
+                        style={{
+                          height: 200, // same height as an image cover
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#f5f5f5", // optional: placeholder background
+                        }}
+                      >
+                        {data?.avatar_url === undefined && (
+                          <User style={{ fontSize: 64, color: "#999" }} />
+                        )}
+                        {data?.avatar_url && (
+                          <img
+                            className="rounded-t-lg"
+                            src={data.avatar_url}
+                            alt={data.full_name}
+                            style={{
+                              objectFit: "cover",
+                              height: 200,
+                              width: "100%",
+                            }}
+                          />
+                        )}
+                      </div>
+                    }
+                  >
+                    <Card.Meta
+                      title={
+                        <Row className="gap-[5px]">
+                          <Text>{data.first_name}</Text>
+                          {data?.deactivated === true && (
+                            <Tag color="red">Deactivated</Tag>
+                          )}
+                        </Row>
+                      }
+                      description={data.certification}
+                    />
+                    {/* {data?.deactivated === true && (
+                    <Tag color="red">Deactivated</Tag>
+                  )} */}
+                  </Card>
+                </Col>
+              );
+            })}
 
           {!instructors?.length && (
             <Row className="w-full flex justify-center">

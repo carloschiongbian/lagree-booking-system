@@ -38,8 +38,14 @@ export default function CreateClassForm({
     if (initialValues) {
       const totalSlots = (initialValues.slots as string).split("/")[1].trim();
       form.setFieldsValue({
-        instructor_name: initialValues.instructor_name,
-        instructor_id: initialValues.instructor_id,
+        instructor_name:
+          initialValues.instructor_id === null
+            ? undefined
+            : initialValues.instructor_name,
+        instructor_id:
+          initialValues.instructor_id === null
+            ? undefined
+            : initialValues.instructor_id,
         time: [
           dayjs(initialValues.start_time, "hh:mm A"),
           dayjs(initialValues.end_time, "hh:mm A"),
@@ -155,7 +161,6 @@ export default function CreateClassForm({
               suffixIcon={<ClockCircleOutlined className="text-slate-400" />}
               className="w-full"
               needConfirm={false}
-              onChange={(e) => console.log(e)}
             />
           </Form.Item>
         </Col>

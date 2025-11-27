@@ -76,7 +76,9 @@ export default function DashboardPage() {
 
   const handleFetchBookings = async () => {
     if (user) {
-      const bookings: any = await fetchClientBookings({ userID: user?.id! });
+      const bookings: any = await fetchClientBookings({
+        userID: user?.id as string,
+      });
 
       const now = dayjs();
 

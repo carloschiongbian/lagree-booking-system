@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Row, Typography, Button, Modal, Drawer } from "antd";
+import { Row, Typography, Button, Modal, Drawer, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
 import { CreatePackageProps } from "@/lib/props";
@@ -13,6 +13,7 @@ import { useAppMessage } from "@/components/ui/message-popup";
 const { Title } = Typography;
 
 export default function PackageManagementPage() {
+  const [packageForm] = Form.useForm();
   const [packages, setPackages] = useState<any[]>([]);
   const { showMessage, contextHolder } = useAppMessage();
   const {
@@ -166,6 +167,8 @@ export default function PackageManagementPage() {
             }}
           >
             <CreatePackageForm
+              clearSignal={isModalOpen}
+              form={packageForm}
               loading={loading}
               onSubmit={handleSubmit}
               onCancel={handleCloseModal}
@@ -183,6 +186,8 @@ export default function PackageManagementPage() {
           >
             <div className="pt-4">
               <CreatePackageForm
+                clearSignal={isModalOpen}
+                form={packageForm}
                 loading={loading}
                 onSubmit={handleSubmit}
                 onCancel={handleCloseModal}

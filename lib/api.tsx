@@ -11,6 +11,7 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import { getDateFromToday } from "./utils";
 import { useAppSelector } from "./hooks";
+import axios from "axios";
 
 export const useSearchUser = () => {
   const [loading, setLoading] = useState(false);
@@ -275,7 +276,72 @@ export const useInstructorManagement = () => {
     return data;
   };
 
-  return { loading, createInstructor, updateInstructor };
+  const deleteInstructor = async ({ id }: { id: string }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .delete()
+      .eq("id", id)
+      .select();
+
+    await axios.post("/api/user/delete", {
+      id: id,
+    });
+
+    if (error) {
+      console.log("error: ", error);
+      return null;
+    }
+
+    setLoading(false);
+    return data;
+  };
+
+  const deactivateInstructor = async ({ id }: { id: string }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .update({ deactivated: true })
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      console.log("error: ", error);
+      return null;
+    }
+
+    setLoading(false);
+    return data;
+  };
+
+  const reactivateInstructor = async ({ id }: { id: string }) => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .update({ deactivated: false })
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      console.log("error: ", error);
+      return null;
+    }
+
+    setLoading(false);
+    return data;
+  };
+
+  return {
+    loading,
+    reactivateInstructor,
+    deactivateInstructor,
+    createInstructor,
+    updateInstructor,
+    deleteInstructor,
+  };
 };
 
 export const useClassManagement = () => {
@@ -801,7 +867,7 @@ export const useClientBookings = () => {
   const fetchClientBookings = async ({ userID }: { userID: string }) => {
     setLoading(true);
 
-    const today = dayjs().startOf("day").format("YYYY-MM-DD");
+    const nowISO = dayjs().toISOString();
 
     const { data, error } = await supabase
       .from("class_bookings")
@@ -834,8 +900,7 @@ export const useClientBookings = () => {
     `
       )
       .eq("booker_id", userID)
-      .or("attendance_status.is.null,attendance_status.neq.cancelled")
-      .gte("class_date", today);
+      .gte("classes.start_time", nowISO);
 
     if (error) return null;
 

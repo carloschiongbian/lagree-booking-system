@@ -349,7 +349,9 @@ export default function ClassManagementPage() {
       newTakenSlots: newClassRecord.taken_slots,
     });
 
-    handleFetchClasses();
+    // handleFetchClasses();
+    window.location.reload();
+
     handleCloseRebookModal();
   };
 

@@ -1,9 +1,18 @@
 "use client";
 
-import { Form, Input, InputNumber, Button, Row, Col, Checkbox } from "antd";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Button,
+  Row,
+  Col,
+  Checkbox,
+  FormInstance,
+} from "antd";
 import { TeamOutlined } from "@ant-design/icons";
 import { LuCalendarDays, LuPackage } from "react-icons/lu";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CreatePackageProps } from "@/lib/props";
 
 interface CreatePackageFormProps {
@@ -12,6 +21,8 @@ interface CreatePackageFormProps {
   loading?: boolean;
   initialValues?: CreatePackageProps | null;
   isEdit?: boolean;
+  form: FormInstance;
+  clearSignal?: boolean;
 }
 
 export default function CreatePackageForm({
@@ -20,21 +31,31 @@ export default function CreatePackageForm({
   loading = false,
   initialValues = null,
   isEdit = false,
+  form,
+  clearSignal,
 }: CreatePackageFormProps) {
-  const [form] = Form.useForm();
+  const initialRef = useRef<any>(null);
   const [isUnlimited, setIsUnlimited] = useState<boolean>(false);
 
   useEffect(() => {
-    if (initialValues) {
-      setIsUnlimited(initialValues.package_credits ? true : false);
+    if (initialRef.current) {
+      form.setFieldsValue(initialRef.current);
+      setIsUnlimited(false);
+    }
+  }, [clearSignal]);
 
-      form.setFieldsValue({
+  useEffect(() => {
+    if (initialValues) {
+      setIsUnlimited(initialValues.package_credits ? false : true);
+
+      let initial = {
         name: initialValues.title,
         price: initialValues.price,
         validity_period: initialValues.validity_period,
-      });
-    } else {
-      form.resetFields();
+      };
+
+      initialRef.current = initial;
+      form.setFieldsValue(initial);
     }
   }, [initialValues, form]);
 
@@ -194,7 +215,7 @@ export default function CreatePackageForm({
             />
           </Form.Item>
           <Checkbox
-            defaultChecked={isUnlimited}
+            checked={isUnlimited}
             onChange={(e) => {
               form.setFieldValue("package_credits", undefined);
               setIsUnlimited(e.target.checked);

@@ -15,10 +15,12 @@ export interface CreateClassProps {
   taken_slots?: number;
 }
 export interface CreateInstructorProps {
+  id?: string;
   user_id?: string;
   first_name?: string;
   last_name?: string;
   full_name?: string;
+  deactivated?: boolean;
   avatar_url?: string;
   avatar_path?: string;
   certification?: string;

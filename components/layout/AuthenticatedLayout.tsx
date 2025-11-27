@@ -11,6 +11,7 @@ import {
   Button,
   Drawer,
   message,
+  Row,
 } from "antd";
 import {
   HomeOutlined,
@@ -26,9 +27,10 @@ import { CurrentPackageProps, supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
 import { LuPackage } from "react-icons/lu";
-import { FaBook } from "react-icons/fa";
+import { FaBook, FaInstagram, FaList, FaQuestion } from "react-icons/fa";
 import { useManageCredits, usePackageManagement } from "@/lib/api";
 import dayjs from "dayjs";
+import { CiBoxList } from "react-icons/ci";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -184,6 +186,7 @@ export default function AuthenticatedLayout({
     if (pathname === "/packages") return "4";
     if (pathname === "/bookings") return "5";
     if (pathname === "/user-terms-and-conditions") return "6";
+    if (pathname === "/faq") return "7";
     return "1";
   };
 
@@ -220,6 +223,16 @@ export default function AuthenticatedLayout({
         <Link href="/user-terms-and-conditions">Terms and Conditions</Link>
       ),
     },
+    {
+      key: "7",
+      icon: <FaQuestion />,
+      label: <Link href="/faq">FAQ</Link>,
+    },
+    {
+      key: "8",
+      icon: <FaList />,
+      label: <Link href="/studio-guidelines">Studio Guidelines</Link>,
+    },
   ];
 
   const userMenuItems = [
@@ -236,23 +249,31 @@ export default function AuthenticatedLayout({
       <Sider
         breakpoint="lg"
         collapsedWidth="0"
-        className="!bg-white border-r border-slate-200 hidden lg:block"
+        className="!bg-white border-r border-slate-200 hidden lg:flex flex-col justify-between h-screen"
         width={240}
       >
-        <div className="h-16 flex items-center justify-center border-b border-slate-200 bg-[#36013F]">
-          <Text className="text-xl font-semibold text-slate-200">
-            Supra8 Lagree
+        {/* Top Section */}
+        <div>
+          <div className="h-16 flex items-center justify-center border-b border-slate-200 bg-[#36013F]">
+            <Text className="text-xl font-semibold text-slate-200">
+              Supra8 Lagree
+            </Text>
+          </div>
+          <Menu
+            mode="inline"
+            selectedKeys={[getSelectedKey()]}
+            items={menuItems}
+            className="border-r-0 pt-4"
+          />
+          <Text className="text-xl font-semibold text-slate-200 lg:hidden">
+            LagreeStudio
           </Text>
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[getSelectedKey()]}
-          items={menuItems}
-          className="border-r-0 pt-4"
-        />
-        <Text className="text-xl font-semibold text-slate-200 lg:hidden">
-          LagreeStudio
-        </Text>
+
+        {/* Bottom Section */}
+        {/* <Row wrap={false} className="bg-green-300 p-4">
+          <FaInstagram />
+        </Row> */}
       </Sider>
 
       <Layout>

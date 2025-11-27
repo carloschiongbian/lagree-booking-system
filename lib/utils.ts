@@ -98,6 +98,28 @@ export const calculateDuration = (start: Dayjs, end: Dayjs): string => {
   return `${minutes} mins`;
 };
 
+export const CERTIFICATIONS = [
+  { value: "lagree_certified_instructor", label: "Lagree Certified Trainer" },
+  {
+    value: "licensed_physical_therapist",
+    label: "Licensed Physical Therapist",
+  },
+  {
+    value: "pilates_certified_instructor",
+    label: " Pilates Certified Instructor",
+  },
+  { value: "yoga_instructor", label: "Yoga Instructor" },
+  {
+    value: "strength_conditioning_coach",
+    label: "Strength & Conditioning Coach",
+  },
+  {
+    value: "fitness_coach_personal_trainer",
+    label: "Fitness Coach / Personal Trainer",
+  },
+  { value: "group_fitness_instructor", label: "Group Fitness Instructor" },
+];
+
 export const isNotMoreThan24HoursAway = (startTime: Dayjs) => {
   const diffInHours = startTime.diff(dayjs(), "hour", true); // precise hours
 
