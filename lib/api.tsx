@@ -199,6 +199,10 @@ export const useDeleteUser = () => {
       .eq("id", id)
       .select();
 
+    await axios.post("/api/user/delete", {
+      id: id,
+    });
+
     if (error) return null;
 
     setLoading(false);
