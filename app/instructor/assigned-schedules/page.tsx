@@ -87,7 +87,7 @@ export default function ClassManagementPage() {
       const data = await fetchClasses({
         selectedDate: dateQuery as Dayjs,
         isInstructor: true,
-        instructorId: user?.id,
+        instructorId: user?.instructors?.[0].id,
       });
 
       if (data) {

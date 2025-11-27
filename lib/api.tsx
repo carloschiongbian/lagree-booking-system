@@ -406,7 +406,6 @@ export const useClassManagement = () => {
 
     const nowISO = dayjs().toISOString();
     const today = dayjs().startOf("day");
-
     let query = supabase.from("classes").select(`
     *,
     instructors (
@@ -438,7 +437,7 @@ export const useClassManagement = () => {
     }
 
     if (isInstructor && instructorId) {
-      query = query.eq("instructors.user_id", instructorId);
+      query = query.eq("instructor_id", instructorId);
     }
 
     if (startDate && endDate) {

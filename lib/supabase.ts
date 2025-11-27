@@ -45,6 +45,7 @@ export interface UserProfile {
   emergency_contact_name?: string;
   emergency_contact_number?: string;
   currentPackage?: CurrentPackageProps;
+  instructors?: any[];
 }
 
 export interface UpdateUserProfile {
