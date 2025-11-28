@@ -213,8 +213,8 @@ export default function BookingsPage() {
           dispatch(setUser({ ...user, credits: updatedCredits }));
         }
 
-        // await Promise.all([...promises]);
-        await Promise.all([...promises, handleSendConfirmationEmail()]);
+        await Promise.all([...promises]);
+        // await Promise.all([...promises, handleSendConfirmationEmail()]);
 
         setIsSubmitting(false);
         handleCloseModal();

@@ -89,3 +89,21 @@ export interface ClientPackageProps {
     validityPeriod: number;
   };
 }
+
+export interface Order {
+  id?: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  customer_user_id?: string;
+  amount: number;
+  currency: string;
+  product_name: string;
+  product_description?: string;
+  payment_intent_id?: string;
+  payment_method_id?: string;
+  status: "pending" | "processing" | "succeeded" | "failed";
+  metadata?: Record<string, unknown>;
+  created_at?: string;
+  updated_at?: string;
+}

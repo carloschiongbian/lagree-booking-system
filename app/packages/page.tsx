@@ -16,17 +16,25 @@ import {
 import { ImInfinite } from "react-icons/im";
 import { CalendarOutlined } from "@ant-design/icons";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, getDateFromToday } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  ShoppingBag,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 import { useManageCredits, usePackageManagement } from "@/lib/api";
 import { useAppSelector } from "@/lib/hooks";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/lib/features/authSlice";
 import UserTermsAndConditions from "@/components/layout/UserTermsAndConditions";
-import { PackageProps } from "@/lib/props";
+import { Order, PackageProps } from "@/lib/props";
 import dayjs from "dayjs";
 import { useAppMessage } from "@/components/ui/message-popup";
+import axios from "axios";
 
 const { Title } = Typography;
 const CAROUSEL_SLIDES = {
@@ -34,6 +42,8 @@ const CAROUSEL_SLIDES = {
   PACKAGE_DETAILS: 1,
   CHECKOUT: 2,
 };
+
+type PaymentMethod = "card" | "paymaya" | "gcash";
 
 export default function PackagesPage() {
   const dispatch = useDispatch();
@@ -56,7 +66,7 @@ export default function PackagesPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDelayedOverflow(
-        carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto"
+        carouselSlide === CAROUSEL_SLIDES.PACKAGE_DETAILS ? "hidden" : "auto"
       );
     }, 400);
 
@@ -153,33 +163,34 @@ export default function PackagesPage() {
 
   const handleNext = async () => {
     try {
-      setIsSubmitting(true);
-      await handlePurchasePackage();
+      // setIsSubmitting(true);
+      // await handlePurchasePackage();
 
-      await handleUpdateUserCredits({
-        credits: selectedRecord.packageCredits,
-      });
+      // await handleUpdateUserCredits({
+      //   credits: selectedRecord.packageCredits,
+      // });
 
-      await handleSendConfirmationEmail();
+      // await handleSendConfirmationEmail();
 
       // temporarily commented out until payments is integrated
-      // setCarouselSlide(2);
-      // carouselRef.current.next();
+      setCarouselSlide(2);
+      carouselRef.current.next();
 
       //temporary behavior
-      showMessage({
-        type: "success",
-        content: "Successfully purchased package!",
-      });
-      setIsModalOpen(false);
-      setSelectedRecord(null);
-      setIsSubmitting(false);
+      // showMessage({
+      //   type: "success",
+      //   content: "Successfully purchased package!",
+      // });
+      // setIsModalOpen(false);
+      // setSelectedRecord(null);
+      // setIsSubmitting(false);
     } catch (error) {
       showMessage({ type: "error", content: "Failed to purchase package" });
     }
   };
 
   const handlePurchasePackage = async () => {
+    console.log("selectedRecord: ", selectedRecord);
     try {
       if (user?.credits === 0) {
         await updateClientPackage({
@@ -211,6 +222,147 @@ export default function PackagesPage() {
   const handleShowTermsAndConditions = () => {
     setCarouselSlide(CAROUSEL_SLIDES.TERMS);
     carouselRef.current.goTo(CAROUSEL_SLIDES.TERMS);
+  };
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    customerName: user?.full_name || "",
+    customerEmail: user?.email || "",
+    customerPhone: user?.contact_number || "",
+    cardNumber: "",
+    expiryMonth: "",
+    expiryYear: "",
+    cvc: "",
+  });
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        customerName: user?.full_name || "",
+        customerEmail: user?.email || "",
+        customerPhone: user?.contact_number || "",
+      }));
+    }
+  }, [user]);
+
+  const handleExecutePayment = async (e: React.FormEvent) => {
+    /**
+     * CURRENT ROUTE EXECUTES TEST PAYMENTS
+     * NEXT IS EXPLORE REAL PAYMENTS TO PAYMONGO ACCOUNT
+     */
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const TOTAL_AMOUNT = selectedRecord.price * 100;
+    /**
+     * CAREFUL HERE
+     * AMOUNT IS MULTIPLIED BY 100 IN ORDER TO ADD CENTAVOS
+     */
+
+    try {
+      const orderData: Omit<Order, "id" | "created_at" | "updated_at"> = {
+        customer_name: user?.full_name as string,
+        customer_user_id: user?.id as string,
+        customer_email: user?.email as string,
+        customer_phone: user?.contact_number || undefined,
+        amount: TOTAL_AMOUNT,
+        currency: "PHP",
+        product_name: selectedRecord.title,
+        product_description: `Valid for ${selectedRecord.validityPeriod} days`,
+        status: "processing",
+      };
+
+      const packageData = {
+        user_id: user?.id as string,
+        package_id: selectedRecord.id,
+        status: "active",
+        validity_period: selectedRecord.validityPeriod,
+        package_credits: selectedRecord.packageCredits,
+        purchase_date: dayjs(),
+        package_name: selectedRecord.title,
+        payment_method: paymentMethod,
+        expiration_date: getDateFromToday(selectedRecord.validityPeriod),
+      };
+
+      const paymentData = {
+        method: paymentMethod,
+        card:
+          paymentMethod === "card"
+            ? {
+                number: formData.cardNumber.replace(/\s/g, ""),
+                exp_month: parseInt(formData.expiryMonth),
+                exp_year: parseInt(formData.expiryYear),
+                cvc: formData.cvc,
+              }
+            : undefined,
+        billing: {
+          name: formData.customerName,
+          email: formData.customerEmail,
+          phone: formData.customerPhone,
+        },
+      };
+
+      const response = await axios.post(`/api/package/process-payment`, {
+        selectedPackage: packageData,
+        order: orderData,
+        payment: paymentData,
+      });
+
+      const result = await response.data;
+
+      console.log("result: ", result);
+
+      if (!response.data) {
+        throw new Error(result.error || "Payment failed");
+      }
+
+      if (result.status === "awaiting_next_action" && result.redirect_url) {
+        window.location.href = result.redirect_url;
+        return;
+      }
+
+      if (result.status === "succeeded") {
+        await handlePurchasePackage();
+
+        await handleUpdateUserCredits({
+          credits: selectedRecord.packageCredits,
+        });
+
+        await handleSendConfirmationEmail();
+
+        setSuccess(true);
+        setFormData({
+          customerName: user?.full_name || "",
+          customerEmail: user?.email || "",
+          customerPhone: user?.contact_number || "",
+          cardNumber: "",
+          expiryMonth: "",
+          expiryYear: "",
+          cvc: "",
+        });
+        setIsModalOpen(false);
+        setSelectedRecord(null);
+        setIsSubmitting(false);
+        showMessage({
+          type: "success",
+          content: "Successfully purchased package!",
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -323,7 +475,7 @@ export default function PackagesPage() {
         placement="right"
         onClose={handleCloseModal}
         open={isModalOpen}
-        width={isMobile ? "100%" : "30%"}
+        width={isMobile ? "100%" : "33%"}
         styles={{
           body: {
             paddingTop: 24,
@@ -429,6 +581,327 @@ export default function PackagesPage() {
                   Payment Details
                 </Title>
               </Row>
+              {selectedRecord && (
+                <Row wrap={false} className="flex flex-col gap-y-[20px]">
+                  <div className="bg-white">
+                    <div className="border-2 border-[#36013F] rounded-xl p-3 mb-6">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        {selectedRecord.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Valid for {selectedRecord.validityPeriod} days
+                      </p>
+
+                      <div className="space-y-2 text-sm text-gray-600">
+                        <div className="flex justify-between">
+                          <span>Subtotal</span>
+                          <span>
+                            ₱
+                            {formatPrice(selectedRecord.price, { decimals: 2 })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Processing Fee</span>
+                          <span>₱0.00</span>
+                        </div>
+                        <div className="border-t border-gray-200 pt-2 mt-2">
+                          <div className="flex justify-between text-lg font-bold text-gray-900">
+                            <span>Total</span>
+                            <span>
+                              ₱
+                              {formatPrice(selectedRecord.price, {
+                                decimals: 2,
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-start gap-2">
+                          <Lock className="w-5 h-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              Secure Payment
+                            </p>
+                            <p className="text-xs text-gray-600 mt-1">
+                              Your payment information is encrypted and secure
+                            </p>
+                          </div>
+                        </div>
+                      </div> */}
+                    </div>
+                  </div>
+
+                  <div className="bg-white ">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Wallet className="w-6 h-6 text-[#36013F]" />
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        Payment Method
+                      </h2>
+                    </div>
+
+                    {error && (
+                      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-600">{error}</p>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleExecutePayment} className="space-y-6">
+                      <div className="grid grid-cols-3 gap-3 mb-8">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("card")}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            paymentMethod === "card"
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <CreditCard
+                            className={`w-6 h-6 mx-auto mb-2 ${
+                              paymentMethod === "card"
+                                ? "text-[#36013F]"
+                                : "text-gray-600"
+                            }`}
+                          />
+                          <span
+                            className={`text-sm font-medium block ${
+                              paymentMethod === "card"
+                                ? "text-[#36013F]"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            Card
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("paymaya")}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            paymentMethod === "paymaya"
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <Smartphone
+                            className={`w-6 h-6 mx-auto mb-2 ${
+                              paymentMethod === "paymaya"
+                                ? "text-blue-600"
+                                : "text-gray-600"
+                            }`}
+                          />
+                          <span
+                            className={`text-sm font-medium block ${
+                              paymentMethod === "paymaya"
+                                ? "text-blue-600"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            PayMaya
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("gcash")}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            paymentMethod === "gcash"
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <Wallet
+                            className={`w-6 h-6 mx-auto mb-2 ${
+                              paymentMethod === "gcash"
+                                ? "text-blue-600"
+                                : "text-gray-600"
+                            }`}
+                          />
+                          <span
+                            className={`text-sm font-medium block ${
+                              paymentMethod === "gcash"
+                                ? "text-blue-600"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            GCash
+                          </span>
+                        </button>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          name="customerName"
+                          value={formData.customerName}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="Juan Dela Cruz"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          name="customerEmail"
+                          value={formData.customerEmail}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="juan@example.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Phone Number (Optional)
+                        </label>
+                        <input
+                          type="tel"
+                          name="customerPhone"
+                          value={formData.customerPhone}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="+63 912 345 6789"
+                        />
+                      </div>
+
+                      {paymentMethod === "card" && (
+                        <div className="border-t border-gray-200 pt-6 space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Card Number
+                            </label>
+                            <input
+                              type="text"
+                              name="cardNumber"
+                              value={formData.cardNumber}
+                              onChange={handleInputChange}
+                              required
+                              maxLength={19}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                              placeholder="4123 4567 8901 2345"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Month
+                              </label>
+                              <input
+                                type="text"
+                                name="expiryMonth"
+                                value={formData.expiryMonth}
+                                onChange={handleInputChange}
+                                required
+                                maxLength={2}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                placeholder="12"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Year
+                              </label>
+                              <input
+                                type="text"
+                                name="expiryYear"
+                                value={formData.expiryYear}
+                                onChange={handleInputChange}
+                                required
+                                maxLength={4}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                placeholder="2025"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                CVC
+                              </label>
+                              <input
+                                type="text"
+                                name="cvc"
+                                value={formData.cvc}
+                                onChange={handleInputChange}
+                                required
+                                maxLength={4}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                placeholder="123"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {(paymentMethod === "paymaya" ||
+                        paymentMethod === "gcash") && (
+                        <div className="border-t border-gray-200 pt-6">
+                          <div className="bg-blue-50 rounded-lg p-4">
+                            <p className="text-sm text-gray-700">
+                              You will be redirected to{" "}
+                              {paymentMethod === "paymaya"
+                                ? "PayMaya"
+                                : "GCash"}{" "}
+                              to complete your payment securely.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <>
+                            <svg
+                              className="animate-spin h-5 w-5"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                fill="none"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
+                            </svg>
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            {/* <Lock className="w-5 h-5" /> */}
+                            Pay ₱
+                            {formatPrice(selectedRecord.price, { decimals: 2 })}
+                          </>
+                        )}
+                      </button>
+
+                      <p className="text-xs text-gray-500 text-center">
+                        By clicking "Pay", you agree to our terms and
+                        conditions. Your payment is secured by Paymongo.
+                      </p>
+                    </form>
+                  </div>
+                </Row>
+              )}
             </div>
           </Carousel>
         </div>

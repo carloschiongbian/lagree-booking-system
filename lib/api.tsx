@@ -961,3 +961,20 @@ export const useManageCredits = () => {
 
   return { loading, updateUserCredits, createUserCredits };
 };
+
+export const useManageOrders = () => {
+  const [loading, setLoading] = useState(false);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+
+    const response = await axios.get("/api/admin/orders/fetch");
+
+    if (!response.data.data) return null;
+
+    setLoading(false);
+    return response.data.data;
+  };
+
+  return { loading, fetchOrders };
+};

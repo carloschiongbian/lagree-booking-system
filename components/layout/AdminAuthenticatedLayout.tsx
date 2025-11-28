@@ -25,6 +25,7 @@ import { supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
 import { LuPackage, LuUserPen } from "react-icons/lu";
+import { MdOutlinePayment } from "react-icons/md";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -103,7 +104,8 @@ export default function AuthenticatedLayout({
     if (pathname === "/admin/instructor-management") return "3";
     if (pathname === "/admin/class-management") return "4";
     if (pathname === "/admin/package-management") return "5";
-    if (pathname === "/admin/user-terms-and-conditions") return "6";
+    if (pathname === "/admin/payments") return "6";
+    if (pathname === "/admin/user-terms-and-conditions") return "7";
     return "1";
   };
 
@@ -137,6 +139,11 @@ export default function AuthenticatedLayout({
     },
     {
       key: "6",
+      icon: <MdOutlinePayment />,
+      label: <Link href="/admin/payments">Client Payments</Link>,
+    },
+    {
+      key: "7",
       icon: <FaFileContract />,
       label: (
         <Link href="/admin/user-terms-and-conditions">
