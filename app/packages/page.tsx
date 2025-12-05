@@ -554,7 +554,7 @@ export default function PackagesPage() {
         styles={{
           body: {
             paddingTop: 24,
-            overflow: delayedOverflow,
+            overflow: "auto",
           },
         }}
       >

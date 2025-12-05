@@ -446,7 +446,7 @@ export default function BookingsPage() {
         styles={{
           body: {
             paddingTop: 24,
-            overflow: delayedOverflow,
+            overflow: "auto",
           },
         }}
       >
