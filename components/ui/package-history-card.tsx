@@ -63,7 +63,9 @@ const PackageHistoryCard = ({ item }: { item: any }) => {
           <Divider className="m-0 my-[5px] p-0" />
           <Row className="flex flex-col min-h-[24]">
             <Text style={{ fontSize: 16 }}>
-              {checkIfExpired(dayjs(item.expirationDate))
+              {checkIfExpired(
+                dayjs(item?.expirationDate ?? item?.expiration_date)
+              )
                 ? "Expired"
                 : "Expires"}{" "}
               on{" "}
@@ -75,7 +77,7 @@ const PackageHistoryCard = ({ item }: { item: any }) => {
                 color: "#f87171",
               }}
             >
-              {formatDate(dayjs(item.expirationDate))}
+              {formatDate(dayjs(item?.expirationDate ?? item?.expiration_date))}
             </Text>
           </Row>
         </Row>

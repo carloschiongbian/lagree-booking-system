@@ -77,7 +77,7 @@ export const checkIfExpired = (expirationDate: Dayjs) => {
   return today.isAfter(expirationDate);
 };
 
-export const formatDate = (date: Dayjs, format: string = "MMM DD YYYY") => {
+export const formatDate = (date: Dayjs, format: string = "MMM D YYYY") => {
   return date.format(format);
 };
 
