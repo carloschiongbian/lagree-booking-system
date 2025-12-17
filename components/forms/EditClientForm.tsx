@@ -67,10 +67,8 @@ const EditClientForm = ({
   initialValues = null,
   isEdit = false,
 }: EditClientProps) => {
-  const BUCKET_NAME = "user-photos";
   const [form] = Form.useForm();
   const watchedValues = Form.useWatch([], form);
-  const user = useAppSelector((state) => state.auth.user);
   const [uploading, setUploading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
@@ -103,7 +101,6 @@ const EditClientForm = ({
   }, [debouncedEmail]);
 
   useEffect(() => {
-    console.log("initialValues: ", initialValues);
     if (initialValues) {
       // exclude avatar data since it's not part of the form
       const initial = {
@@ -267,6 +264,7 @@ const EditClientForm = ({
   const {
     fetchPackages,
     purchasePackage,
+    updateClientPackage,
     loading: addingPackage,
   } = usePackageManagement();
   const { updateUserCredits } = useManageCredits();
@@ -287,7 +285,7 @@ const EditClientForm = ({
   }, [isPackagesModalOpen]);
 
   const handleFetchPackages = async () => {
-    const response = await fetchPackages();
+    const response = await fetchPackages({ isAdmin: true });
 
     const mapped = response?.map((data) => {
       return {
@@ -301,12 +299,10 @@ const EditClientForm = ({
         label: data.title,
       };
     });
-    console.log("mapped: ", mapped);
     setPackages(mapped);
   };
 
   const handleAddPackage = async () => {
-    console.log(selectedPackage);
     await handlePurchasePackage();
     await handleUpdateUserCredits({ credits: selectedPackage.packageCredits });
 
@@ -328,6 +324,13 @@ const EditClientForm = ({
 
   const handlePurchasePackage = async () => {
     try {
+      if (initialValues?.clientPackage && initialValues?.credits === 0) {
+        await updateClientPackage({
+          clientPackageID: initialValues?.clientPackage.clientPackageID,
+          values: { status: "expired", expirationDate: dayjs() },
+        });
+      }
+
       const response = await purchasePackage({
         userID: initialValues?.id as string,
         packageID: selectedPackage.id,
@@ -468,13 +471,18 @@ const EditClientForm = ({
                 />
               </Row>
             )}
-            {!initialValues?.clientPackage && (
+            {(!initialValues?.clientPackage ||
+              initialValues?.credits === 0) && (
               <Row
                 justify={"center"}
-                className="bg-slate-200 w-full rounded-[10px] p-[30px] flex-col flex items-center"
+                className={`bg-slate-200 w-full rounded-[10px] p-[30px] flex-col flex items-center ${
+                  initialValues?.credits === 0 && "mt-[10px]"
+                }`}
               >
                 <Title className="!font-light" level={5}>
-                  Client has no active package
+                  {initialValues?.credits === 0
+                    ? "Client has no more credits"
+                    : "Client has no active package"}
                 </Title>
                 <Button
                   className={`bg-white`}

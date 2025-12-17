@@ -115,6 +115,7 @@ export default function ClientManagementPage() {
 
             if (clientPackage) {
               clientPackage = {
+                clientPackageID: clientPackage.id,
                 status: clientPackage.status,
                 packages: {
                   title: clientPackage.package_name,
@@ -212,7 +213,7 @@ export default function ClientManagementPage() {
           });
         }
 
-        if (values.credits) {
+        if (!isNaN(values.credits)) {
           promises.push(
             updateUserCredits({
               userID: selectedRecord?.id as string,

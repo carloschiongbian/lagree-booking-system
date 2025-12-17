@@ -35,6 +35,7 @@ export default function CreatePackageForm({
   clearSignal,
 }: CreatePackageFormProps) {
   const initialRef = useRef<any>(null);
+  const [isOffered, setIsOffered] = useState<boolean>(false);
   const [isUnlimited, setIsUnlimited] = useState<boolean>(false);
 
   useEffect(() => {
@@ -47,11 +48,15 @@ export default function CreatePackageForm({
   useEffect(() => {
     if (initialValues) {
       setIsUnlimited(initialValues.package_credits ? false : true);
+      setIsOffered(initialValues.offered_for_clients as boolean);
 
       let initial = {
         name: initialValues.title,
         price: initialValues.price,
         validity_period: initialValues.validity_period,
+        ...(initialValues.package_credits !== null && {
+          package_credits: initialValues.package_credits,
+        }),
       };
 
       initialRef.current = initial;
@@ -62,6 +67,7 @@ export default function CreatePackageForm({
   const handleFinish = (values: any) => {
     const formattedValues = {
       ...values,
+      offered_for_clients: isOffered,
     };
     onSubmit(formattedValues);
     if (!isEdit) {
@@ -217,17 +223,39 @@ export default function CreatePackageForm({
           <Checkbox
             checked={isUnlimited}
             onChange={(e) => {
-              form.setFieldValue("package_credits", undefined);
+              if (e.target.checked === true) {
+                form.setFieldValue("package_credits", undefined);
+              }
+
               setIsUnlimited(e.target.checked);
             }}
           >
             Unlimited Sessions
           </Checkbox>
         </Col>
+
+        <Col xs={24} sm={12}>
+          <Row wrap={false} className="flex flex-col justify-center h-full">
+            <Checkbox
+              checked={isOffered}
+              onChange={(e) => {
+                form.setFieldValue("offered_for_clients", undefined);
+                setIsOffered(e.target.checked);
+              }}
+            >
+              Make available to clients
+            </Checkbox>
+          </Row>
+        </Col>
       </Row>
 
       <Form.Item className="mb-0 mt-6">
-        <Row gutter={12} className="flex-row-reverse">
+        <Row gutter={12} className="flex-row justify-end">
+          <Col xs={12} sm={8}>
+            <Button size="large" onClick={onCancel} disabled={loading} block>
+              Cancel
+            </Button>
+          </Col>
           <Col xs={12} sm={8}>
             <Button
               type="primary"
@@ -239,11 +267,6 @@ export default function CreatePackageForm({
               className="bg-[#36013F] hover:!bg-[#36013F] !border-none"
             >
               {isEdit ? "Update" : "Create"}
-            </Button>
-          </Col>
-          <Col xs={12} sm={8}>
-            <Button size="large" onClick={onCancel} disabled={loading} block>
-              Cancel
             </Button>
           </Col>
         </Row>

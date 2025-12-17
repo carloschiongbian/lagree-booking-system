@@ -52,17 +52,6 @@ export default function PackagesPage() {
   const [acceptsTerms, setAcceptsTerms] = useState(false);
   const [packages, setPackages] = useState<PackageProps[]>();
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
-  const [delayedOverflow, setDelayedOverflow] = useState("hidden");
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDelayedOverflow(
-        carouselSlide === CAROUSEL_SLIDES.PACKAGE_DETAILS ? "hidden" : "auto"
-      );
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [carouselSlide]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -92,7 +81,7 @@ export default function PackagesPage() {
   }, []);
 
   const handleFetchPackages = async () => {
-    const response = await fetchPackages();
+    const response = await fetchPackages({ isAdmin: false });
 
     const mapped = response?.map((data) => {
       return {
@@ -100,6 +89,7 @@ export default function PackagesPage() {
         validityPeriod: data.validity_period,
         packageType: data.package_type,
         packageCredits: data.package_credits,
+        offeredForClients: data.offered_for_clients,
       };
     });
 

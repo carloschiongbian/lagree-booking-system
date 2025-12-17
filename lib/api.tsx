@@ -93,6 +93,7 @@ export const useSearchUser = () => {
      ),
      client_packages (
        *,
+       id,
        package_id,
        status,
        package_name,
@@ -784,7 +785,9 @@ export const usePackageManagement = () => {
   const createPackage = async ({ values }: { values: any }) => {
     setLoading(true);
 
-    const { data, error } = await supabase.from("packages").insert(values);
+    const { data, error } = await supabase
+      .from("packages")
+      .insert({ ...values, offered_for_clients: false });
 
     if (error) return null;
 
@@ -792,10 +795,20 @@ export const usePackageManagement = () => {
     return data;
   };
 
-  const fetchPackages = async () => {
+  const fetchPackages = async ({
+    isAdmin,
+  }: {
+    isAdmin: boolean | undefined;
+  }) => {
     setLoading(true);
 
-    const { data, error } = await supabase.from("packages").select("*");
+    let query = supabase.from("packages").select("*");
+
+    if (isAdmin !== true) {
+      query = query.eq("offered_for_clients", true);
+    }
+
+    const { data, error } = await query;
 
     if (error) return null;
 

@@ -57,7 +57,7 @@ export default function PackageManagementPage() {
   }, []);
 
   const handleFetchPackages = async () => {
-    const response = await fetchPackages();
+    const response = await fetchPackages({ isAdmin: true });
     if (response) {
       const mapped = response.map((pkg: any, index: number) => ({
         key: pkg.id,
@@ -66,6 +66,7 @@ export default function PackageManagementPage() {
         price: pkg.price,
         validity_period: pkg.validity_period,
         package_credits: pkg.package_credits,
+        offered_for_clients: pkg.offered_for_clients,
       }));
       setPackages(mapped);
     }
@@ -93,6 +94,7 @@ export default function PackageManagementPage() {
       package_type: "regular",
       package_credits: values.package_credits ?? null,
       validity_period: values.validity_period,
+      offered_for_clients: values.offered_for_clients,
     };
     try {
       if (editingRecord) {
@@ -165,6 +167,7 @@ export default function PackageManagementPage() {
             styles={{
               body: { paddingTop: 24 },
             }}
+            destroyOnHidden={true}
           >
             <CreatePackageForm
               clearSignal={isModalOpen}
@@ -183,6 +186,7 @@ export default function PackageManagementPage() {
             onCancel={handleCloseModal}
             footer={null}
             width={600}
+            destroyOnHidden={true}
           >
             <div className="pt-4">
               <CreatePackageForm
