@@ -244,7 +244,9 @@ const EditClientForm = ({
 
     const formData = {
       ...values,
-      ...(!!imageURL.length && { avatar_path: imageURL }),
+      ...(clientFile?.name !== "existing_image.png" && {
+        avatar_path: imageURL,
+      }),
       full_name: `${values.first_name} ${values.last_name}`,
     };
 

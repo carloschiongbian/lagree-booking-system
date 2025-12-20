@@ -144,9 +144,14 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
   };
 
   const handleSubmit = async (formData: any) => {
-    let imageURL: string = "";
+    let imageURL: string | File = "";
+    const modifiedFile = file?.[0];
 
-    if (file) {
+    if (
+      modifiedFile !== undefined &&
+      modifiedFile !== null &&
+      modifiedFile?.name !== "existing_image.png"
+    ) {
       const response = await handleUpload(file);
       if (response) {
         imageURL = response;
@@ -155,7 +160,9 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
 
     const values = {
       ...formData,
-      avatar_path: imageURL.length ? imageURL : null,
+      ...(modifiedFile?.name !== "existing_image.png" && {
+        avatar_path: imageURL.length ? imageURL : null,
+      }),
       location: formData.location,
       birthday: dayjs(formData.birthday).toISOString(),
       full_name: `${formData.first_name} ${formData.last_name}`,
@@ -215,7 +222,6 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
     });
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
-    console.log(newFileList);
     setFile(newFileList);
   };
 

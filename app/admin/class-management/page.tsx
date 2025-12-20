@@ -214,7 +214,6 @@ export default function ClassManagementPage() {
   };
 
   const handleEdit = (record: CreateClassProps) => {
-    console.log("record: ", record);
     setSelectedRecord(record);
     setIsFormModalOpen(true);
   };

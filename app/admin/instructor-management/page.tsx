@@ -32,6 +32,7 @@ import { useAppMessage } from "@/components/ui/message-popup";
 import axios from "axios";
 import ChangePasswordForm from "@/components/forms/ChangePasswordForm";
 import { CERTIFICATIONS } from "@/lib/utils";
+import axiosApi from "@/lib/axiosConfig";
 
 const { Title, Text } = Typography;
 
@@ -97,10 +98,9 @@ export default function InstructorManagementPage() {
   const handleSearchInstructors = async () => {
     const data = await searchInstructors({ name: debouncedValue });
     try {
-      // console.log("data: ", data);
       if (data) {
         const usersWithSignedUrls = await Promise.all(
-          data.map(async (record) => {
+          data.map(async (record: any) => {
             let signedUrl: string | null | undefined = undefined;
             const certification: any = CERTIFICATIONS.find(
               (x) => x.value === record.certification
@@ -261,13 +261,14 @@ export default function InstructorManagementPage() {
               type: "error",
               content: "Error creating instructor",
             });
+            return;
           }
-        }
 
-        showMessage({
-          type: "success",
-          content: "Instructor has been created!",
-        });
+          showMessage({
+            type: "success",
+            content: "Instructor has been created!",
+          });
+        }
       } catch (error) {
         showMessage({
           type: "error",
@@ -293,12 +294,12 @@ export default function InstructorManagementPage() {
     };
   }) => {
     try {
-      const response = await axios.post("/api/update-password", {
-        id: selectedRecord.id,
-        password: values.new_password,
+      const response = await changePassword({
+        userID: selectedRecord.id as string,
+        newPassword: values.new_password,
       });
 
-      if (response.data.user) {
+      if (response) {
         showMessage({
           type: "success",
           content: "Updated password!",

@@ -11,10 +11,10 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import { BUCKET_NAME, getDateFromToday } from "./utils";
 import { useAppSelector } from "./hooks";
-import axios from "axios";
 
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import axiosApi from "./axiosConfig";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -23,18 +23,22 @@ export const useAdminProfile = () => {
   const [loading, setLoading] = useState(false);
 
   const getAdmin = async ({ id }: { id: string }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const response = await axios.get(`/api/admin/getAdmin`, {
-      params: { id: id },
-    });
+      const response = await axiosApi.get(`/admin/getAdmin`, {
+        params: { id: id },
+      });
 
-    const profile = response?.data?.data;
+      const profile = response?.data?.data;
 
-    if (!profile) return null;
+      if (!profile) return null;
 
-    setLoading(false);
-    return profile;
+      setLoading(false);
+      return profile;
+    } catch (error) {
+      setLoading(false);
+    }
   };
 
   return { getAdmin, loading };
@@ -46,15 +50,13 @@ export const useSearchUser = () => {
   const validateEmail = async ({ email }: { email: string }) => {
     setLoading(true);
 
-    let query = supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("email", email)
-      .single();
+    const response = await axiosApi.get(`/user/validate-email`, {
+      params: { email },
+    });
 
-    const { data, error } = await query;
+    const data = response?.data?.data;
 
-    if (error) return null;
+    if (!data) return null;
 
     setLoading(false);
     return data;
@@ -63,60 +65,13 @@ export const useSearchUser = () => {
   const searchClients = async ({ name }: { name?: string }) => {
     setLoading(true);
 
-    let query = supabase
-      .from("user_profiles")
-      .select(
-        `*,
-     user_credits (
-       id,
-       credits
-     ),
-     class_bookings (      
-        attendance_status,
-        booker_id,
-        class_date,
-        class_id,
-        id,
-       classes (
-         id,
-         start_time,
-         end_time,
-         class_name,
-         instructor_id,
-         instructor_name,
-         instructors (
-           id,
-           full_name,
-           avatar_path
-         )
-       )
-     ),
-     client_packages (
-       *,
-       id,
-       package_id,
-       status,
-       package_name,
-       purchase_date, 
-       package_credits,
-       validity_period,
-       expiration_date
-     )
-    `
-      )
-      .eq("user_type", "general")
-      .order("created_at", {
-        ascending: false,
-        foreignTable: "class_bookings",
-      });
+    const response = await axiosApi.get(`/user/search-clients`, {
+      params: { name },
+    });
 
-    if (!!name?.length) {
-      query = query.ilike("full_name", `%${name}%`);
-    }
+    const data = response?.data?.data;
 
-    const { data, error } = await query;
-
-    if (error) return null;
+    if (!data) return null;
 
     setLoading(false);
     return data;
@@ -125,20 +80,13 @@ export const useSearchUser = () => {
   const searchInstructors = async ({ name }: { name?: string }) => {
     setLoading(true);
 
-    let query = supabase.from("instructors").select(`
-      *,
-      user_profiles (
-        *
-      )
-      `);
+    const response = await axiosApi.get(`/user/search-instructors`, {
+      params: { name },
+    });
 
-    if (!!name?.length) {
-      query = query.ilike("full_name", `%${name}%`);
-    }
+    const data = response?.data?.data;
 
-    const { data, error } = await query;
-
-    if (error) return null;
+    if (!data) return null;
 
     setLoading(false);
     return data;
@@ -159,13 +107,13 @@ export const useManagePassword = () => {
   }) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password: currentPassword,
+      const response = await axiosApi.get(`/user/validate-password`, {
+        params: { email, password: currentPassword },
       });
 
-      setLoading(false);
-      if (error) return null;
+      const data = response?.data?.data;
+
+      if (!data) return null;
 
       return data;
     } catch (error) {
@@ -174,14 +122,24 @@ export const useManagePassword = () => {
     setLoading(false);
   };
 
-  const changePassword = async ({ newPassword }: { newPassword: string }) => {
+  const changePassword = async ({
+    userID,
+    newPassword,
+  }: {
+    userID: string;
+    newPassword: string;
+  }) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.updateUser({
+
+      const response = await axiosApi.post(`/user/change-password`, {
+        id: userID,
         password: newPassword,
       });
 
-      if (error) return null;
+      const data = response?.data?.data;
+
+      if (!data) return null;
 
       return data;
     } catch (error) {
@@ -205,13 +163,14 @@ export const useUpdateUser = () => {
   }) => {
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("user_profiles")
-      .update(values)
-      .eq("id", id)
-      .select();
+    const response = await axiosApi.post(`/user/update-profile`, {
+      id,
+      values,
+    });
 
-    if (error) return null;
+    const data = response?.data?.data;
+
+    if (!data) return null;
 
     setLoading(false);
     return data;
@@ -232,7 +191,7 @@ export const useDeleteUser = () => {
       .eq("id", id)
       .select();
 
-    await axios.post("/api/user/delete", {
+    await axiosApi.post("/user/delete", {
       id: id,
     });
 
@@ -267,6 +226,8 @@ export const useManageImage = () => {
 
   const fetchImage = async ({ avatarPath }: { avatarPath: string }) => {
     let signedUrl: any;
+
+    if (avatarPath === null) return null;
 
     const { data, error: urlError } = await supabase.storage
       .from("user-photos")
@@ -364,7 +325,7 @@ export const useInstructorManagement = () => {
       .eq("id", id)
       .select();
 
-    await axios.post("/api/user/delete", {
+    await axiosApi.post("/user/delete", {
       id: id,
     });
 
@@ -1092,7 +1053,7 @@ export const useManageOrders = () => {
   const fetchOrders = async () => {
     setLoading(true);
 
-    const response = await axios.get("/api/admin/orders/fetch");
+    const response = await axiosApi.get("/admin/orders/fetch");
 
     if (!response.data.data) return null;
 

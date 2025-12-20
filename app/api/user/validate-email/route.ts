@@ -8,11 +8,11 @@ export async function GET(req: NextRequest) {
     const { data: profile, error } = await supabaseServer
       .from("user_profiles")
       .select("*")
-      .eq("id", data.id)
-      .maybeSingle();
+      .eq("email", data.email)
+      .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      throw error;
     }
 
     return NextResponse.json({ data: profile });

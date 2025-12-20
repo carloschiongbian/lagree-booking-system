@@ -2,6 +2,7 @@
 
 import useDebounce from "@/hooks/use-debounce";
 import { useManagePassword } from "@/lib/api";
+import axiosApi from "@/lib/axiosConfig";
 import { useAppSelector } from "@/lib/hooks";
 import {
   Button,
@@ -64,7 +65,7 @@ const ChangePasswordForm = ({
   const handleValidatePassword = async () => {
     const email = isAdmin ? userEmail : user?.email;
 
-    const response = await axios.post("/api/validate-account", {
+    const response = await axiosApi.post("/validate-account", {
       email,
       password: debouncedCurrentPassword,
     });
