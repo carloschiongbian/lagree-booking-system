@@ -677,16 +677,24 @@ export const usePackageManagement = () => {
   const [loading, setLoading] = useState(false);
 
   const createPackage = async ({ values }: { values: any }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("packages")
-      .insert({ ...values, offered_for_clients: false });
+      const response = await axiosApi.post("/package/create-package", {
+        values,
+      });
 
-    if (error) return null;
+      const data = response.data?.data;
 
+      if (!data) return null;
+
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   const fetchPackages = async ({
@@ -694,20 +702,24 @@ export const usePackageManagement = () => {
   }: {
     isAdmin: boolean | undefined;
   }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    let query = supabase.from("packages").select("*");
+      const response = await axiosApi.get("/package/fetch-packages", {
+        params: { isAdmin },
+      });
 
-    if (isAdmin !== true) {
-      query = query.eq("offered_for_clients", true);
+      const data = response.data?.data;
+
+      if (!data) return null;
+
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
     }
-
-    const { data, error } = await query;
-
-    if (error) return null;
-
     setLoading(false);
-    return data;
   };
 
   const updatePackage = async ({
@@ -717,32 +729,44 @@ export const usePackageManagement = () => {
     id: string;
     values: CreatePackageProps;
   }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("packages")
-      .update(values)
-      .eq("id", id);
+      const response = await axiosApi.put("/package/update-package", {
+        id,
+        values,
+      });
 
-    if (error) return null;
+      const data = response.data?.data;
 
+      if (!data) return null;
+
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   const deletePackage = async ({ id }: { id: string }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("packages")
-      .delete()
-      .eq("id", id)
-      .select();
+      const response = await axiosApi.post("/package/delete-package", { id });
 
-    if (error) return null;
+      const data = response.data?.data;
 
+      if (!data) return null;
+
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   const purchasePackage = async ({
@@ -760,28 +784,29 @@ export const usePackageManagement = () => {
     packageCredits: number;
     validityPeriod: number;
   }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const today = dayjs();
-    const { data, error } = await supabase
-      .from("client_packages")
-      .insert({
-        user_id: userID,
-        package_id: packageID,
-        status: "active",
-        validity_period: validityPeriod,
-        package_credits: packageCredits,
-        purchase_date: today,
-        package_name: packageName,
-        payment_method: paymentMethod,
-        expiration_date: getDateFromToday(validityPeriod),
-      })
-      .select();
+      const response = await axiosApi.post("/package/purchase-package", {
+        userID,
+        packageID,
+        paymentMethod,
+        validityPeriod,
+        packageCredits,
+        packageName,
+      });
 
-    if (error) return null;
+      const data = response.data?.data;
 
+      if (!data) return null;
+
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   const updateClientPackage = async ({
@@ -796,29 +821,25 @@ export const usePackageManagement = () => {
       expirationDate?: Dayjs;
     };
   }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("client_packages")
-      .update({
-        ...(values?.status && { status: values.status }),
-        ...(values?.expirationDate && {
-          expiration_date: values.expirationDate,
-        }),
-        ...(values?.packageCredits && {
-          package_credits: values.packageCredits,
-        }),
-        ...(values?.validityPeriod && {
-          validity_period: values.validityPeriod,
-        }),
-      })
-      .eq("id", clientPackageID)
-      .select();
+      const response = await axiosApi.put("/package/update-client-package", {
+        clientPackageID,
+        values,
+      });
 
-    if (error) return null;
+      const data = response.data?.data;
 
+      if (!data) return null;
+
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   const fetchClientPackages = async ({
@@ -826,40 +847,17 @@ export const usePackageManagement = () => {
     findExpiry,
   }: {
     clientID?: string;
-    findExpiry?: boolean;
+    findExpiry?: boolean | undefined;
   }) => {
     setLoading(true);
 
-    let query = supabase.from("client_packages").select(`*, packages(*)`);
-    const startOfTodayUTC = dayjs().utc().startOf("day").toISOString();
-    const endOfTodayUTC = dayjs().utc().endOf("day").toISOString();
+    const response = await axiosApi.get("/package/fetch-client-packages", {
+      params: { clientID, findExpiry },
+    });
 
-    if (clientID) {
-      query = query.eq("user_id", clientID);
-    }
+    const data = response.data?.data;
 
-    if (clientID === undefined && findExpiry) {
-      /**
-       * this gets records that are active and have an expiration_date of the current date
-       *
-       * query = query.eq("status", "active");
-       * query = query.gte("expiration_date", startOfTodayUTC);
-       * query = query.lt("expiration_date", endOfTodayUTC);
-       */
-
-      /**
-       * this gets potentially missed records that were active
-       * of today and in the past
-       */
-      query = query.eq("status", "active");
-      query = query.lte("expiration_date", endOfTodayUTC);
-    }
-
-    query = query.order("created_at", { ascending: false });
-
-    const { data, error } = await query;
-
-    if (error) return null;
+    if (!data) return null;
 
     setLoading(false);
     return data;
@@ -881,53 +879,24 @@ export const useClientBookings = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchClientBookings = async ({ userID }: { userID: string }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const nowISO = dayjs().toISOString();
+      const response = await axiosApi.get("/user/fetch-client-bookings", {
+        params: { userID },
+      });
 
-    const { data, error } = await supabase
-      .from("class_bookings")
-      .select(
-        `
-          id,
-          booker_id,
-          class_id,
-          class_date,
-          attendance_status,
-          classes (
-            id,
-            end_time,
-            start_time,
-            class_date,
-            class_name,
-            instructor_id,
-            instructor_name,
-            taken_slots,
-            available_slots,
-            instructors (
-              id,
-              user_id,
-              full_name,
-              avatar_path,
-              user_profiles (
-                id,
-                avatar_path
-              )
-            )
-          )
-    `
-      )
-      .eq("booker_id", userID)
-      .or(
-        "attendance_status.eq.active,attendance_status.eq.no-show,attendance_status.is.null"
-      );
+      const data = response.data?.data;
 
-    // .gte("classes.start_time", nowISO);
+      if (!data) return null;
 
-    if (error) return null;
-
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   return { loading, fetchClientBookings };
@@ -941,19 +910,24 @@ export const useManageCredits = () => {
   }: {
     values: CreateUserCredits;
   }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("user_credits")
-      .insert(values)
-      .single();
+      const response = await axiosApi.post("/credits/create-user-credits", {
+        values,
+      });
 
-    console.log("error: ", error);
+      const data = response.data?.data;
 
-    if (error) return null;
+      if (!data) return null;
 
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   const updateUserCredits = async ({
@@ -963,18 +937,25 @@ export const useManageCredits = () => {
     userID: string;
     values?: { credits: number };
   }) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("user_credits")
-      .update(values)
-      .eq("user_id", userID)
-      .single();
+      const response = await axiosApi.put("/credits/update-user-credits", {
+        userID,
+        values,
+      });
 
-    if (error) return null;
+      const data = response.data?.data;
 
+      if (!data) return null;
+
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return data;
   };
 
   return { loading, updateUserCredits, createUserCredits };
@@ -984,14 +965,20 @@ export const useManageOrders = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchOrders = async () => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const response = await axiosApi.get("/admin/orders/fetch");
+      const response = await axiosApi.get("/admin/orders/fetch");
+      const data = response.data.data;
+      if (!data) return null;
 
-    if (!response.data.data) return null;
-
+      setLoading(false);
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
     setLoading(false);
-    return response.data.data;
   };
 
   return { loading, fetchOrders };

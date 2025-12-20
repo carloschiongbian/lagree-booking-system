@@ -109,7 +109,20 @@ export default function PackageManagementPage() {
       setIsModalOpen(false);
       setEditingRecord(null);
       handleFetchPackages();
+
+      showMessage({
+        type: "success",
+        content: editingRecord
+          ? "Successfully updated package"
+          : "Successfully created new package",
+      });
     } catch (error) {
+      showMessage({
+        type: "error",
+        content: editingRecord
+          ? "Error updating package"
+          : "Error creating new package",
+      });
       console.error("Error submitting package:", error);
     }
   };

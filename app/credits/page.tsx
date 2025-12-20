@@ -42,7 +42,7 @@ export default function CreditsPage() {
       });
 
       if (response) {
-        mapped = response?.map((data) => ({
+        mapped = response?.map((data: any) => ({
           id: data.id,
           createdAt: data.created_at,
           packageId: data.package_id,
