@@ -390,8 +390,8 @@ export default function About() {
             fontWeight: 300,
           }}
         >
-          Join our club <span className="text-red-400">for free</span> to view
-          future schedules
+          Join our club <span className="text-red-400">for free</span> to join a
+          class, and view future schedules
         </Paragraph>
 
         <div
