@@ -160,27 +160,27 @@ export default function PackagesPage() {
   const handleNext = async () => {
     try {
       //temporary behavior
-      // setIsSubmitting(true);
-      // await handlePurchasePackage();
-      // await handleUpdateUserCredits({
-      //   credits: selectedRecord.packageCredits,
-      // });
+      setIsSubmitting(true);
+      await handlePurchasePackage();
+      await handleUpdateUserCredits({
+        credits: selectedRecord.packageCredits,
+      });
       // await handleSendConfirmationEmail();
       //temporary behavior
 
       // temporarily commented out until payments is integrated
-      setCarouselSlide(2);
-      carouselRef.current.next();
+      // setCarouselSlide(2);
+      // carouselRef.current.next();
       // temporarily commented out until payments is integrated
 
       //temporary behavior
-      // showMessage({
-      //   type: "success",
-      //   content: "Successfully purchased package!",
-      // });
-      // setIsModalOpen(false);
-      // setSelectedRecord(null);
-      // setIsSubmitting(false);
+      showMessage({
+        type: "success",
+        content: "Successfully purchased package!",
+      });
+      setIsModalOpen(false);
+      setSelectedRecord(null);
+      setIsSubmitting(false);
       //temporary behavior
     } catch (error) {
       showMessage({ type: "error", content: "Failed to purchase package" });
@@ -246,118 +246,6 @@ export default function PackagesPage() {
       }));
     }
   }, [user]);
-
-  // const handleExecutePayment = async (e: React.FormEvent) => {
-  //   /**
-  //    * CURRENT ROUTE EXECUTES TEST PAYMENTS
-  //    * NEXT IS EXPLORE REAL PAYMENTS TO PAYMONGO ACCOUNT
-  //    */
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setError(null);
-
-  //   // const TOTAL_AMOUNT = selectedRecord.price * 100;
-  //   const TOTAL_AMOUNT = 100;
-  //   /**
-  //    * CAREFUL HERE
-  //    * AMOUNT IS MULTIPLIED BY 100 IN ORDER TO ADD CENTAVOS
-  //    */
-
-  //   try {
-  //     const orderData: Omit<Order, "id" | "created_at" | "updated_at"> = {
-  //       customer_name: user?.full_name as string,
-  //       customer_user_id: user?.id as string,
-  //       customer_email: user?.email as string,
-  //       customer_phone: user?.contact_number || undefined,
-  //       amount: TOTAL_AMOUNT,
-  //       currency: "PHP",
-  //       product_name: selectedRecord.title,
-  //       product_description: `Valid for ${selectedRecord.validityPeriod} days`,
-  //       status: "processing",
-  //     };
-
-  //     const packageData = {
-  //       user_id: user?.id as string,
-  //       package_id: selectedRecord.id,
-  //       status: "active",
-  //       validity_period: selectedRecord.validityPeriod,
-  //       package_credits: selectedRecord.packageCredits,
-  //       purchase_date: dayjs(),
-  //       package_name: selectedRecord.title,
-  //       payment_method: paymentMethod,
-  //       expiration_date: getDateFromToday(selectedRecord.validityPeriod),
-  //     };
-
-  //     const paymentData = {
-  //       method: paymentMethod,
-  //       card:
-  //         paymentMethod === "card"
-  //           ? {
-  //               number: formData.cardNumber.replace(/\s/g, ""),
-  //               exp_month: parseInt(formData.expiryMonth),
-  //               exp_year: parseInt(formData.expiryYear),
-  //               cvc: formData.cvc,
-  //             }
-  //           : undefined,
-  //       billing: {
-  //         name: formData.customerName,
-  //         email: formData.customerEmail,
-  //         phone: formData.customerPhone,
-  //       },
-  //     };
-
-  //     const response = await axios.post(`/api/package/process-payment`, {
-  //       selectedPackage: packageData,
-  //       order: orderData,
-  //       payment: paymentData,
-  //     });
-
-  //     const result = await response.data;
-
-  //     console.log("result: ", result);
-
-  //     if (!response.data) {
-  //       throw new Error(result.error || "Payment failed");
-  //     }
-
-  //     if (result.status === "awaiting_next_action" && result.redirect_url) {
-  //       window.location.href = result.redirect_url;
-  //       return;
-  //     }
-
-  //     if (result.status === "succeeded") {
-  //       await handlePurchasePackage();
-
-  //       await handleUpdateUserCredits({
-  //         credits: selectedRecord.packageCredits,
-  //       });
-
-  //       await handleSendConfirmationEmail();
-
-  //       setSuccess(true);
-  //       setFormData({
-  //         customerName: user?.full_name || "",
-  //         customerEmail: user?.email || "",
-  //         customerPhone: user?.contact_number || "",
-  //         cardNumber: "",
-  //         expiryMonth: "",
-  //         expiryYear: "",
-  //         cvc: "",
-  //       });
-  //       setIsModalOpen(false);
-  //       setSelectedRecord(null);
-  //       setIsSubmitting(false);
-  //       showMessage({
-  //         type: "success",
-  //         content: "Successfully purchased package!",
-  //       });
-  //     }
-  //   } catch (err) {
-  //     setError(err instanceof Error ? err.message : "An error occurred");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -816,7 +704,7 @@ export default function PackagesPage() {
 
                     <Form
                       layout="vertical"
-                      onFinish={handleCheckout}
+                      // onFinish={handleCheckout}
                       className="flex flex-col gap-y-[10px] mt-[20px]"
                     >
                       {/* Personal Information */}
