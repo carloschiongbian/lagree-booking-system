@@ -3,9 +3,17 @@ import supabaseServer from "../../supabase";
 
 export async function GET(req: NextRequest) {
   try {
-    const data = Object.fromEntries(new URL(req.url).searchParams.entries());
+    const url = new URL(req.url);
+    const data = Object.fromEntries(url.searchParams.entries());
     const email = data.email;
     const password = data.password;
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Missing email or password" },
+        { status: 400 }
+      );
+    }
 
     const { data: authed, error } =
       await supabaseServer.auth.signInWithPassword({
@@ -13,7 +21,9 @@ export async function GET(req: NextRequest) {
         password,
       });
 
-    if (error) return null;
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
 
     return NextResponse.json({ data: authed });
   } catch (err: any) {

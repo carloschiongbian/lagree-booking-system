@@ -289,7 +289,7 @@ const EditClientForm = ({
   const handleFetchPackages = async () => {
     const response = await fetchPackages({ isAdmin: true });
 
-    const mapped = response?.map((data) => {
+    const mapped = response?.map((data: any) => {
       return {
         ...data,
         validityPeriod: data.validity_period,

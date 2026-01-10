@@ -129,10 +129,16 @@ export interface Trainer {
   order?: number;
   created_at?: string;
   instructors: any;
+  avatar_path?: string;
 }
 
 export interface Schedule {
   id: string;
+  instructors?: any;
+  avatar_path?: string;
+  class_name?: string;
+  taken_slots?: string;
+  available_slots?: string;
   class_id: string;
   trainer_id: string;
   day_of_week: string;

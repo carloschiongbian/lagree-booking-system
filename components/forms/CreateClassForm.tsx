@@ -78,7 +78,7 @@ export default function CreateClassForm({
     const data = await searchInstructors({});
 
     if (data) {
-      const mapped = data.map((inst, key) => {
+      const mapped = data.map((inst: any) => {
         return {
           key: inst.id,
           value: inst.user_profiles.full_name,

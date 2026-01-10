@@ -124,7 +124,7 @@ export default function ClassManagementPage() {
       classID: record.id as string,
     });
 
-    const mapped = response?.map((classBookings) => {
+    const mapped = response?.map((classBookings: any) => {
       return {
         ...selectedRecord,
         ...classBookings,
