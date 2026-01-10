@@ -152,6 +152,16 @@ export const CERTIFICATIONS = [
   { value: "group_fitness_instructor", label: "Group Fitness Instructor" },
 ];
 
+export const CERTIFICATION_MAP: any = {
+  lagree_certified_instructor: "Lagree Certified Trainer",
+  licensed_physical_therapist: "Licensed Physical Therapist",
+  pilates_certified_instructor: " Pilates Certified Instructor",
+  yoga_instructor: "Yoga Instructor",
+  strength_conditioning_coach: "Strength & Conditioning Coach",
+  fitness_coach_personal_trainer: "Fitness Coach / Personal Trainer",
+  group_fitness_instructor: "Group Fitness Instructor",
+};
+
 export const isNotMoreThan24HoursAway = (startTime: Dayjs) => {
   const diffInHours = startTime.diff(dayjs(), "hour", true); // precise hours
 

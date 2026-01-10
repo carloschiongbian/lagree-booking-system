@@ -15,6 +15,7 @@ import { useAppSelector } from "./hooks";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import axiosApi from "./axiosConfig";
+import axios from "axios";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -26,24 +27,16 @@ export const useAboutPageData = () => {
     try {
       setLoading(true);
 
-      const [classesRes, trainersRes, schedulesRes] = await Promise.all([
-        supabase.from("classes").select("*").order("created_at"),
-        supabase.from("instructors").select("*").order("created_at"),
-        supabase
-          .from("classes")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        //  supabase.from("testimonials").select("*").eq("is_active", true),
-      ]);
+      const response = await axiosApi.get(`/about`, {
+        params: { type: "about" },
+      });
+
+      const { classesRes, trainersRes, schedulesRes } = response.data.data;
 
       if (classesRes.error || trainersRes.error || schedulesRes.error)
         return null;
 
-      console.log({
-        classesRes,
-        trainersRes,
-        schedulesRes,
-      });
+      setLoading(false);
 
       return {
         classesRes,

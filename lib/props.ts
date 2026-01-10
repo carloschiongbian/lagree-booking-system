@@ -121,14 +121,14 @@ export interface Class {
 }
 
 export interface Trainer {
-  id: string;
-  name: string;
-  role: string;
-  certifications: string[];
-  approach: string;
+  id?: string;
+  full_name: string;
+  certifications?: string[];
+  approach?: string;
   image_url?: string;
-  order: number;
-  created_at: string;
+  order?: number;
+  created_at?: string;
+  instructors: any;
 }
 
 export interface Schedule {

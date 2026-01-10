@@ -117,8 +117,6 @@ export default function InstructorManagementPage() {
             };
 
             // generate signed URL valid for 1 hour (3600s)
-
-            console.log("instructor.avatar_path: ", instructor.avatar_path);
             if (instructor.avatar_path !== null) {
               const signedURL = await fetchImage({
                 avatarPath: instructor.avatar_path,

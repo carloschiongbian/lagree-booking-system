@@ -25,6 +25,7 @@ import { MdContactEmergency } from "react-icons/md";
 import { useManageCredits, useSearchUser } from "@/lib/api";
 import useDebounce from "@/hooks/use-debounce";
 import { useAppMessage } from "@/components/ui/message-popup";
+import UnauthenticatedLayout from "@/components/layout/UnauthenticatedLayout";
 
 const { Title, Text } = Typography;
 
@@ -106,231 +107,238 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-8">
-      {contextHolder}
-      <Card
-        className="w-full max-w-md shadow-xl border-0"
-        style={{ borderRadius: 12 }}
-      >
-        <div className="text-center mb-8">
-          <Title level={2} className="!mb-2">
-            Create Account
-          </Title>
-          <Text type="secondary">Join us today</Text>
-        </div>
+    <UnauthenticatedLayout>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-8">
+        {contextHolder}
+        <Card
+          className="w-full max-w-md shadow-xl border-0"
+          style={{ borderRadius: 12 }}
+        >
+          <div className="text-center mb-8">
+            <Title level={2} className="!mb-2">
+              Create Account
+            </Title>
+            <Text type="secondary">Join us today</Text>
+          </div>
 
-        <Steps
-          current={currentStep}
-          className="mb-8"
-          items={[{ title: "Account" }, { title: "Profile" }]}
-        />
-        {currentStep === 0 && (
-          <Form
-            form={form}
-            name="signup-step-1"
-            onFinish={onFinishStepOne}
-            layout="vertical"
-            size="large"
-            requiredMark={false}
-          >
-            <Form.Item
-              name="email"
-              rules={[
-                { required: true, message: "Please enter your email" },
-                { type: "email", message: "Please enter a valid email" },
-              ]}
+          <Steps
+            current={currentStep}
+            className="mb-8"
+            items={[{ title: "Account" }, { title: "Profile" }]}
+          />
+          {currentStep === 0 && (
+            <Form
+              form={form}
+              name="signup-step-1"
+              onFinish={onFinishStepOne}
+              layout="vertical"
+              size="large"
+              requiredMark={false}
             >
-              <Input
-                prefix={<MailOutlined className="text-slate-400" />}
-                placeholder="Email"
-              />
-            </Form.Item>
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: "Please enter your email" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input
+                  prefix={<MailOutlined className="text-slate-400" />}
+                  placeholder="Email"
+                />
+              </Form.Item>
 
-            <Form.Item
-              name="password"
-              rules={[
-                { required: true, message: "Please enter your password" },
-                { min: 6, message: "Password must be at least 6 characters" },
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-slate-400" />}
-                placeholder="Password"
-              />
-            </Form.Item>
+              <Form.Item
+                name="password"
+                rules={[
+                  { required: true, message: "Please enter your password" },
+                  { min: 6, message: "Password must be at least 6 characters" },
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-slate-400" />}
+                  placeholder="Password"
+                />
+              </Form.Item>
 
-            <Form.Item
-              name="confirm_password"
-              dependencies={["password"]}
-              rules={[
-                { required: true, message: "Please confirm your password" },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("password") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error("Passwords do not match"));
+              <Form.Item
+                name="confirm_password"
+                dependencies={["password"]}
+                rules={[
+                  { required: true, message: "Please confirm your password" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue("password") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("Passwords do not match")
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-slate-400" />}
+                  placeholder="Confirm Password"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="contact_number"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter your contact number",
                   },
-                }),
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-slate-400" />}
-                placeholder="Confirm Password"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="contact_number"
-              rules={[
-                { required: true, message: "Please enter your contact number" },
-                {
-                  pattern: /^[0-9+\s-()]+$/,
-                  message: "Please enter a valid phone number",
-                },
-              ]}
-            >
-              <Input
-                prefix={<PhoneOutlined className="text-slate-400" />}
-                placeholder="Contact Number"
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                block
-                className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                  {
+                    pattern: /^[0-9+\s-()]+$/,
+                    message: "Please enter a valid phone number",
+                  },
+                ]}
               >
-                Next
-              </Button>
-            </Form.Item>
+                <Input
+                  prefix={<PhoneOutlined className="text-slate-400" />}
+                  placeholder="Contact Number"
+                />
+              </Form.Item>
 
-            <div className="text-center">
-              <Text type="secondary">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="text-blue-600 hover:text-blue-700"
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
                 >
-                  Sign in
-                </Link>
-              </Text>
-            </div>
-          </Form>
-        )}
-        {currentStep === 1 && (
-          <Form
-            name="signup-step-2"
-            onFinish={onFinishStepTwo}
-            layout="vertical"
-            size="large"
-            requiredMark={false}
-          >
-            <Form.Item
-              name="first_name"
-              rules={[
-                { required: true, message: "Please enter your first name" },
-              ]}
-            >
-              <Input
-                prefix={<UserOutlined className="text-slate-400" />}
-                placeholder="First Name"
-              />
-            </Form.Item>
+                  Next
+                </Button>
+              </Form.Item>
 
-            <Form.Item
-              name="last_name"
-              rules={[
-                { required: true, message: "Please enter your last name" },
-              ]}
+              <div className="text-center">
+                <Text type="secondary">
+                  Already have an account?{" "}
+                  <Link
+                    href="/login"
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    Log in
+                  </Link>
+                </Text>
+              </div>
+            </Form>
+          )}
+          {currentStep === 1 && (
+            <Form
+              name="signup-step-2"
+              onFinish={onFinishStepTwo}
+              layout="vertical"
+              size="large"
+              requiredMark={false}
             >
-              <Input
-                prefix={<UserOutlined className="text-slate-400" />}
-                placeholder="Last Name"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="birthday"
-              rules={[
-                { required: true, message: "Please select your birthday" },
-              ]}
-            >
-              <DatePicker
-                placeholder="Birthday"
-                className="w-full"
-                format="YYYY-MM-DD"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="location"
-              rules={[
-                { required: true, message: "Please enter your location" },
-              ]}
-            >
-              <Input
-                prefix={<EnvironmentOutlined className="text-slate-400" />}
-                placeholder="Location"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="emergency_contact_name"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter an emergency contact name",
-                },
-              ]}
-            >
-              <Input
-                prefix={<MdContactEmergency className="text-slate-400" />}
-                placeholder="Emergency Contact Name"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="emergency_contact_number"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter an emergency contact number",
-                },
-              ]}
-            >
-              <Input
-                prefix={<PhoneOutlined className="text-slate-400" />}
-                placeholder="Emergency Contact Number"
-              />
-            </Form.Item>
-
-            <div className="flex gap-3">
-              <Button
-                disabled={loading}
-                loading={loading}
-                onClick={() => setCurrentStep(0)}
-                block
-                className="h-11"
+              <Form.Item
+                name="first_name"
+                rules={[
+                  { required: true, message: "Please enter your first name" },
+                ]}
               >
-                Back
-              </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                disabled={loading}
-                block
-                className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                <Input
+                  prefix={<UserOutlined className="text-slate-400" />}
+                  placeholder="First Name"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="last_name"
+                rules={[
+                  { required: true, message: "Please enter your last name" },
+                ]}
               >
-                Create Account
-              </Button>
-            </div>
-          </Form>
-        )}
-      </Card>
-    </div>
+                <Input
+                  prefix={<UserOutlined className="text-slate-400" />}
+                  placeholder="Last Name"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="birthday"
+                rules={[
+                  { required: true, message: "Please select your birthday" },
+                ]}
+              >
+                <DatePicker
+                  placeholder="Birthday"
+                  className="w-full"
+                  format="YYYY-MM-DD"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="location"
+                rules={[
+                  { required: true, message: "Please enter your location" },
+                ]}
+              >
+                <Input
+                  prefix={<EnvironmentOutlined className="text-slate-400" />}
+                  placeholder="Location"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="emergency_contact_name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter an emergency contact name",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<MdContactEmergency className="text-slate-400" />}
+                  placeholder="Emergency Contact Name"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="emergency_contact_number"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter an emergency contact number",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<PhoneOutlined className="text-slate-400" />}
+                  placeholder="Emergency Contact Number"
+                />
+              </Form.Item>
+
+              <div className="flex gap-3">
+                <Button
+                  disabled={loading}
+                  loading={loading}
+                  onClick={() => setCurrentStep(0)}
+                  block
+                  className="h-11"
+                >
+                  Back
+                </Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  disabled={loading}
+                  block
+                  className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                >
+                  Create Account
+                </Button>
+              </div>
+            </Form>
+          )}
+        </Card>
+      </div>
+    </UnauthenticatedLayout>
   );
 }

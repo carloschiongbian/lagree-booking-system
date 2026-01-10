@@ -1,5 +1,7 @@
-import { Button, Row, Typography } from "antd";
+import { Button, Drawer, Row, Typography } from "antd";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { MenuOutlined } from "@ant-design/icons";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,47 +11,108 @@ const { Title, Text, Paragraph } = Typography;
 
 export default function UnauthenticatedLayout({ children }: LayoutProps) {
   const router = useRouter();
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768); // md breakpoint = 768px
+  };
+
+  useEffect(() => {
+    handleResize(); // initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const menuItems = [
+    { label: "Home", href: "/about" },
+    { label: "Login", href: "/login" },
+    { label: "Join for Free", href: "/signup", primary: true },
+  ];
   return (
     <div className="h-[100vh]">
       <header className="sticky top-0 z-[100] bg-white border-b border-[#e8e8e8]">
-        <Row
-          wrap={false}
-          className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10 lg:py-5"
-        >
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10 lg:py-5">
           {/* Logo */}
           <Title
+            onClick={() => router.push("/about")}
             level={3}
             className="!m-0 tracking-[0.1em] whitespace-nowrap font-normal text-base sm:text-lg sm:font-light lg:text-xl"
           >
-            8CLUB
+            8CLUBLAGREE
           </Title>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button
-              type="text"
-              className="px-2 sm:px-3 text-sm sm:text-base font-normal"
-              onClick={() => router.push("/about")}
-            >
-              Home
-            </Button>
+          {/* Conditional Rendering */}
+          {isMobile ? (
+            <>
+              <Row wrap={false} className="gap-x-[5px]">
+                <Button
+                  type={"primary"}
+                  className={`bg-[#36013F] border-[#36013F] text-white hover:!bg-[#36013F] font-medium w-fit`}
+                  onClick={() => {
+                    router.push("/signup");
+                    setDrawerVisible(false);
+                  }}
+                >
+                  Join for Free
+                </Button>
+                {/* Hamburger Icon */}
+                <Button
+                  type="text"
+                  icon={<MenuOutlined />}
+                  onClick={() => setDrawerVisible(true)}
+                />
+              </Row>
+              {/* Drawer */}
 
-            <Button
-              type="text"
-              className="px-2 sm:px-3 text-sm sm:text-base font-normal"
-              onClick={() => router.push("/login")}
-            >
-              Login
-            </Button>
-
-            <Button
-              type="primary"
-              className="bg-[#36013F] border-[#36013F] text-sm sm:text-base font-medium px-3 sm:px-4"
-            >
-              Join the 8Club
-            </Button>
-          </div>
-        </Row>
+              <Drawer
+                width={"100%"}
+                title="Menu"
+                placement="right"
+                onClose={() => setDrawerVisible(false)}
+                open={drawerVisible}
+                bodyStyle={{ padding: 0 }}
+              >
+                <div className="flex flex-col p-4 gap-3">
+                  {menuItems.map((item) => (
+                    <Button
+                      key={item.label}
+                      type={item.primary ? "primary" : "text"}
+                      className={`${
+                        item.primary
+                          ? "bg-[#36013F] border-[#36013F] text-white hover:!bg-[#36013F] font-medium w-full"
+                          : "px-2 py-3 text-left text-sm font-normal w-full"
+                      }`}
+                      onClick={() => {
+                        router.push(item.href);
+                        setDrawerVisible(false);
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
+                </div>
+              </Drawer>
+            </>
+          ) : (
+            // Desktop Menu
+            <div className="flex items-center gap-2 sm:gap-4">
+              {menuItems.map((item) => (
+                <Button
+                  key={item.label}
+                  type={item.primary ? "primary" : "text"}
+                  className={`${
+                    item.primary
+                      ? "bg-[#36013F] border-[#36013F] text-white hover:!bg-[#36013F] font-medium px-3 sm:px-4"
+                      : "px-2 sm:px-3 text-sm sm:text-base font-normal"
+                  }`}
+                  onClick={() => router.push(item.href)}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
       </header>
 
       <div>{children}</div>
@@ -61,7 +124,7 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
             level={3}
             className="text-white font-light mb-6 tracking-[0.1em]"
           >
-            8CLUB
+            8CLUBLAGREE
           </Title>
           <Paragraph style={{ color: "#999", fontWeight: 300 }}>
             Streetscape Mall Banilad, Maria Luisa Road
@@ -71,7 +134,7 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
           <Paragraph
             style={{ color: "#666", fontSize: "0.875rem", marginTop: "32px" }}
           >
-            © 2024 8Club. All rights reserved.
+            © 2026 8ClubLagree. All rights reserved.
           </Paragraph>
         </div>
       </footer>

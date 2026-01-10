@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Form, Input, Button, Card, Typography, message } from "antd";
+import { Form, Input, Button, Card, Typography, message, Row } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { useAppMessage } from "@/components/ui/message-popup";
-import UnauthenticatedLayout from "@/components/layout/unAuthenticatedLayout";
+import UnauthenticatedLayout from "@/components/layout/UnauthenticatedLayout";
 
 const { Title, Text } = Typography;
 
@@ -51,18 +51,19 @@ export default function LoginPage() {
   return (
     <UnauthenticatedLayout>
       {contextHolder}
-      <Card
-        className="w-full max-w-md shadow-xl border-0"
-        style={{ borderRadius: 12 }}
-      >
-        <div className="text-center mb-8">
-          <Title level={2} className="!mb-2">
-            8 Club Lagree
-          </Title>
-          <Text type="secondary">Sign in to your account</Text>
-        </div>
+      <Row justify={"center"} className="items-center h-full py-[100px]">
+        <Card
+          className="w-full max-w-md shadow-xl border-0"
+          style={{ borderRadius: 12 }}
+        >
+          <div className="text-center mb-8">
+            <Title level={2} className="!mb-2">
+              8 Club Lagree
+            </Title>
+            <Text type="secondary">Sign in to your account</Text>
+          </div>
 
-        <Form
+          {/* <Form
           name="login"
           onFinish={onFinish}
           layout="vertical"
@@ -74,7 +75,7 @@ export default function LoginPage() {
               Supra8 Lagree
             </Title>
             <Text type="secondary">Sign in to your account</Text>
-          </div>
+          </div> */}
 
           <Form
             name="login"
@@ -133,7 +134,7 @@ export default function LoginPage() {
             </div>
           </Form>
         </Card>
-      </div>
+      </Row>
     </UnauthenticatedLayout>
   );
 }

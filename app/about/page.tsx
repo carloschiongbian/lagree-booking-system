@@ -1,13 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button, Card, Typography, Row, Col, Divider, Table } from "antd";
-import { EnvironmentOutlined } from "@ant-design/icons";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  Card,
+  Typography,
+  Row,
+  Col,
+  Divider,
+  Table,
+  Avatar,
+  TableColumnsType,
+} from "antd";
+import { EnvironmentOutlined, UserOutlined } from "@ant-design/icons";
 import { supabase } from "@/lib/supabase";
 import { Class, Trainer, Schedule, Testimonial } from "@/lib/props";
 import { useRouter } from "next/navigation";
-import UnauthenticatedLayout from "@/components/layout/unAuthenticatedLayout";
+import UnauthenticatedLayout from "@/components/layout/UnauthenticatedLayout";
 import { useAboutPageData } from "@/lib/api";
+import { CERTIFICATION_MAP } from "@/lib/utils";
+import dayjs from "dayjs";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -15,7 +27,7 @@ export default function About() {
   const router = useRouter();
   const { fetchPageData, loading } = useAboutPageData();
   const [classes, setClasses] = useState<Class[]>([]);
-  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [instructors, setInstructors] = useState<Trainer[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
@@ -25,39 +37,76 @@ export default function About() {
 
   const fetchData = async () => {
     const data = await fetchPageData();
-    const { classesRes, trainersRes, schedulesRes } = data;
 
-    if (classesRes.data) setClasses(classesRes.data);
-    if (trainersRes.data) setTrainers(trainersRes.data);
-    if (schedulesRes.data) setSchedules(schedulesRes.data);
-    // if (testimonialsRes.data) setTestimonials(testimonialsRes.data);
+    if (data) {
+      const { classesRes, trainersRes, schedulesRes } = data;
+
+      if (classesRes.data) setClasses(classesRes.data);
+      if (trainersRes.data) setInstructors(trainersRes.data);
+      if (schedulesRes.data) setSchedules(schedulesRes.data);
+    }
   };
 
-  const scheduleColumns = [
-    {
-      title: "Day",
-      dataIndex: "day_of_week",
-      key: "day",
-      width: "15%",
-    },
-    {
-      title: "Time",
-      key: "time",
-      width: "20%",
-      render: (record: Schedule) =>
-        `${record.start_time.slice(0, 5)} - ${record.end_time.slice(0, 5)}`,
-    },
-    {
-      title: "Class",
-      key: "class",
-      render: (record: Schedule) => record.classes?.name || "",
-    },
-    {
-      title: "Instructor",
-      key: "instructor",
-      render: (record: Schedule) => record.trainers?.name || "",
-    },
-  ];
+  const scheduleColumns = useMemo<TableColumnsType<any>>(
+    () => [
+      {
+        title: "Instructor",
+        key: "instructor",
+        width: "25%",
+        render: (record: Schedule) => {
+          const fullName = record?.instructors?.user_profiles?.full_name || "";
+          return (
+            <Row wrap={false} className="items-center gap-x-[10px]">
+              <Avatar
+                className="border-gray-500 border"
+                size={50}
+                icon={<UserOutlined />}
+                src={record.avatar_path}
+              />
+              <Text>{fullName}</Text>
+            </Row>
+          );
+        },
+      },
+      {
+        title: "Time",
+        key: "time",
+        width: "25%",
+        render: (record: Schedule) => {
+          const start = dayjs(record.start_time).format("hh:mm A");
+          const end = dayjs(record.end_time).format("hh:mm A");
+          return `${start} - ${end}`;
+        },
+      },
+      {
+        title: "Class",
+        key: "class",
+        width: "25%",
+        render: (record: Schedule) => {
+          const className = record?.class_name || "";
+          return className;
+        },
+      },
+      {
+        title: (
+          <Row className="flex flex-col" wrap={false}>
+            <Text>Slots </Text>
+            <span className="!text-[10px] text-gray-400">
+              (No. of Attendees / Max Capacity)
+            </span>
+          </Row>
+        ),
+        key: "slots",
+        width: "25%",
+        render: (record: Schedule) => {
+          const taken = record.taken_slots;
+          const available = record.available_slots;
+          return `${taken} / ${available}`;
+        },
+      },
+    ],
+    [schedules]
+  );
 
   const daysOrder = [
     "Monday",
@@ -68,12 +117,12 @@ export default function About() {
     "Saturday",
     "Sunday",
   ];
-  const sortedSchedules = [...schedules].sort((a, b) => {
-    const dayDiff =
-      daysOrder.indexOf(a.day_of_week) - daysOrder.indexOf(b.day_of_week);
-    if (dayDiff !== 0) return dayDiff;
-    return a.start_time.localeCompare(b.start_time);
-  });
+  // const sortedSchedules = [...schedules].sort((a, b) => {
+  //   const dayDiff =
+  //     daysOrder.indexOf(a.day_of_week) - daysOrder.indexOf(b.day_of_week);
+  //   if (dayDiff !== 0) return dayDiff;
+  //   return a.start_time.localeCompare(b.start_time);
+  // });
 
   return (
     <UnauthenticatedLayout>
@@ -94,8 +143,19 @@ export default function About() {
               letterSpacing: "0.02em",
             }}
           >
-            Welcome to 8Club
+            Welcome to 8ClubLagree
           </Title>
+          <Paragraph
+            style={{
+              fontSize: "1.25rem",
+              color: "#666",
+              lineHeight: 1.8,
+              fontWeight: 300,
+              margin: 0,
+            }}
+          >
+            Where strength meets mindfulness
+          </Paragraph>
           <Paragraph
             style={{
               fontSize: "1.25rem",
@@ -104,8 +164,7 @@ export default function About() {
               fontWeight: 300,
             }}
           >
-            Where strength meets mindfulness. Experience Lagree fitness in the
-            heart of Cebu.
+            Experience Lagree fitness in the heart of Cebu.
           </Paragraph>
         </div>
       </section>
@@ -242,94 +301,49 @@ export default function About() {
             fontWeight: 300,
           }}
         >
-          Expert guidance. Proven results. Your safety is our priority.
+          Expert guidance. Your safety is our priority.
         </Paragraph>
 
         <Row gutter={[48, 48]}>
-          {trainers.map((trainer) => (
-            <Col xs={24} md={12} key={trainer.id}>
+          {instructors.map((instructor, index) => (
+            <Col xs={24} md={12} key={index}>
               <Card
-                bordered={false}
                 style={{
                   height: "100%",
                   background: "#fff",
                   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
                 }}
               >
-                <div
-                  style={{
-                    width: 120,
-                    height: 120,
-                    background: "#f0f0f0",
-                    borderRadius: "50%",
-                    margin: "0 auto 24px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "2.5rem",
-                    color: "#999",
-                  }}
-                >
-                  {trainer.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </div>
-                <Title
-                  level={4}
-                  style={{
-                    fontWeight: 400,
-                    marginBottom: "8px",
-                    textAlign: "center",
-                  }}
-                >
-                  {trainer.name}
-                </Title>
-                <Text
-                  type="secondary"
-                  style={{
-                    display: "block",
-                    textAlign: "center",
-                    marginBottom: "16px",
-                    fontWeight: 300,
-                  }}
-                >
-                  {trainer.role}
-                </Text>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "8px",
-                    justifyContent: "center",
-                    marginBottom: "16px",
-                  }}
-                >
-                  {trainer.certifications.map((cert, idx) => (
-                    <span
-                      key={idx}
-                      style={{
-                        padding: "4px 12px",
-                        background: "#f5f5f5",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        color: "#666",
-                      }}
-                    >
-                      {cert}
+                <Row className="flex flex-col" wrap={false} justify={"center"}>
+                  <Row wrap={false} justify={"center"}>
+                    <Avatar
+                      className="border-gray-500 border"
+                      size={100}
+                      icon={<UserOutlined />}
+                      src={instructor.avatar_path}
+                    />
+                  </Row>
+                  <Title
+                    level={4}
+                    style={{
+                      fontWeight: 400,
+                      marginBottom: "8px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {instructor.full_name}
+                  </Title>
+
+                  <Row className="justify-center">
+                    <span className="px-3 py-1 bg-[#f5f5f5] rounded text-[0.75rem] text-[#666] w-fit">
+                      {
+                        CERTIFICATION_MAP[
+                          instructor.instructors?.[0]?.certification
+                        ]
+                      }
                     </span>
-                  ))}
-                </div>
-                <Paragraph
-                  style={{
-                    color: "#666",
-                    lineHeight: 1.8,
-                    textAlign: "center",
-                    fontWeight: 300,
-                  }}
-                >
-                  {trainer.approach}
-                </Paragraph>
+                  </Row>
+                </Row>
               </Card>
             </Col>
           ))}
@@ -350,7 +364,7 @@ export default function About() {
           style={{
             fontSize: "2rem",
             fontWeight: 300,
-            marginBottom: "24px",
+            marginBottom: "5px",
             textAlign: "center",
           }}
         >
@@ -360,23 +374,43 @@ export default function About() {
           style={{
             textAlign: "center",
             color: "#666",
-            marginBottom: "48px",
+            marginBottom: "0",
             fontSize: "1rem",
             fontWeight: 300,
           }}
         >
-          View our weekly schedule below. Create an account to book a class.
+          Check out today&apos;s classes
+        </Paragraph>
+        <Paragraph
+          style={{
+            textAlign: "center",
+            color: "#666",
+            marginBottom: "10px",
+            fontSize: "1rem",
+            fontWeight: 300,
+          }}
+        >
+          Join our club <span className="text-red-400">for free</span> to view
+          future schedules
         </Paragraph>
 
         <div
-          style={{ background: "#fff", padding: "32px", borderRadius: "4px" }}
+          style={{
+            background: "#fff",
+            paddingBlock: "32px",
+            borderRadius: "4px",
+          }}
         >
           <Table
-            dataSource={sortedSchedules}
+            loading={loading}
+            dataSource={schedules}
             columns={scheduleColumns}
             pagination={false}
             rowKey="id"
+            size="small"
+            scroll={{ x: 1000 }}
             style={{ fontWeight: 300 }}
+            locale={{ emptyText: "No classes have been schedules for today" }}
           />
         </div>
       </section>

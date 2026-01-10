@@ -10,6 +10,11 @@ export async function middleware(req: NextRequest) {
 
   const authHeader = headers.get("authorization");
 
+  const data = Object.fromEntries(new URL(req.url).searchParams.entries());
+  if (data.type === "about") {
+    return NextResponse.next();
+  }
+
   if (origin !== process.env.SYSTEM_ORIGIN_TEST!) {
     return NextResponse.json({ error: "Unauthorized Origin" }, { status: 401 });
   }
