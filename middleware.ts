@@ -15,7 +15,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (origin !== process.env.SYSTEM_ORIGIN_TEST!) {
+  // for dev environment
+  // if (origin !== process.env.SYSTEM_ORIGIN_TEST!) {
+
+  if (origin !== process.env.SYSTEM_ORIGIN!) {
     return NextResponse.json({ error: "Unauthorized Origin" }, { status: 401 });
   }
 
