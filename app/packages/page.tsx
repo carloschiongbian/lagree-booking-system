@@ -374,6 +374,9 @@ export default function PackagesPage() {
         },
         allowedPaymentMethods: ["CARD", "EWALLET", "QR_PH"],
         requestReferenceNumber: `${uuid}`,
+
+        // change to actual URL once website is for go live
+        notificationUrl: `${process.env.SYSTEM_ORIGIN_TEMP!!}/api/maya/webhook`,
       };
 
       console.log("checkoutPayload: ", checkoutPayload);
