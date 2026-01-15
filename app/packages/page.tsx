@@ -266,7 +266,6 @@ export default function PackagesPage() {
   });
 
   useEffect(() => {
-    console.log("user: ", user);
     if (user) {
       const values = {
         ...formData,
