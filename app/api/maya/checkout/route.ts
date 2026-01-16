@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
     });
 
     const data = await response.json();
-    console.log("data: ", data);
 
     if (!response.ok) {
       return NextResponse.json(

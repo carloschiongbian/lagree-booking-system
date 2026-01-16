@@ -8,7 +8,6 @@ dayjs.extend(utc);
 export async function GET(req: NextRequest) {
   try {
     const data = Object.fromEntries(new URL(req.url).searchParams.entries());
-    console.log("HERE");
     let query = supabaseServer.from("client_packages").select(`
         *, 
         packages(

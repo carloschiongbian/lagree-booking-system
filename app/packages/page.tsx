@@ -384,10 +384,8 @@ export default function PackagesPage() {
           "Content-Type": "application/json",
         },
       });
-      console.log("response: ", response);
 
       const data = response.data;
-      console.log("data: ", data);
 
       if (data.success && data.checkoutUrl) {
         // Opens checkoutUrl in a new tab
@@ -396,8 +394,7 @@ export default function PackagesPage() {
         throw new Error(data.error || "Failed to create checkout session");
       }
     } catch (error: any) {
-      console.log("error.message: ", error);
-      console.log("error.message: ", error?.message);
+      console.error("error.message: ", error);
     }
   };
 
