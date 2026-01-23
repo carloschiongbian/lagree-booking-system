@@ -3,8 +3,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ReduxProvider } from "@/components/providers/ReduxProvider";
 import { AntdProvider } from "@/components/providers/AntdProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const inter = Inter({ subsets: ["latin"] });
+
+const queryClient = new QueryClient();
 
 export const metadata: Metadata = { title: "8 Club Lagree" };
 

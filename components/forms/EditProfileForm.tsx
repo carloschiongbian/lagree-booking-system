@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import { useAppMessage } from "../ui/message-popup";
 import { keys, omit } from "lodash";
+import { FileType } from "@/lib/utils";
 
 interface Props {
   clearSignal: any;
@@ -29,7 +30,6 @@ interface Props {
   loading?: boolean;
   onSubmit: (values: any) => void;
 }
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
   const user = useAppSelector((state) => state.auth.user);
@@ -101,6 +101,14 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
   useEffect(() => {
     handleClear();
   }, [clearSignal]);
+
+  const getBase64 = (file: FileType): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
 
   const handleResetProfileForm = () => {
     if (initialValuesRef.current) {
@@ -205,14 +213,6 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
   };
-
-  const getBase64 = (file: FileType): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
     setFile(newFileList);

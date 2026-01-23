@@ -3,6 +3,9 @@ import dayjs, { Dayjs, isDayjs } from "dayjs";
 import { twMerge } from "tailwind-merge";
 import { ChartData } from "./props";
 import { Day } from "react-day-picker";
+import { GetProp, UploadProps } from "antd";
+
+export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 export const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 export const attendanceStatus: any = {
@@ -161,6 +164,14 @@ export const CERTIFICATION_MAP: any = {
   fitness_coach_personal_trainer: "Fitness Coach / Personal Trainer",
   group_fitness_instructor: "Group Fitness Instructor",
 };
+
+export const getBase64 = (file: FileType): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 
 export const isNotMoreThan24HoursAway = (startTime: Dayjs) => {
   const diffInHours = startTime.diff(dayjs(), "hour", true); // precise hours
