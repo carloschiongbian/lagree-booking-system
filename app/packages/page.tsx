@@ -638,9 +638,9 @@ export default function PackagesPage() {
     <AuthenticatedLayout>
       {contextHolder}
       <div className="space-y-6">
-        <Button onClick={async () => await handleSendConfirmationEmail()}>
+        {/* <Button onClick={async () => await handleSendConfirmationEmail()}>
           Test email
-        </Button>
+        </Button> */}
         <Row gutter={[20, 20]} className="gap-x-[20px] xl:justify-start">
           {packages &&
             packages.map((item, index) => {
