@@ -42,37 +42,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("data: ", data);
+    // console.log("data: ", data);
 
-    const { data: orderInsert, error } = await supabaseServer
-      .from("orders")
-      .insert({
-        user_id: order.userID,
-        package_id: order.packageID,
-        package_credits: order.packageCredits,
-        package_title: order.packageTitle,
-        package_price: order.packagePrice,
-        package_validity_period: order.packageValidityPeriod,
-        status: "PENDING",
-        payment_method: "maya",
-        uploaded_at: dayjs().toISOString(),
-        checkout_id: requestReferenceNumber,
-      })
-      .select();
+    // const { data: orderInsert, error } = await supabaseServer
+    //   .from("orders")
+    //   .insert({
+    //     user_id: order.userID,
+    //     package_id: order.packageID,
+    //     package_credits: order.packageCredits,
+    //     package_title: order.packageTitle,
+    //     package_price: order.packagePrice,
+    //     package_validity_period: order.packageValidityPeriod,
+    //     status: "PENDING",
+    //     payment_method: "maya",
+    //     uploaded_at: dayjs().toISOString(),
+    //     checkout_id: requestReferenceNumber,
+    //   })
+    //   .select();
 
-    if (error) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: error,
-        },
-        { status: 500 },
-      );
-    }
+    // if (error) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       error: error,
+    //     },
+    //     { status: 500 },
+    //   );
+    // }
 
     return NextResponse.json({
       success: true,
-      order: orderInsert,
+      // order: orderInsert,
       checkoutUrl: data.redirectUrl,
       checkoutId: data.checkoutId,
     });
