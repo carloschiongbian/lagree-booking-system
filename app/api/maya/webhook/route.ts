@@ -16,7 +16,12 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
 
     const { data: orderData } = await supabaseServer
       .from("orders")
-      .select("*")
+      .select(
+        `
+        *,
+        client_packages
+        `,
+      )
       .eq("checkout_id", checkoutId)
       .single();
 
@@ -44,22 +49,22 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
         .single(),
     ]);
 
-    if (clientPackageResponse || userCreditsResponse) {
-      await supabaseServer
-        .from("client_packages")
-        .insert({
-          user_id: orderObject.userID,
-          package_id: orderObject.packageID,
-          status: "active",
-          validity_period: orderObject.validityPeriod,
-          package_credits: orderObject.packageCredits,
-          purchase_date: dayjs().toISOString(),
-          package_name: orderObject.packageName,
-          payment_method: "maya",
-          expiration_date: getDateFromToday(orderObject.validityPeriod),
-        })
-        .select();
-    }
+    // if (clientPackageResponse && userCreditsResponse) {
+    //   await supabaseServer
+    //     .from("client_packages")
+    //     .insert({
+    //       user_id: orderObject.userID,
+    //       package_id: orderObject.packageID,
+    //       status: "active",
+    //       validity_period: orderObject.validityPeriod,
+    //       package_credits: orderObject.packageCredits,
+    //       purchase_date: dayjs().toISOString(),
+    //       package_name: orderObject.packageName,
+    //       payment_method: "maya",
+    //       expiration_date: getDateFromToday(orderObject.validityPeriod),
+    //     })
+    //     .select();
+    // }
   } catch (error) {
     console.log("error assigning credits: ", error);
   }
