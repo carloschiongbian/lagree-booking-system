@@ -44,7 +44,7 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
             .from("client_packages")
             .update({
               status: "expired",
-              expirationDate: dayjs().toISOString(),
+              expiration_date: dayjs().toISOString(),
             })
             .eq("id", orderData.previous_active_package_id),
         );
