@@ -106,19 +106,21 @@ export async function POST(req: NextRequest) {
         break;
     }
 
-    if (orderStatus === "SUCCESSFUL") {
-      await handleAssignCredits({ checkoutId: requestReferenceNumber });
+    if (status === "PAYMENT_SUCCESS") {
+      await Promise.all([
+        handleAssignCredits({ checkoutId: requestReferenceNumber }).catch(
+          (err) => console.error("Assign credits failed:", err),
+        ),
+        supabaseServer
+          .from("orders")
+          .update({
+            status: status === "PAYMENT_SUCCESS" && "SUCCESSFUL",
+            approved_at:
+              status === "PAYMENT_SUCCESS" ? dayjs().toISOString() : null,
+          })
+          .eq("checkout_id", requestReferenceNumber),
+      ]);
     }
-
-    await supabaseServer
-      .from("orders")
-      .update({
-        status: orderStatus,
-        checkoutID: checkoutId,
-        approved_at:
-          orderStatus === "SUCCESSFUL" ? dayjs().toISOString() : null,
-      })
-      .eq("checkout_id", checkoutId);
 
     return NextResponse.json(nextResponse);
   } catch (error) {
