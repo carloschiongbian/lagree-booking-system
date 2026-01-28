@@ -35,13 +35,16 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
       .eq("user_id", orderObject.userID)
       .single();
 
-    if (userCredits.credits === 0) {
+    if (
+      userCredits &&
+      (userCredits.credits === 0 || userCredits.credits === null)
+    ) {
       //NOW UPDATE
       await supabaseServer
         .from("client_packages")
         .update({ status: "expired", expirationDate: dayjs().toISOString() })
         .eq("user_id", orderObject.userID)
-        .single();
+        .eq("status", "active");
     }
 
     await supabaseServer
