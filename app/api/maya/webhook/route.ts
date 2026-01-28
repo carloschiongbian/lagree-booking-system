@@ -28,34 +28,34 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
       packageName: orderData.package_title,
     };
 
-    //NOW UPDATE
-    await supabaseServer
-      .from("client_packages")
-      .update({ status: "expired", expirationDate: dayjs().toISOString() })
-      .eq("user_id", orderObject.userID)
-      .eq("status", "active");
-
-    // FETCH FIRST
-    await supabaseServer
-      .from("user_credits")
-      .update("credits", orderObject.packageCredits)
-      .eq("user_id", orderObject.userID)
-      .single();
-
-    await supabaseServer
-      .from("client_packages")
-      .insert({
-        user_id: orderObject.userID,
-        package_id: orderObject.packageID,
-        status: "active",
-        validity_period: orderObject.validityPeriod,
-        package_credits: orderObject.packageCredits,
-        purchase_date: dayjs().toISOString(),
-        package_name: orderObject.packageName,
-        payment_method: "maya",
-        expiration_date: getDateFromToday(orderObject.validityPeriod),
-      })
-      .select();
+    await Promise.all([
+      //NOW UPDATE
+      supabaseServer
+        .from("client_packages")
+        .update({ status: "expired", expirationDate: dayjs().toISOString() })
+        .eq("user_id", orderObject.userID)
+        .eq("status", "active"),
+      // FETCH FIRST
+      supabaseServer
+        .from("user_credits")
+        .update("credits", orderObject.packageCredits)
+        .eq("user_id", orderObject.userID)
+        .single(),
+      supabaseServer
+        .from("client_packages")
+        .insert({
+          user_id: orderObject.userID,
+          package_id: orderObject.packageID,
+          status: "active",
+          validity_period: orderObject.validityPeriod,
+          package_credits: orderObject.packageCredits,
+          purchase_date: dayjs().toISOString(),
+          package_name: orderObject.packageName,
+          payment_method: "maya",
+          expiration_date: getDateFromToday(orderObject.validityPeriod),
+        })
+        .select(),
+    ]);
   } catch (error) {
     console.log("error assigning credits: ", error);
   }
