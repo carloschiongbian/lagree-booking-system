@@ -29,18 +29,6 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
     };
 
     await Promise.all([
-      //NOW UPDATE
-      supabaseServer
-        .from("client_packages")
-        .update({ status: "expired", expirationDate: dayjs().toISOString() })
-        .eq("user_id", orderObject.userID)
-        .eq("status", "active"),
-      // FETCH FIRST
-      supabaseServer
-        .from("user_credits")
-        .update("credits", orderObject.packageCredits)
-        .eq("user_id", orderObject.userID)
-        .single(),
       supabaseServer
         .from("client_packages")
         .insert({
@@ -55,6 +43,18 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
           expiration_date: getDateFromToday(orderObject.validityPeriod),
         })
         .select(),
+      //NOW UPDATE
+      supabaseServer
+        .from("client_packages")
+        .update({ status: "expired", expirationDate: dayjs().toISOString() })
+        .eq("user_id", orderObject.userID)
+        .eq("status", "active"),
+      // FETCH FIRST
+      supabaseServer
+        .from("user_credits")
+        .update("credits", orderObject.packageCredits)
+        .eq("user_id", orderObject.userID)
+        .single(),
     ]);
   } catch (error) {
     console.log("error assigning credits: ", error);
