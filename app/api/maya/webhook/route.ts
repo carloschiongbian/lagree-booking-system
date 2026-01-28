@@ -20,6 +20,13 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
       .eq("checkout_id", checkoutId)
       .single();
 
+    const { data: clientPackages } = await supabaseServer
+      .from("client_packages")
+      .select("*")
+      .eq("user_id", orderData.userID)
+      .eq("status", "active")
+      .single();
+
     const orderObject = {
       userID: orderData.user_id,
       packageID: orderData.package_id,
@@ -30,13 +37,11 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
     };
 
     const [clientPackageResponse, userCreditsResponse] = await Promise.all([
-      //NOW UPDATE
       supabaseServer
         .from("client_packages")
         .update({ status: "expired", expirationDate: dayjs().toISOString() })
-        .eq("user_id", orderObject.userID)
-        .eq("status", "active"),
-      // FETCH FIRST
+        .eq("id", clientPackages.id),
+
       supabaseServer
         .from("user_credits")
         .update({ credits: Number(orderObject.packageCredits) })
@@ -44,22 +49,22 @@ const handleAssignCredits = async ({ checkoutId }: { checkoutId: string }) => {
         .single(),
     ]);
 
-    // if (clientPackageResponse && userCreditsResponse) {
-    //   await supabaseServer
-    //     .from("client_packages")
-    //     .insert({
-    //       user_id: orderObject.userID,
-    //       package_id: orderObject.packageID,
-    //       status: "active",
-    //       validity_period: orderObject.validityPeriod,
-    //       package_credits: orderObject.packageCredits,
-    //       purchase_date: dayjs().toISOString(),
-    //       package_name: orderObject.packageName,
-    //       payment_method: "maya",
-    //       expiration_date: getDateFromToday(orderObject.validityPeriod),
-    //     })
-    //     .select();
-    // }
+    if (clientPackageResponse && userCreditsResponse) {
+      await supabaseServer
+        .from("client_packages")
+        .insert({
+          user_id: orderObject.userID,
+          package_id: orderObject.packageID,
+          status: "active",
+          validity_period: orderObject.validityPeriod,
+          package_credits: orderObject.packageCredits,
+          purchase_date: dayjs().toISOString(),
+          package_name: orderObject.packageName,
+          payment_method: "maya",
+          expiration_date: getDateFromToday(orderObject.validityPeriod),
+        })
+        .select();
+    }
   } catch (error) {
     console.log("error assigning credits: ", error);
   }
