@@ -68,21 +68,21 @@ export async function POST(req: NextRequest) {
      * SANDBOX SNIPPET START
      */
 
-    const transport = nodemailer.createTransport({
-      host: process.env.MAILTRAP_HOST,
-      port: Number(process.env.MAILTRAP_PORT) || 587,
-      auth: {
-        user: process.env.MAILTRAP_USERNAME,
-        pass: process.env.MAILTRAP_PASSWORD,
-      },
-    });
+    // const transport = nodemailer.createTransport({
+    //   host: process.env.MAILTRAP_HOST,
+    //   port: Number(process.env.MAILTRAP_PORT) || 587,
+    //   auth: {
+    //     user: process.env.MAILTRAP_USERNAME,
+    //     pass: process.env.MAILTRAP_PASSWORD,
+    //   },
+    // });
 
-    const info = await transport.sendMail({
-      from: '"8ClubLagree" <8clublagree@gmail.com>',
-      to,
-      subject,
-      html: body,
-    });
+    // const info = await transport.sendMail({
+    //   from: '"8ClubLagree" <8clublagree@gmail.com>',
+    //   to,
+    //   subject,
+    //   html: body,
+    // });
 
     /**
      * SANDBOX SNIPPET END
@@ -94,25 +94,25 @@ export async function POST(req: NextRequest) {
      * THIS UTILIZES THE API TOKEN FROM MAILTRAP
      */
 
-    // const recipients = [to];
+    const recipients = [to];
 
     // Mailtrap SMTP transporter
-    // const transport = nodemailer.createTransport(
-    //   MailtrapTransport({
-    //     token: process.env.MAILTRAP_TOKEN!,
-    //   })
-    // );
+    const transport = nodemailer.createTransport(
+      MailtrapTransport({
+        token: process.env.MAILTRAP_TOKEN!,
+      }),
+    );
 
-    // const sender = {
-    //   address: "test@8clublagree.com",
-    //   name: "8 Club Lagree",
-    // };
-    // const info = await transport.sendMail({
-    //   from: sender,
-    //   to: recipients,
-    //   subject,
-    //   html: body,
-    // });
+    const sender = {
+      address: "test@8clublagree.com",
+      name: "8 Club Lagree",
+    };
+    const info = await transport.sendMail({
+      from: sender,
+      to: recipients,
+      subject,
+      html: body,
+    });
 
     /**
      * REAL EMAILS SNIPPET END

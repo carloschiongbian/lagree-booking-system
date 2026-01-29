@@ -638,8 +638,6 @@ export default function PackagesPage() {
         //     contentType: (file[0] as File).type,
         //   });
 
-        console.log("uploadResponse: ", uploadResponse);
-
         const response = await axiosApi.post("/package/upload-proof", {
           values: {
             // fileName,
@@ -668,7 +666,7 @@ export default function PackagesPage() {
 
         // if (uploadError) throw uploadError;
 
-        // await handleSendConfirmationEmail();
+        await handleSendConfirmationEmail();
 
         return response.status;
       }
