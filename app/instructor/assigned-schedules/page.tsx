@@ -84,12 +84,10 @@ export default function ClassManagementPage() {
         dateQuery = dayjs(param?.clickedDashboardDate);
       }
 
-      // console.log("user: ", user);
-
       const data = await fetchClasses({
         selectedDate: dateQuery as Dayjs,
         isInstructor: true,
-        instructorId: user?.id,
+        instructorId: user?.instructors?.[0]?.id,
       });
 
       if (data) {
@@ -114,7 +112,6 @@ export default function ClassManagementPage() {
         dispatch(setClickedDashboardDate(null));
       }
     } catch (error) {
-      // console.log(error);
       showMessage({
         type: "error",
         content: "Error fetching classes. Please try refreshing your browser",

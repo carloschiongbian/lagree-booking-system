@@ -88,7 +88,9 @@ export default function InstructorAuthenticatedLayout({
             *,
             packages (*)
           ),
-          instructors (*)
+          instructors (
+            id
+          )
       `,
       )
       .eq("id", session.user.id)

@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
       .single();
 
     if (error) {
-      console.log("error: ", error);
       return NextResponse.json({ data: null });
     }
 
