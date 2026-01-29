@@ -27,7 +27,7 @@ import {
   LockOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CreateInstructorProps } from "@/lib/props";
 import { supabase } from "@/lib/supabase";
 import { useAppSelector } from "@/lib/hooks";
@@ -35,7 +35,7 @@ import dayjs from "dayjs";
 import { MdContactEmergency } from "react-icons/md";
 import useDebounce from "@/hooks/use-debounce";
 import { useManageImage, useSearchUser } from "@/lib/api";
-import { keys } from "lodash";
+import { keys, omit } from "lodash";
 import { CERTIFICATIONS } from "@/lib/utils";
 
 interface CreateInstructorFormProps {
@@ -134,7 +134,8 @@ export default function CreateInstructorForm({
     let formCopy = { ...watchedValues };
 
     if (
-      JSON.stringify(formCopy) !== JSON.stringify(initialValuesRef.current) ||
+      JSON.stringify(formCopy) !==
+        JSON.stringify(omit(initialValuesRef.current, ["id"])) ||
       (!!fileKeys.length && !fileKeys.includes("url")) ||
       file?.length !== initialFileState?.length
     ) {
@@ -210,7 +211,7 @@ export default function CreateInstructorForm({
 
   const handleUpload = async (file: any) => {
     try {
-      if (!!file.length) {
+      if (!!file?.length) {
         setUploading(true);
 
         const response = await saveImage({ file });
@@ -218,7 +219,6 @@ export default function CreateInstructorForm({
         return response;
       }
     } catch (err: any) {
-      console.error(err);
       message.error("Upload failed!");
     } finally {
       setUploading(false);
@@ -607,7 +607,11 @@ export default function CreateInstructorForm({
                 size="large"
                 loading={loading}
                 block
-                disabled={loading || isValidating || emailTaken || !isModified}
+                disabled={
+                  initialValues !== undefined && initialValues !== null
+                    ? loading || isValidating || emailTaken || !isModified
+                    : loading || isValidating || emailTaken
+                }
                 className={`${
                   !isValidating && !emailTaken && isModified
                     ? "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"

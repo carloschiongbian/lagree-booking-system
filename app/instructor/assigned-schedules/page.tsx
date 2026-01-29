@@ -84,10 +84,12 @@ export default function ClassManagementPage() {
         dateQuery = dayjs(param?.clickedDashboardDate);
       }
 
+      // console.log("user: ", user);
+
       const data = await fetchClasses({
         selectedDate: dateQuery as Dayjs,
         isInstructor: true,
-        instructorId: user?.instructors?.[0].id,
+        instructorId: user?.id,
       });
 
       if (data) {
@@ -95,8 +97,8 @@ export default function ClassManagementPage() {
           return {
             key: index,
             id: item.id,
-            instructor_id: item.instructor_id,
-            instructor_name: item.instructor_name,
+            instructor_id: item?.instructor_id,
+            instructor_name: item?.instructor_name,
             start_time: dayjs(item.start_time),
             end_time: dayjs(item.end_time),
             slots: `${item.taken_slots} / ${item.available_slots}`,
@@ -112,6 +114,7 @@ export default function ClassManagementPage() {
         dispatch(setClickedDashboardDate(null));
       }
     } catch (error) {
+      // console.log(error);
       showMessage({
         type: "error",
         content: "Error fetching classes. Please try refreshing your browser",
@@ -129,8 +132,8 @@ export default function ClassManagementPage() {
         ...selectedRecord,
         ...classBookings,
         attendanceStatus: classBookings.attendance_status,
-        attendeeName: classBookings.user_profiles
-          ? classBookings.user_profiles.full_name
+        attendeeName: classBookings?.user_profiles
+          ? classBookings?.user_profiles?.full_name
           : `${classBookings.walk_in_first_name} ${classBookings.walk_in_last_name}`,
       };
     });

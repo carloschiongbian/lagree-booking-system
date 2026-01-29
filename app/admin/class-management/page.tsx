@@ -12,6 +12,7 @@ import {
   List,
   Select,
   Tooltip,
+  Tag,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import AdminAuthenticatedLayout from "@/components/layout/AdminAuthenticatedLayout";
@@ -117,13 +118,14 @@ export default function ClassManagementPage() {
             id: item.id,
             instructor_id: item.instructor_id,
             class_name: item.class_name,
-            instructor_name: item.instructors.user_profiles.full_name,
+            instructor_name:
+              item?.instructors?.user_profiles?.full_name ?? null,
             start_time: dayjs(item.start_time),
             end_time: dayjs(item.end_time),
             slots: `${item.taken_slots} / ${item.available_slots}`,
             taken_slots: item.taken_slots,
             available_slots: item.available_slots,
-            deactivated: item.instructors.user_profiles.deactivated,
+            deactivated: item?.instructors?.user_profiles?.deactivated ?? null,
           };
         });
 
@@ -198,6 +200,7 @@ export default function ClassManagementPage() {
         dispatch(setClickedDashboardDate(null));
       }
     } catch (error) {
+      console.log("error: ", error);
       showMessage({
         type: "error",
         content: "Error fetching classes. Please try refreshing your browser",
@@ -439,7 +442,10 @@ export default function ClassManagementPage() {
         <Row wrap={false} className="justify-between">
           <Text className="!mt-[10px]">
             <span className="font-semibold">Instructor:</span>{" "}
-            {selectedRecord?.instructor_name}
+            {selectedRecord?.instructor_name && selectedRecord?.instructor_name}
+            {!selectedRecord?.instructor_name && (
+              <Tag color={"red"}>Need to replace</Tag>
+            )}
           </Text>
           <Text className="!mt-[10px]">
             <span className="font-semibold">Time:</span>{" "}

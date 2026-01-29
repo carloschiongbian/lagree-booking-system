@@ -12,11 +12,13 @@ export async function GET(req: NextRequest) {
       .single();
 
     if (error) {
-      throw error;
+      console.log("error: ", error);
+      return NextResponse.json({ data: null });
     }
 
     return NextResponse.json({ data: profile });
   } catch (err: any) {
+    console.log("err: ", err);
     return NextResponse.json({ error: "Unexpected error" }, { status: 500 });
   }
 }

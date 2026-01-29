@@ -14,9 +14,10 @@ import {
   Form,
   Tabs,
   Tag,
+  Spin,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CreateInstructorForm from "@/components/forms/CreateInstructorForm";
 import { IoIosSearch } from "react-icons/io";
 import useDebounce from "@/hooks/use-debounce";
@@ -49,7 +50,7 @@ export default function InstructorManagementPage() {
     "account-creation" | "change-password"
   >("account-creation");
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
-  const { searchInstructors, loading } = useSearchUser();
+  const { searchInstructors, loading: fetchingInstructors } = useSearchUser();
   const {
     reactivateInstructor,
     deactivateInstructor,
@@ -426,6 +427,10 @@ export default function InstructorManagementPage() {
     },
   ];
 
+  const renderSpinner = useMemo(() => {
+    return <Spin spinning={true} />;
+  }, []);
+
   return (
     <AdminAuthenticatedLayout>
       {contextHolder}
@@ -454,67 +459,74 @@ export default function InstructorManagementPage() {
           />
         </Row>
 
-        <Row gutter={[16, 16]}>
-          {instructors &&
-            instructors.map((data, idx) => {
-              return (
-                <Col key={idx} xs={24} sm={12} md={8} lg={6} xl={6} xxl={6}>
-                  <Card
-                    onClick={() => handleEdit(data)}
-                    hoverable
-                    cover={
-                      <div
-                        style={{
-                          height: 200, // same height as an image cover
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "#f5f5f5", // optional: placeholder background
-                        }}
-                      >
-                        {data?.avatar_url === undefined && (
-                          <User style={{ fontSize: 64, color: "#999" }} />
-                        )}
-                        {data?.avatar_url && (
-                          <img
-                            className="rounded-t-lg"
-                            src={data.avatar_url}
-                            alt={data.full_name}
-                            style={{
-                              objectFit: "cover",
-                              height: 200,
-                              width: "100%",
-                            }}
-                          />
-                        )}
-                      </div>
-                    }
-                  >
-                    <Card.Meta
-                      title={
-                        <Row className="gap-[5px]">
-                          <Text>{data.first_name}</Text>
-                          {data?.deactivated === true && (
-                            <Tag color="red">Deactivated</Tag>
+        {fetchingInstructors && (
+          <Row wrap={false} justify="center">
+            {renderSpinner}
+          </Row>
+        )}
+        {!fetchingInstructors && (
+          <Row gutter={[16, 16]}>
+            {instructors &&
+              instructors.map((data, idx) => {
+                return (
+                  <Col key={idx} xs={24} sm={12} md={8} lg={6} xl={6} xxl={6}>
+                    <Card
+                      onClick={() => handleEdit(data)}
+                      hoverable
+                      cover={
+                        <div
+                          style={{
+                            height: 200, // same height as an image cover
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#f5f5f5", // optional: placeholder background
+                          }}
+                        >
+                          {data?.avatar_url === undefined && (
+                            <User style={{ fontSize: 64, color: "#999" }} />
                           )}
-                        </Row>
+                          {data?.avatar_url && (
+                            <img
+                              className="rounded-t-lg"
+                              src={data.avatar_url}
+                              alt={data.full_name}
+                              style={{
+                                objectFit: "cover",
+                                height: 200,
+                                width: "100%",
+                              }}
+                            />
+                          )}
+                        </div>
                       }
-                      description={data.certification}
-                    />
-                    {/* {data?.deactivated === true && (
+                    >
+                      <Card.Meta
+                        title={
+                          <Row className="gap-[5px]">
+                            <Text>{data.first_name}</Text>
+                            {data?.deactivated === true && (
+                              <Tag color="red">Deactivated</Tag>
+                            )}
+                          </Row>
+                        }
+                        description={data.certification}
+                      />
+                      {/* {data?.deactivated === true && (
                     <Tag color="red">Deactivated</Tag>
                   )} */}
-                  </Card>
-                </Col>
-              );
-            })}
+                    </Card>
+                  </Col>
+                );
+              })}
 
-          {!instructors?.length && (
-            <Row className="w-full flex justify-center">
-              <Text>No instructors by that name</Text>
-            </Row>
-          )}
-        </Row>
+            {!instructors?.length && (
+              <Row className="w-full flex justify-center">
+                <Text>No instructors by that name</Text>
+              </Row>
+            )}
+          </Row>
+        )}
       </div>
 
       {isMobile ? (

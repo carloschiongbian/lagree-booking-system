@@ -23,7 +23,7 @@ export async function GET() {
       supabaseServer
         .from("classes")
         .select(
-          `*, instructors(user_id, user_profiles(full_name, avatar_path))`
+          `*, instructors(user_id, user_profiles(full_name, avatar_path))`,
         )
         .order("created_at", { ascending: false })
         .gte("class_date", startOfSelectedUTC)
@@ -33,19 +33,19 @@ export async function GET() {
     if (classesRes.error) {
       return NextResponse.json(
         { error: classesRes.error.message },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (trainersRes.error) {
       return NextResponse.json(
         { error: trainersRes.error.message },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (schedulesRes.error) {
       return NextResponse.json(
         { error: schedulesRes.error.message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -65,12 +65,13 @@ export async function GET() {
           }
 
           return { ...instructor, avatar_path: data?.signedUrl ?? null };
-        }) || []
+        }) || [],
       ),
 
       Promise.all(
         schedulesRes.data?.map(async (schedule) => {
-          const avatar = schedule.instructors.user_profiles.avatar_path;
+          const avatar =
+            schedule?.instructors?.user_profiles?.avatar_path ?? null;
           if (!avatar) return { ...schedule, avatar_path: null };
 
           const { data, error: urlError } = await supabaseServer.storage
@@ -83,7 +84,7 @@ export async function GET() {
           }
 
           return { ...schedule, avatar_path: data?.signedUrl ?? null };
-        }) || []
+        }) || [],
       ),
     ]);
 

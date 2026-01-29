@@ -102,11 +102,13 @@ export default function DashboardPage() {
 
             // generate signed URL valid for 1 hour (3600s)
 
-            const signedURL = await fetchImage({
-              avatarPath: booking.classes.instructors.user_profiles.avatar_path,
-            });
+            if (booking.classes.instructors) {
+              imageURL = await fetchImage({
+                avatarPath:
+                  booking.classes.instructors.user_profiles.avatar_path,
+              });
+            }
 
-            imageURL = signedURL;
             return {
               ...booking,
               avatar_url: imageURL,

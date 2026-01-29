@@ -115,8 +115,10 @@ export default function BookingsPage() {
           let imageURL: any = null;
           // if (!user.avatar_path) return user; // skip if no avatar
 
-          // generate signed URL valid for 1 hour (3600s)
+          if (!lagreeClass.instructors) return null;
+
           if (lagreeClass.instructors.user_profiles.avatar_path) {
+            // generate signed URL valid for 1 hour (3600s)
             const signedURL = await fetchImage({
               avatarPath: lagreeClass.instructors.user_profiles.avatar_path,
             });
@@ -139,7 +141,9 @@ export default function BookingsPage() {
           };
         }),
       );
-      setClasses(mapped);
+
+      const filtered = mapped.filter((item) => item !== null);
+      setClasses(filtered);
     }
   };
 
