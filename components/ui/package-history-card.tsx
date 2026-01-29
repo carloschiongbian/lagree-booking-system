@@ -64,7 +64,7 @@ const PackageHistoryCard = ({ item }: { item: any }) => {
           <Row className="flex flex-col min-h-[24]">
             <Text style={{ fontSize: 16 }}>
               {checkIfExpired(
-                dayjs(item?.expirationDate ?? item?.expiration_date)
+                dayjs(item?.expirationDate ?? item?.expiration_date),
               )
                 ? "Expired"
                 : "Expires"}{" "}

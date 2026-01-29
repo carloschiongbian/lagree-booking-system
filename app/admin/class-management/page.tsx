@@ -141,47 +141,52 @@ export default function ClassManagementPage() {
             taken_slots: cls.taken_slots,
             available_slots: cls.available_slots,
             bookingID: booking.id,
-          }))
+          })),
         );
 
         setAllBookings(allBookings);
 
-        const grouped = allBookings.reduce((acc: any, booking: any) => {
-          if (!acc[booking.value]) {
-            acc[booking.value] = {
-              bookingID: booking.bookingID,
-              classID: booking.classID,
-              value: booking.value,
-              label: booking.label,
-              originalClasses: [
-                {
-                  value: booking.class_id,
-                  label: `${booking.class_name} ${dayjs(
-                    booking.start_time
-                  ).format("hh:mm A")} - ${dayjs(booking.end_time).format(
-                    "hh:mm A"
-                  )}`,
-                  takenSlots: booking.taken_slots,
-                  availableSlots: booking.available_slots,
-                  bookingID: booking.bookingID,
-                  startTime: booking.start_time,
-                },
-              ],
-            };
-          } else {
-            acc[booking.value].originalClasses.push({
-              bookingID: booking.bookingID,
-              value: booking.class_id,
-              label: `${booking.class_name} ${dayjs(booking.start_time).format(
-                "hh:mm A"
-              )} - ${dayjs(booking.end_time).format("hh:mm A")}`,
-              takenSlots: booking.taken_slots,
-              availableSlots: booking.available_slots,
-              startTime: booking.start_time,
-            });
-          }
-          return acc;
-        }, {} as Record<string, any>);
+        const grouped = allBookings.reduce(
+          (acc: any, booking: any) => {
+            if (!acc[booking.value]) {
+              acc[booking.value] = {
+                bookingID: booking.bookingID,
+                classID: booking.classID,
+                value: booking.value,
+                label: booking.label,
+                originalClasses: [
+                  {
+                    value: booking.class_id,
+                    label: `${booking.class_name} ${dayjs(
+                      booking.start_time,
+                    ).format("hh:mm A")} - ${dayjs(booking.end_time).format(
+                      "hh:mm A",
+                    )}`,
+                    takenSlots: booking.taken_slots,
+                    availableSlots: booking.available_slots,
+                    bookingID: booking.bookingID,
+                    startTime: booking.start_time,
+                  },
+                ],
+              };
+            } else {
+              acc[booking.value].originalClasses.push({
+                bookingID: booking.bookingID,
+                value: booking.class_id,
+                label: `${booking.class_name} ${dayjs(
+                  booking.start_time,
+                ).format(
+                  "hh:mm A",
+                )} - ${dayjs(booking.end_time).format("hh:mm A")}`,
+                takenSlots: booking.taken_slots,
+                availableSlots: booking.available_slots,
+                startTime: booking.start_time,
+              });
+            }
+            return acc;
+          },
+          {} as Record<string, any>,
+        );
 
         const result = Object.values(grouped);
 
@@ -351,7 +356,7 @@ export default function ClassManagementPage() {
             updateUserCredits({
               userID: clientID,
               values: { credits: updatedCredits },
-            })
+            }),
           );
         }
       }
@@ -376,11 +381,12 @@ export default function ClassManagementPage() {
     bookerName: string;
   }) => {
     const originalBookingRecord = allBookings.find(
-      (item: any) => item.classID === originalClass && item.label === bookerName
+      (item: any) =>
+        item.classID === originalClass && item.label === bookerName,
     );
 
     const originalClassRecord = classes.find(
-      (item: any) => item.id === originalClass
+      (item: any) => item.id === originalClass,
     );
 
     const newClassRecord = classes.find((item: any) => item.id === newClassID);
@@ -438,7 +444,7 @@ export default function ClassManagementPage() {
           <Text className="!mt-[10px]">
             <span className="font-semibold">Time:</span>{" "}
             {`${formatTime(dayjs(selectedRecord?.start_time))} - ${formatTime(
-              dayjs(selectedRecord?.end_time)
+              dayjs(selectedRecord?.end_time),
             )}`}
           </Text>
         </Row>
@@ -527,7 +533,7 @@ export default function ClassManagementPage() {
     if (param.clickedDashboardDate) {
       setSelectedDate(dayjs(param.clickedDashboardDate));
       setCannotRebook(
-        dayjs(param.clickedDashboardDate).isBefore(dayjs().subtract(1, "day"))
+        dayjs(param.clickedDashboardDate).isBefore(dayjs().subtract(1, "day")),
       );
     } else {
       setSelectedDate(dayjs(date));
@@ -616,14 +622,14 @@ export default function ClassManagementPage() {
                 disabled={
                   !classes.length ||
                   !classes.filter((cls) =>
-                    dayjs(cls.start_time).isAfter(dayjs())
+                    dayjs(cls.start_time).isAfter(dayjs()),
                   ).length
                 }
                 onClick={handleOpenBookingModal}
                 className={`${
                   !!classes?.length &&
                   !!classes.filter((cls) =>
-                    dayjs(cls.start_time).isAfter(dayjs())
+                    dayjs(cls.start_time).isAfter(dayjs()),
                   ).length
                     ? "bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
                     : "!bg-slate-200 hover:!bg-slate-200"

@@ -36,7 +36,7 @@ export default function RebookAttendeeForm({
   useEffect(() => {
     const rebookableAttendees = attendees.map((attendee) => {
       const filtered = attendee.originalClasses.filter((oc: any) =>
-        dayjs(oc.startTime).isSameOrAfter(now)
+        dayjs(oc.startTime).isSameOrAfter(now),
       );
 
       return { ...attendee, originalClasses: filtered };
@@ -57,14 +57,14 @@ export default function RebookAttendeeForm({
       .filter(
         (item: any) =>
           !(found.originalClasses.map((x: any) => x.value) as any[]).includes(
-            item.id
-          ) && item.start_time.isSameOrAfter(now)
+            item.id,
+          ) && item.start_time.isSameOrAfter(now),
       )
       .map((item: any) => {
         return {
           value: item.id,
           label: `${item.instructor_name} (${dayjs(item.start_time).format(
-            "hh:mm A"
+            "hh:mm A",
           )} - ${dayjs(item.end_time).format("hh:mm A")}) (${
             item.taken_slots
           } / ${item.available_slots} slots remaining)`,

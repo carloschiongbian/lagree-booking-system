@@ -132,7 +132,7 @@ export default function CreditsPage() {
                   {!!packages.length && user?.credits === 0 && (
                     <Button
                       onClick={() => router.push("/packages")}
-                      className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg px-[15px] shadow-sm transition-all duration-200 hover:scale-[1.03]`}
+                      className={`bg-[#800020] hover:!bg-[#800020] !border-none !text-white font-medium rounded-lg px-[15px] shadow-sm transition-all duration-200 hover:scale-[1.03]`}
                     >
                       Get Credits
                     </Button>
@@ -235,7 +235,7 @@ export default function CreditsPage() {
                           <Button
                             type="primary"
                             onClick={() => router.push("/packages")}
-                            className="w-fit !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                            className="w-fit !bg-[#800020] hover:!bg-[#800020] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
                           >
                             Purchase a package
                           </Button>

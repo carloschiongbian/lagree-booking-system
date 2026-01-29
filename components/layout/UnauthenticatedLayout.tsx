@@ -2,6 +2,7 @@ import { Button, Drawer, Row, Typography } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MenuOutlined } from "@ant-design/icons";
+import Image from "next/image";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,13 +34,22 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
       <header className="sticky top-0 z-[100] bg-white border-b border-[#e8e8e8]">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10 lg:py-5">
           {/* Logo */}
-          <Title
+          {/* <Title
             onClick={() => router.push("/about")}
             level={3}
             className="!m-0 tracking-[0.1em] whitespace-nowrap font-normal text-base sm:text-lg sm:font-light lg:text-xl"
           >
             8CLUBLAGREE
-          </Title>
+          </Title> */}
+          <Row className="justify-center">
+            <Image
+              onClick={() => router.push("/about")}
+              src="/images/main-logo.png"
+              alt="Logo"
+              width={130}
+              height={130}
+            />
+          </Row>
 
           {/* Conditional Rendering */}
           {isMobile ? (
@@ -47,7 +57,7 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
               <Row wrap={false} className="gap-x-[5px]">
                 <Button
                   type={"primary"}
-                  className={`bg-[#36013F] border-[#36013F] text-white hover:!bg-[#36013F] font-medium w-fit`}
+                  className={`bg-[#800020] border-[#800020] text-white hover:!bg-[#800020] font-medium w-fit`}
                   onClick={() => {
                     router.push("/signup");
                     setDrawerVisible(false);
@@ -79,7 +89,7 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
                       type={item.primary ? "primary" : "text"}
                       className={`${
                         item.primary
-                          ? "bg-[#36013F] border-[#36013F] text-white hover:!bg-[#36013F] font-medium w-full"
+                          ? "bg-[#800020] border-[#800020] text-white hover:!bg-[#800020] font-medium w-full"
                           : "px-2 py-3 text-left text-sm font-normal w-full"
                       }`}
                       onClick={() => {
@@ -102,7 +112,7 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
                   type={item.primary ? "primary" : "text"}
                   className={`${
                     item.primary
-                      ? "bg-[#36013F] border-[#36013F] text-white hover:!bg-[#36013F] font-medium px-3 sm:px-4"
+                      ? "bg-[#800020] border-[#800020] text-white hover:!bg-[#800020] font-medium px-3 sm:px-4"
                       : "px-2 sm:px-3 text-sm sm:text-base font-normal"
                   }`}
                   onClick={() => router.push(item.href)}
@@ -118,21 +128,21 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
       <div>{children}</div>
 
       {/* Footer */}
-      <footer className="bg-[#36013F] text-white px-10 py-[60px] mt-[100px]">
+      <footer className="bg-[#800020] text-white px-10 py-[60px] mt-[100px]">
         <div className="max-w-[1200px] mx-auto text-center">
           <Title
             level={3}
-            className="text-white font-light mb-6 tracking-[0.1em]"
+            className="!text-white font-light mb-6 tracking-[0.1em]"
           >
             8CLUBLAGREE
           </Title>
-          <Paragraph style={{ color: "#999", fontWeight: 300 }}>
+          <Paragraph style={{ color: "white", fontWeight: 300 }}>
             Streetscape Mall Banilad, Maria Luisa Road
             <br />
             Cebu City, Cebu 6000
           </Paragraph>
           <Paragraph
-            style={{ color: "#666", fontSize: "0.875rem", marginTop: "32px" }}
+            style={{ color: "white", fontSize: "0.875rem", marginTop: "32px" }}
           >
             © 2026 8ClubLagree. All rights reserved.
           </Paragraph>

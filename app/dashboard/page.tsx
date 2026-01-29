@@ -89,11 +89,11 @@ export default function DashboardPage() {
 
       const validBookings = bookings.filter(
         (booking: any) =>
-          booking.classes !== null && booking.attendance_status !== "cancelled"
+          booking.classes !== null && booking.attendance_status !== "cancelled",
       );
       if (!!validBookings.length) {
         const filtered = validBookings.filter((booking: any) =>
-          dayjs(booking.classes.start_time).isSameOrAfter(now)
+          dayjs(booking.classes.start_time).isSameOrAfter(now),
         );
         const mapped = await Promise.all(
           filtered.map(async (booking: any) => {
@@ -120,7 +120,7 @@ export default function DashboardPage() {
               instructorName: booking.classes.instructor_name,
               instructorAvatarPath: booking.classes.instructors.avatar_path,
             };
-          })
+          }),
         );
 
         setUpcomingBookings(mapped);
@@ -168,7 +168,7 @@ export default function DashboardPage() {
             {upcomingBookings &&
               upcomingBookings.map((data, idx) => {
                 const notCancellable = isNotMoreThan24HoursAway(
-                  dayjs(data.classes.start_time)
+                  dayjs(data.classes.start_time),
                 );
 
                 return (
@@ -242,9 +242,9 @@ export default function DashboardPage() {
                             </Text>
                             <Text>
                               {`${dayjs(data.classStartTime).format(
-                                "hh:mm A"
+                                "hh:mm A",
                               )} to ${dayjs(data.classEndTime).format(
-                                "hh:mm A"
+                                "hh:mm A",
                               )}`}
                             </Text>
                           </Row>
@@ -260,7 +260,7 @@ export default function DashboardPage() {
                 <Row className="w-full flex-col flex items-center justify-center">
                   <Button
                     onClick={() => router.push("/bookings")}
-                    className={`bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03] h-[40px]`}
+                    className={`bg-[#800020] hover:!bg-[#800020] !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 hover:scale-[1.03] h-[40px]`}
                   >
                     Book a Class
                   </Button>

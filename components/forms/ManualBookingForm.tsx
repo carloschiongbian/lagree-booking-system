@@ -57,7 +57,7 @@ export default function ManualBookingForm({
 
   const { debouncedValue, loading: debouncing } = useDebounce(
     searchedClient,
-    500
+    500,
   );
 
   useEffect(() => {
@@ -132,7 +132,7 @@ export default function ManualBookingForm({
         .map((cls, key) => ({
           value: cls.id,
           label: `${cls.instructor_name} (${dayjs(cls.start_time).format(
-            "hh:mm A"
+            "hh:mm A",
           )} - ${dayjs(cls.end_time).format("hh:mm A")})`,
           id: cls.instructor_id,
           key,
@@ -148,20 +148,20 @@ export default function ManualBookingForm({
           existingClient.classBookings.map((x: any) => x.class_id) ?? [];
 
         filtered = classes.filter(
-          (cls) => !existingClientBookings.includes(cls.id)
+          (cls) => !existingClientBookings.includes(cls.id),
         );
       } else {
         filtered = classes;
       }
 
       filtered = filtered.filter((cls: any) =>
-        dayjs(cls.start_time).isAfter(now)
+        dayjs(cls.start_time).isAfter(now),
       );
 
       mapped = filtered.map((cls: any, key: number) => ({
         value: cls.id,
         label: `${cls.instructor_name} (${dayjs(cls.start_time).format(
-          "hh:mm A"
+          "hh:mm A",
         )} - ${dayjs(cls.end_time).format("hh:mm A")})`,
         id: cls.instructor_id,
         key,
@@ -194,7 +194,7 @@ export default function ManualBookingForm({
     const values = form.getFieldsValue();
 
     const found = schedules.find(
-      (item: any) => item.value === values.class_schedule
+      (item: any) => item.value === values.class_schedule,
     );
     const formattedValues = {
       ...values,

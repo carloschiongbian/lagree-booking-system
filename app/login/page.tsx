@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { useAppMessage } from "@/components/ui/message-popup";
 import UnauthenticatedLayout from "@/components/layout/UnauthenticatedLayout";
+import Image from "next/image";
 
 const { Title, Text } = Typography;
 
@@ -56,12 +57,20 @@ export default function LoginPage() {
           className="w-full max-w-md shadow-xl border-0"
           style={{ borderRadius: 12 }}
         >
-          <div className="text-center mb-8">
-            <Title level={2} className="!mb-2">
+          <Row className="flex-col text-center mb-8">
+            <Row className="justify-center mb-[10px]">
+              <Image
+                src="/images/main-logo.png"
+                alt="Logo"
+                width={170}
+                height={170}
+              />
+            </Row>
+            {/* <Title level={2} className="!mb-2">
               8 Club Lagree
-            </Title>
+            </Title> */}
             <Text type="secondary">Sign in to your account</Text>
-          </div>
+          </Row>
 
           {/* <Form
           name="login"
@@ -115,7 +124,7 @@ export default function LoginPage() {
                 htmlType="submit"
                 loading={loading}
                 block
-                className="h-11 !bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+                className="h-11 !bg-[#800020] hover:!bg-[#800020] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
               >
                 Log In
               </Button>
@@ -126,7 +135,7 @@ export default function LoginPage() {
                 Don't have an account?{" "}
                 <Link
                   href="/signup"
-                  className="!text-[#36013F] hover:text-[#36013F]"
+                  className="!text-[#800020] hover:text-[#800020]"
                 >
                   Sign up
                 </Link>

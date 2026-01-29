@@ -518,7 +518,7 @@ const PaymentsPage = () => {
                   ? dayjs(selectedPayment.approved_at).format(
                       "MMM DD, YYYY (hh:mm A)",
                     )
-                  : "Pending"}
+                  : "N/A"}
               </Descriptions.Item>
               <Descriptions.Item label="Order ID">
                 {selectedPayment.reference_id || "N/A"}

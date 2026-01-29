@@ -62,7 +62,7 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
   const dates = useMemo(() => {
     const startOfRange = currentDate.startOf("day");
     return Array.from({ length: daysToShow }, (_, i) =>
-      startOfRange.add(i, "day")
+      startOfRange.add(i, "day"),
     );
   }, [currentDate, daysToShow]);
 
@@ -122,16 +122,16 @@ const DatePickerCarousel: React.FC<DatePickerCarouselProps> = ({
                 "flex flex-col items-center justify-center cursor-pointer select-none transition-all duration-200",
                 "rounded-2xl shadow-sm hover:shadow-md py-3 sm:py-4",
                 "w-20 sm:w-24 md:w-28",
-                isSelected ? "bg-[#36013F] text-white" : "bg-white text-black",
+                isSelected ? "bg-[#800020] text-white" : "bg-white text-black",
                 !isAdmin &&
                   isPast &&
-                  "opacity-40 cursor-not-allowed hover:shadow-none"
+                  "opacity-40 cursor-not-allowed hover:shadow-none",
               )}
             >
               <span
                 className={clsx(
                   "text-[10px] sm:text-sm",
-                  isSelected ? "text-white/80" : "text-gray-600"
+                  isSelected ? "text-white/80" : "text-gray-600",
                 )}
               >
                 {date.format("ddd")}

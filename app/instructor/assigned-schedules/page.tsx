@@ -173,7 +173,7 @@ export default function ClassManagementPage() {
           <Text className="!mt-[10px]">
             <span className="font-semibold">Time:</span>{" "}
             {`${formatTime(dayjs(selectedRecord?.start_time))} - ${formatTime(
-              dayjs(selectedRecord?.end_time)
+              dayjs(selectedRecord?.end_time),
             )}`}
           </Text>
         </Row>
@@ -255,7 +255,7 @@ export default function ClassManagementPage() {
     if (param.clickedDashboardDate) {
       setSelectedDate(dayjs(param.clickedDashboardDate));
       setCannotMarkAttendance(
-        dayjs(param.clickedDashboardDate).isBefore(dayjs().subtract(1, "day"))
+        dayjs(param.clickedDashboardDate).isBefore(dayjs().subtract(1, "day")),
       );
     } else {
       setSelectedDate(dayjs(date));

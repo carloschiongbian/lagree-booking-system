@@ -5,16 +5,16 @@ export async function POST(req: Request) {
   try {
     const { values } = await req.json();
 
-    const { error: uploadError } = await supabaseServer.storage
-      .from(process.env.PAYMENT_STORAGE_BUCKET!)
-      .upload(values.fileName, values.originFileObj as File, {
-        upsert: true, // overwrite if exists
-        contentType: (values.file as File).type,
-      });
+    // const { error: uploadError } = await supabaseServer.storage
+    //   .from(process.env.PAYMENT_STORAGE_BUCKET!)
+    //   .upload(values.fileName, values.originFileObj as File, {
+    //     upsert: true, // overwrite if exists
+    //     contentType: "image/png",
+    //   });
 
-    if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 400 });
-    }
+    // if (uploadError) {
+    //   return NextResponse.json({ error: uploadError.message }, { status: 400 });
+    // }
 
     const {
       userID,

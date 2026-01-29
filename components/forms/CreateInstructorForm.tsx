@@ -75,7 +75,7 @@ export default function CreateInstructorForm({
   const [previewImage, setPreviewImage] = useState("");
   const [file, setFile] = useState<UploadFile[] | null>(null);
   const [initialFileState, setInitialFileState] = useState<UploadFile[] | null>(
-    null
+    null,
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
@@ -83,7 +83,7 @@ export default function CreateInstructorForm({
   const [email, setEmail] = useState<string>("");
   const { debouncedValue: debouncedEmail, loading: debouncing } = useDebounce(
     email,
-    1500
+    1500,
   );
 
   const [isMobile, setIsMobile] = useState(false);
@@ -474,7 +474,7 @@ export default function CreateInstructorForm({
                         return Promise.resolve();
                       }
                       return Promise.reject(
-                        new Error("Passwords do not match")
+                        new Error("Passwords do not match"),
                       );
                     },
                   }),

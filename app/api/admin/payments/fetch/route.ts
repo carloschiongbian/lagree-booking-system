@@ -39,6 +39,7 @@ export async function GET() {
           const { data, error: urlError } = await supabaseServer.storage
             .from("payment-proof")
             .createSignedUrl(item.payment_proof_path, 3600);
+          console.log("item.payment_proof_path: ", item.payment_proof_path);
 
           if (data?.signedUrl) {
             url = data?.signedUrl;

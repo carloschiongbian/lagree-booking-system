@@ -89,7 +89,7 @@ export default function InstructorAuthenticatedLayout({
             packages (*)
           ),
           instructors (*)
-      `
+      `,
       )
       .eq("id", session.user.id)
       .single();
@@ -108,11 +108,11 @@ export default function InstructorAuthenticatedLayout({
 
     const latestCredit = profile?.user_credits?.sort(
       (a: any, b: any) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )[0];
 
     const activePackage: CurrentPackageProps = profile?.client_packages?.find(
-      (p: any) => p.status === "active"
+      (p: any) => p.status === "active",
     );
 
     if (profile) {
@@ -130,7 +130,7 @@ export default function InstructorAuthenticatedLayout({
           avatar_url: signedUrl,
           currentPackage: activePackage,
           credits: activePackage ? latestCredit.credits : 0,
-        })
+        }),
       );
     }
   };

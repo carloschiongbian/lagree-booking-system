@@ -93,7 +93,7 @@ export default function CreateClassForm({
 
   const handleFinish = (values: any) => {
     const instructor = instructors.find(
-      (inst: any) => inst.value === values.instructor_name
+      (inst: any) => inst.value === values.instructor_name,
     );
 
     const [start, end] = values.time;

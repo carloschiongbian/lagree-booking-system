@@ -220,7 +220,7 @@ export default function AuthenticatedLayout({
       >
         {/* Top Section */}
         <div>
-          <div className="h-16 flex px-[25px] items-center justify-start border-b border-slate-200 bg-[#36013F]">
+          <div className="h-16 flex px-[25px] items-center justify-start border-b border-slate-200 bg-[#800020]">
             <Image
               src="/images/main-logo-white.png"
               alt="Logo"
@@ -249,7 +249,7 @@ export default function AuthenticatedLayout({
       </Sider>
 
       <Layout>
-        <Header className="!bg-[#36013F] border-b border-slate-200 !px-4 md:!px-6 flex items-center justify-between !h-16">
+        <Header className="!bg-[#800020] border-b border-slate-200 !px-4 md:!px-6 flex items-center justify-between !h-16">
           <div className="flex items-center">
             <Button
               type="text"
@@ -265,9 +265,7 @@ export default function AuthenticatedLayout({
                 <Text className="block text-sm font-medium !text-slate-200">
                   {user?.first_name || "User"}
                 </Text>
-                <Text className="block text-xs text-slate-500">
-                  {user?.email}
-                </Text>
+                <Text className="block text-xs text-white">{user?.email}</Text>
               </div>
               <Avatar
                 size="large"
@@ -281,7 +279,7 @@ export default function AuthenticatedLayout({
           </Dropdown>
         </Header>
 
-        <Content className="p-4 md:p-6 bg-slate-50">
+        <Content className="p-4 md:p-6 bg-slate-50 scroll-auto">
           <div className="max-w-7xl mx-auto">{children}</div>
         </Content>
       </Layout>

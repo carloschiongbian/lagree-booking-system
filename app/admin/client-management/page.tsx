@@ -21,6 +21,7 @@ import { useAppMessage } from "@/components/ui/message-popup";
 import UserPurchaseHistory from "@/components/ui/user-purchase-history";
 import dayjs from "dayjs";
 import axios from "axios";
+import axiosApi from "@/lib/axiosConfig";
 
 const { Title, Text } = Typography;
 
@@ -78,7 +79,7 @@ export default function ClientManagementPage() {
             let signedUrl: string | undefined = "";
 
             const activePackage = user.client_packages.find(
-              (x: any) => x.status === "active"
+              (x: any) => x.status === "active",
             );
 
             let clientPackage =
@@ -144,7 +145,7 @@ export default function ClientManagementPage() {
                 .sort(
                   (a: any, b: any) =>
                     dayjs(b.purchaseDate).toDate().getTime() -
-                    dayjs(a.purchaseDate).toDate().getTime()
+                    dayjs(a.purchaseDate).toDate().getTime(),
                 );
             }
 
@@ -157,7 +158,7 @@ export default function ClientManagementPage() {
               bookingHistory: classBookings,
               credits: user?.user_credits?.[0]?.credits ?? null,
             };
-          })
+          }),
         );
 
         setClients(mapped);
@@ -201,7 +202,7 @@ export default function ClientManagementPage() {
           }),
         ];
 
-        const { data } = await axios.post("/api/update-user-email", {
+        const { data } = await axiosApi.post("/update-user-email", {
           id: selectedRecord.id,
           email: values.email,
         });
@@ -218,7 +219,7 @@ export default function ClientManagementPage() {
             updateUserCredits({
               userID: selectedRecord?.id as string,
               values: { credits: values.credits },
-            })
+            }),
           );
         }
         await Promise.all(promises);

@@ -383,7 +383,7 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
             type="primary"
             onClick={handleResetProfileForm}
             className={`${
-              !loading && "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+              !loading && "!bg-[#800020] hover:!bg-[#800020] hover:scale-[1.03]"
             } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
           >
             Cancel
@@ -395,7 +395,7 @@ const EditProfileForm = ({ loading, clearSignal, onSubmit, form }: Props) => {
             htmlType="submit"
             className={`${
               isModified &&
-              "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+              "!bg-[#800020] hover:!bg-[#800020] hover:scale-[1.03]"
             } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
           >
             Save Changes

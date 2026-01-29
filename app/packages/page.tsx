@@ -29,12 +29,10 @@ import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import { FileType, formatPHPhoneToE164, formatPrice } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Check,
   ChevronLeft,
   ChevronRight,
   CreditCard,
   Lock,
-  Package,
   User,
   X,
 } from "lucide-react";
@@ -47,7 +45,6 @@ import { Address, PackageProps, PurchaseFormData } from "@/lib/props";
 import dayjs from "dayjs";
 import { useAppMessage } from "@/components/ui/message-popup";
 import axiosApi from "@/lib/axiosConfig";
-import { supabase } from "@/lib/supabase";
 
 import PackageHistoryCard from "@/components/ui/package-history-card";
 
@@ -612,11 +609,42 @@ export default function PackagesPage() {
         const fileExt = (file[0] as File).name.split(".").pop();
         const fileName = `payment_proof_${filePath}.${fileExt}`;
 
+        const formData = new FormData();
+        formData.append("file", file[0].originFileObj); // raw File
+        formData.append("fileName", fileName);
+        formData.append("action", "upload-proof");
+
+        const uploadResponse = await axiosApi.post(
+          "/orders/upload-screenshot",
+          formData,
+        );
+        // const uploadResponse = await fetch("/api/orders/upload-screenshot", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({
+        //     fileName,
+        //     originFileObj: file[0].originFileObj,
+        //     type: (file[0] as File).type,
+        //     action: "upload-proof",
+        //   }),
+        // });
+
+        // const { error: uploadError } = await supabase.storage
+        //   .from("payment-proof")
+        //   .upload(fileName, file[0].originFileObj as File, {
+        //     upsert: true, // overwrite if exists
+        //     contentType: (file[0] as File).type,
+        //   });
+
+        console.log("uploadResponse: ", uploadResponse);
+
         const response = await axiosApi.post("/package/upload-proof", {
           values: {
-            fileName,
-            file: file[0],
-            originFileObj: file[0].originFileObj,
+            // fileName,
+            // file: file[0],
+            // originFileObj: file[0].originFileObj,
 
             userID: user?.id,
             status: "PENDING",
@@ -640,7 +668,7 @@ export default function PackagesPage() {
 
         // if (uploadError) throw uploadError;
 
-        await handleSendConfirmationEmail();
+        // await handleSendConfirmationEmail();
 
         return response.status;
       }

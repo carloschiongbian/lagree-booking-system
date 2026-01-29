@@ -7,40 +7,40 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
     <ConfigProvider
       theme={{
         token: {
-          colorTextHeading: "#36013F",
-          colorTextSecondary: "#36013F",
-          colorText: "#36013F",
+          colorTextHeading: "black",
+          colorTextSecondary: "black",
+          colorText: "black",
           colorPrimary: "#2563eb",
           borderRadius: 6,
           fontSize: 14,
         },
         components: {
           Tabs: {
-            itemActiveColor: "#36013F",
-            itemSelectedColor: "#36013F",
-            itemHoverColor: "#36013F",
-            inkBarColor: "#36013F",
+            itemActiveColor: "#800020",
+            itemSelectedColor: "#800020",
+            itemHoverColor: "#800020",
+            inkBarColor: "#800020",
           },
           Checkbox: {
-            colorPrimary: "#36013F",
-            colorPrimaryHover: "#36013F",
+            colorPrimary: "#800020",
+            colorPrimaryHover: "#800020",
           },
           Steps: {
-            colorPrimary: "#36013F", // active color
+            colorPrimary: "#800020", // active color
             colorTextDescription: "#666", // text color
             colorText: "#333",
           },
           Segmented: {
-            itemSelectedBg: "#36013F",
+            itemSelectedBg: "#800020",
             itemSelectedColor: "white",
           },
           Menu: {
             itemBg: "transparent",
-            itemSelectedBg: "#36013F",
+            itemSelectedBg: "#800020",
             itemSelectedColor: "white",
-            itemColor: "#36013F",
+            itemColor: "#800020",
             itemHoverColor: "white",
-            itemHoverBg: "#36013F",
+            itemHoverBg: "#800020",
           },
         },
       }}

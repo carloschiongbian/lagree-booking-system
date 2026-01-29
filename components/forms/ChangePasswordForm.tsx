@@ -49,7 +49,7 @@ const ChangePasswordForm = ({
   const [currentPassword, setCurrentPassword] = useState<string>("");
   const { debouncedValue: debouncedCurrentPassword } = useDebounce(
     currentPassword,
-    1000
+    1000,
   );
 
   useEffect(() => {
@@ -236,7 +236,7 @@ const ChangePasswordForm = ({
           onClick={handleClear}
           type="primary"
           disabled={loading}
-          className="!bg-[#36013F] hover:!bg-[#36013F] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
+          className="!bg-[#800020] hover:!bg-[#800020] !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03]"
         >
           Cancel
         </Button>
@@ -246,7 +246,7 @@ const ChangePasswordForm = ({
           htmlType="submit"
           className={`${
             !invalidCurrentPassword &&
-            "!bg-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+            "!bg-[#800020] hover:!bg-[#800020] hover:scale-[1.03]"
           } !border-none !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
         >
           Change Password

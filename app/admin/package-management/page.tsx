@@ -26,7 +26,7 @@ export default function PackageManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [editingRecord, setEditingRecord] = useState<CreatePackageProps | null>(
-    null
+    null,
   );
 
   useEffect(() => {

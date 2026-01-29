@@ -74,14 +74,14 @@ const EditClientForm = ({
   const [previewImage, setPreviewImage] = useState("");
   const [file, setFile] = useState<UploadFile[] | null>(null);
   const [initialFileState, setInitialFileState] = useState<UploadFile[] | null>(
-    null
+    null,
   );
   const { saveImage } = useManageImage();
   const [email, setEmail] = useState<string>("");
   const { validateEmail } = useSearchUser();
   const { debouncedValue: debouncedEmail, loading: debouncing } = useDebounce(
     email,
-    1500
+    1500,
   );
   const [emailTaken, setEmailTaken] = useState<boolean>(false);
   const [isValidating, setIsValidating] = useState<boolean>(false);
