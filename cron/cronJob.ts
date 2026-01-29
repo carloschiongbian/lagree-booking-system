@@ -31,7 +31,7 @@ async function checkUpcomingClasses() {
         start_time,
         instructor_name
       )
-    `
+    `,
     )
     .gte("class_date", now.startOf("day").toISOString())
     .lte("class_date", in24h.endOf("day").toISOString())
@@ -41,7 +41,7 @@ async function checkUpcomingClasses() {
 
   if (!bookings?.length) {
     console.log(
-      "No upcoming classes in the next 24 hours that need reminders."
+      "No upcoming classes in the next 24 hours that need reminders.",
     );
     return;
   }
@@ -63,7 +63,7 @@ async function checkUpcomingClasses() {
       const user: any = booking.user_profiles;
 
       await transporter.sendMail({
-        from: '"My App" <no-reply@myapp.com>',
+        from: '"8ClubLagree" <8clublagree@gmail.com>',
         to: user.email,
         subject: `Reminder: Your class is tomorrow!`,
         html: `
@@ -99,10 +99,10 @@ async function checkUpcomingClasses() {
         text-align:center;
       ">
         Your upcoming class is on <span style="color: red">${`${dayjs(
-          booking.class_date
+          booking.class_date,
         ).format("MMMM DD YYYY")}`}</span></br>
         It starts at <span style="color: red">${dayjs(
-          classInfo.start_time
+          classInfo.start_time,
         ).format("hh:mm A")}</span> with <span style="color: red">${
           classInfo.instructor_name
         }</span>.
@@ -131,8 +131,8 @@ async function checkUpcomingClasses() {
 
       console.log(
         `Reminder sent to ${user.email} for class on ${dayjs(
-          booking.class_date
-        ).format("MMMM DD YYYY")}`
+          booking.class_date,
+        ).format("MMMM DD YYYY")}`,
       );
     }
   } else {
@@ -164,7 +164,7 @@ async function checkExpiringPackages() {
           credits
         )
       )
-    `
+    `,
     )
     .eq("status", "active")
     .eq("sent_initial_expiration_email", false)
@@ -200,7 +200,7 @@ async function checkExpiringPackages() {
     const expiry = dayjs(pkg.expiration_date).format("MMMM DD, YYYY");
 
     await transporter.sendMail({
-      from: '"My App" <no-reply@myapp.com>',
+      from: '"8ClubLagree" <8clublagree@gmail.com>',
       to: user.email,
       subject: "Your package is expiring soon",
       html: `

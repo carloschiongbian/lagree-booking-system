@@ -43,6 +43,7 @@ interface OrdersTableType {
   package_price?: string;
   package_validity_period?: string;
   created_at?: string;
+  reference_id?: string;
   currentActivePackage?: any;
   package_credits?: number;
   user_profiles?: any;
@@ -108,6 +109,31 @@ const PaymentsPage = () => {
         ),
       },
       {
+        title: "Method",
+        dataIndex: "payment_method",
+        key: "payment_method",
+        width: "12%",
+        ellipsis: true,
+        render: (value) => {
+          if (!value) return "";
+          return (
+            <Tag
+              color={
+                value === "maya"
+                  ? "green"
+                  : value === "gcash"
+                    ? "blue"
+                    : value === "bank_transfer"
+                      ? "orange"
+                      : "cyan"
+              }
+            >
+              {value.toUpperCase()}
+            </Tag>
+          );
+        },
+      },
+      {
         title: "Status",
         dataIndex: "status",
         key: "status",
@@ -116,42 +142,18 @@ const PaymentsPage = () => {
         render: (value) => {
           if (!value) return "";
           return (
-            <Tag color={value === "SUCCESSFUL" ? "green" : "orange"}>
+            <Tag color={value === "SUCCESSFUL" ? "green" : "red"}>
               {value.toUpperCase()}
             </Tag>
           );
         },
       },
       {
-        title: "Approved Date",
-        dataIndex: "approved_at",
-        key: "approved_at",
+        title: "Reference ID",
+        dataIndex: "reference_id",
+        key: "reference_id",
+        ellipsis: true,
         width: "12%",
-        ellipsis: true,
-        sorter: (a, b) =>
-          dayjs(a.approved_at).toDate().getTime() -
-          dayjs(b.approved_at).toDate().getTime(),
-        render: (value) =>
-          value ? dayjs(value).format("MMM DD YYYY (hh:mm A)") : "",
-      },
-      {
-        title: "Proof Upload Date",
-        dataIndex: "uploaded_at",
-        key: "uploaded_at",
-        width: "12%",
-        ellipsis: true,
-        sorter: (a, b) =>
-          dayjs(a.uploaded_at).toDate().getTime() -
-          dayjs(b.uploaded_at).toDate().getTime(),
-        render: (value) =>
-          value ? dayjs(value).format("MMM DD YYYY (hh:mm A)") : "",
-      },
-      {
-        title: "Customer ID",
-        dataIndex: "user_id",
-        key: "user_id",
-        ellipsis: true,
-        width: "5%",
       },
       {
         title: "Customer Name",
@@ -191,6 +193,30 @@ const PaymentsPage = () => {
         render: (value) => {
           return value !== undefined ? `${formatPrice(value)}` : "";
         },
+      },
+      {
+        title: "Approved Date",
+        dataIndex: "approved_at",
+        key: "approved_at",
+        width: "12%",
+        ellipsis: true,
+        sorter: (a, b) =>
+          dayjs(a.approved_at).toDate().getTime() -
+          dayjs(b.approved_at).toDate().getTime(),
+        render: (value) =>
+          value ? dayjs(value).format("MMM DD YYYY (hh:mm A)") : "",
+      },
+      {
+        title: "Proof Upload Date",
+        dataIndex: "uploaded_at",
+        key: "uploaded_at",
+        width: "12%",
+        ellipsis: true,
+        sorter: (a, b) =>
+          dayjs(a.uploaded_at).toDate().getTime() -
+          dayjs(b.uploaded_at).toDate().getTime(),
+        render: (value) =>
+          value ? dayjs(value).format("MMM DD YYYY (hh:mm A)") : "",
       },
     ],
     [isMobile, payments],
@@ -374,6 +400,18 @@ const PaymentsPage = () => {
       >
         {selectedPayment && (
           <div className="space-y-6">
+            {!selectedPayment?.avatar_url && (
+              <Row
+                wrap={false}
+                className="flex-col gap-y-[10px] bg-slate-200 p-[20px] rounded-[10px]"
+              >
+                <Title level={5}>
+                  Proof is not available as payment was done through the Maya
+                  Partner. Please check your Maya account for more details on
+                  the transaction
+                </Title>
+              </Row>
+            )}
             {selectedPayment?.avatar_url && (
               <Row wrap={false} className="flex-col gap-y-[10px]">
                 <Row wrap={false} className="flex-col">
@@ -386,32 +424,6 @@ const PaymentsPage = () => {
                   />
                 </Row>
                 <Row wrap={false} className="gap-x-[10px]" justify={"center"}>
-                  {/* <Button
-                    // disabled={selectedPayment.status === "PENDING"}
-                    className={`hover:!bg-black hover:!border-black hover:!text-white h-[40px] rounded-[10px] bg-black text-white`}
-                  >
-                    Void
-                  </Button> */}
-
-                  {/* <Button
-                    disabled={selectedPayment.status === "PENDING"}
-                    className={`${
-                      selectedPayment.status !== "PENDING" &&
-                      "hover:!bg-red-400 hover:!border-red-400 hover:!text-white"
-                    } h-[40px] rounded-[10px] bg-red-400 text-white`}
-                  >
-                    Pending
-                  </Button> */}
-                  {/* 
-                  {selectedPayment.status === "SUCCESSFUL" && (
-                    <Button
-                      className={`h-[40px] rounded-[10px] bg-green-400 hover:!bg-green-400 hover:!border-green-400 hover:!text-white text-white`}
-                    >
-                      Undo Confirmation
-                    </Button>
-                  )} */}
-
-                  {/* {selectedPayment.status !== "SUCCESSFUL" && ( */}
                   <Button
                     loading={
                       loading ||
@@ -437,7 +449,6 @@ const PaymentsPage = () => {
                       ? "Confirmed"
                       : "Confirm Transaction"}
                   </Button>
-                  {/* )} */}
                 </Row>
               </Row>
             )}
@@ -509,8 +520,8 @@ const PaymentsPage = () => {
                     )
                   : "Pending"}
               </Descriptions.Item>
-              <Descriptions.Item label="Transaction ID">
-                {selectedPayment.id || "N/A"}
+              <Descriptions.Item label="Order ID">
+                {selectedPayment.reference_id || "N/A"}
               </Descriptions.Item>
             </Descriptions>
           </div>

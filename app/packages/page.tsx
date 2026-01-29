@@ -20,6 +20,7 @@ import {
   Upload,
   UploadFile,
   UploadProps,
+  Descriptions,
 } from "antd";
 
 import { v4 as uuidv4 } from "uuid";
@@ -270,14 +271,15 @@ export default function PackagesPage() {
   };
 
   const handleSendConfirmationEmail = async () => {
-    const res = await axiosApi.post("/send-email", {
-      to: "test@mail.com",
-      title: "test email",
-      // to: user?.email,
-      // title: selectedRecord.title,
-      emailType: "package_pending_purchase",
-    });
-    const data = res.data;
+    try {
+      await axiosApi.post("/send-email", {
+        to: user?.email,
+        title: selectedRecord.title,
+        emailType: "package_pending_purchase",
+      });
+    } catch (error) {
+      console.error("Error sending confirmation email: ", error);
+    }
   };
 
   const handleNext = async () => {
@@ -497,7 +499,7 @@ export default function PackagesPage() {
             status: "PENDING",
             payment_method: "maya",
             uploaded_at: dayjs().toISOString(),
-            checkout_id: uuid,
+            reference_id: uuid,
             previous_active_package_id: user?.currentPackage?.id ?? null,
           },
         });
@@ -576,7 +578,7 @@ export default function PackagesPage() {
       disabled={paymentUploadSuccess === true}
     >
       <PlusOutlined />
-      <div style={{ marginTop: 8 }}>User Photo</div>
+      <div style={{ marginTop: 8 }}>Proof</div>
     </button>
   );
 
@@ -832,24 +834,27 @@ export default function PackagesPage() {
 
                     <Row wrap={false} className="flex-col">
                       {selectedPaymentMethod === "bank_transfer" && (
-                        <>
-                          <Title level={5} className="!m-0">
-                            Bank: METROBANK
-                          </Title>
-                          <Title level={5} className="!m-0">
-                            Account Number: 1234567890
-                          </Title>
-                        </>
+                        <Descriptions bordered column={1} size="small">
+                          <Descriptions.Item label="Bank">
+                            {"METROBANK"}
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Account Name">
+                            {"8CLUB LAGREE FITNESS STUDIO"}
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Account Number">
+                            {"401-7-401046522"}
+                          </Descriptions.Item>
+                        </Descriptions>
                       )}
                       {selectedPaymentMethod === "gcash" && (
-                        <>
-                          <Title level={5} className="!m-0">
-                            GCash Account Name: Juan Dela Cruz
-                          </Title>
-                          <Title level={5} className="!m-0">
-                            GCash Account Number: 1234567890
-                          </Title>
-                        </>
+                        <Descriptions bordered column={1} size="small">
+                          <Descriptions.Item label="GCash Account Name">
+                            {"Juan Dela Cruz"}
+                          </Descriptions.Item>
+                          <Descriptions.Item label="GCash Account Number">
+                            {"1234567890"}
+                          </Descriptions.Item>
+                        </Descriptions>
                       )}
                     </Row>
                   </Row>
@@ -1247,7 +1252,18 @@ export default function PackagesPage() {
         </div>
       </Drawer>
     );
-  }, [carouselSlide, selectedPaymentMethod, isModalOpen, acceptsTerms]);
+  }, [
+    carouselSlide,
+    selectedPaymentMethod,
+    isModalOpen,
+    acceptsTerms,
+    file,
+    uploadingPayment,
+    isSendingPending,
+    previewImage,
+    previewOpen,
+  ]);
+
   return (
     <AuthenticatedLayout>
       {contextHolder}

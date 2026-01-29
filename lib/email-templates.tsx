@@ -20,13 +20,13 @@ export const packagePendingPurchase = ({
     color:#333333;
   ">
 
-    <div>
+    <div style="width: 100%; margin-bottom: 30px;">
       <img 
         src="https://lagree-booking-system.vercel.app/images/main-logo.png"
         margin-bottom:20px;"
         alt="main-logo" 
         width="120"
-        style="display:block; margin-bottom:20px;" />
+        style="display:block; margin: auto;" />
     </div>
 
     <!-- Header -->
@@ -57,7 +57,17 @@ export const packagePendingPurchase = ({
       line-height:1.6;
       color:#333;
       margin:0 0 10px 0;
-      text-align:center;
+      text-align: center;
+      margin-bottom: 10px;
+    ">
+      Your purchase of ${packageTitle} is now pending.
+    </p> 
+    <p style="
+      font-size:16px;
+      line-height:1.6;
+      color:#333;
+      margin:0 0 10px 0;
+      text-align: justify;
     ">
       Your purchase of ${packageTitle} is now pending.<br/>
       We ask for your patience as we review your proof of payment as soon as we can.
@@ -100,6 +110,15 @@ export const packagePurchase = ({
     color:#333333;
   ">
 
+   <div style="width: 100%; margin-bottom: 30px;">
+      <img 
+        src="https://lagree-booking-system.vercel.app/images/main-logo.png"
+        margin-bottom:20px;"
+        alt="main-logo" 
+        width="120"
+        style="display:block; margin: auto;" />
+    </div>
+
     <!-- Header -->
     <h2 style="
       margin:0 0 20px 0;
@@ -128,7 +147,7 @@ export const packagePurchase = ({
       line-height:1.6;
       color:#333;
       margin:0 0 10px 0;
-      text-align:center;
+      text-align: justify;
     ">
       Your package has been successfully added to your account.<br/>
       You may now book classes using your available credits.
@@ -167,6 +186,15 @@ export const classBookingConfirmation = ({
     color:#333333;
   ">
 
+   <div style="width: 100%; margin-bottom: 30px;">
+      <img 
+        src="https://lagree-booking-system.vercel.app/images/main-logo.png"
+        margin-bottom:20px;"
+        alt="main-logo" 
+        width="120"
+        style="display:block; margin: auto;" />
+    </div>
+
     <!-- Header -->
     <h2 style="
       margin:0 0 20px 0;
@@ -184,7 +212,7 @@ export const classBookingConfirmation = ({
       font-size:18px;
       font-weight:600;
       color:#36013F;
-      text-align:center;
+      text-align: justify;
     ">
       You booked a class </br></br><span style="color: red">${date}</span> at <span style="color: red">${time}</span> with <span style="color: red">${instructor}</span>
     </h2>

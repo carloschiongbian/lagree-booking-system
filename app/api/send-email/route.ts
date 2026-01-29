@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     if (!emailType) {
       return NextResponse.json(
         { message: "No email type provided" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     });
 
     const info = await transport.sendMail({
-      from: '"My App" <no-reply@myapp.com>',
+      from: '"8ClubLagree" <8clublagree@gmail.com>',
       to,
       subject,
       html: body,
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
     console.log(error);
     return NextResponse.json(
       { message: "Error sending email", error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

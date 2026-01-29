@@ -34,15 +34,22 @@ export async function GET() {
 
     const parsed = await Promise.all(
       payments.map(async (item) => {
-        const { data, error: urlError } = await supabaseServer.storage
-          .from("payment-proof")
-          .createSignedUrl(item.payment_proof_path, 3600);
+        let url: string | null = "";
+        if (item.payment_proof_path) {
+          const { data, error: urlError } = await supabaseServer.storage
+            .from("payment-proof")
+            .createSignedUrl(item.payment_proof_path, 3600);
+
+          if (data?.signedUrl) {
+            url = data?.signedUrl;
+          }
+        }
 
         return {
           ...item,
+          avatar_url: url,
           currentActivePackage: item?.user_profiles?.client_packages[0],
           userCredits: item?.user_profiles?.user_credits?.[0]?.credits ?? null,
-          avatar_url: urlError ? null : data?.signedUrl,
         };
       }),
     );

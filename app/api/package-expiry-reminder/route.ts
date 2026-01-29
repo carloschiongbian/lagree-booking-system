@@ -31,7 +31,7 @@ async function checkExpiringPackages() {
           credits
         )
       )
-    `
+    `,
     )
     .eq("status", "active")
     .eq("sent_initial_expiration_email", false)
@@ -64,7 +64,7 @@ async function checkExpiringPackages() {
     const expiry = dayjs(pkg.expiration_date).format("MMMM DD, YYYY");
 
     await transporter.sendMail({
-      from: '"My App" <no-reply@myapp.com>',
+      from: '"8ClubLagree" <8clublagree@gmail.com>',
       to: user.email,
       subject: "Your package is expiring soon",
       html: `
@@ -182,7 +182,7 @@ export async function GET() {
     console.error("Cron failed:", err);
     return NextResponse.json(
       { status: "error", message: String(err) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
