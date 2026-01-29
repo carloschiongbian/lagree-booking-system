@@ -1,12 +1,21 @@
+export const runtime = "edge";
+
 import { NextRequest, NextResponse } from "next/server";
 import supabaseServer from "../../supabase";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { rateLimitNotExceeded } from "@/lib/utils";
 
 dayjs.extend(utc);
 
 export async function GET(req: NextRequest) {
   try {
+    const allowed = rateLimitNotExceeded(req);
+
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const data = Object.fromEntries(new URL(req.url).searchParams.entries());
     let query = supabaseServer.from("client_packages").select(`
         *, 
@@ -49,7 +58,7 @@ export async function GET(req: NextRequest) {
   } catch (err: any) {
     return NextResponse.json(
       { error: `Unexpected error: ${err}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

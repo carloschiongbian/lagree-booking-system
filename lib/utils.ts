@@ -4,6 +4,9 @@ import { twMerge } from "tailwind-merge";
 import { ChartData } from "./props";
 import { Day } from "react-day-picker";
 import { GetProp, UploadProps } from "antd";
+import { NextResponse } from "next/server";
+import { rateLimit } from "./rate-limits";
+import { parseUserId } from "./parse-user-id";
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -88,7 +91,7 @@ export function formatPrice(
   options: {
     decimals?: number;
     locale?: string;
-  } = {}
+  } = {},
 ): string {
   const { decimals = 0, locale = "en-US" } = options;
 
@@ -182,7 +185,7 @@ export const isNotMoreThan24HoursAway = (startTime: Dayjs) => {
 
 export const getSlotsLeft = (
   availableSlots: number,
-  takenSlots: number
+  takenSlots: number,
 ): number => {
   const slotsLeft = availableSlots - takenSlots;
   return slotsLeft > 0 ? slotsLeft : 0;
@@ -193,10 +196,27 @@ export function decimalToMilitaryTime(decimalHour: number): string {
   const minutes = Math.round((decimalHour - hours) * 60);
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
     2,
-    "0"
+    "0",
   )}`;
 }
 
 export const getDateFromToday = (daysFromToday: number) => {
   return dayjs().add(daysFromToday, "day");
+};
+
+export const rateLimitNotExceeded = (req: any) => {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+
+  // Optional: extract user ID if authenticated
+  const authHeader = req.headers.get("authorization");
+  const userId = authHeader ? parseUserId(authHeader) : null;
+
+  const rateKey = userId ? `user:${userId}` : `ip:${ip}`;
+
+  const { allowed } = rateLimit(rateKey, {
+    limit: 20,
+    windowMs: 60_000, // 10 requests per minute
+  });
+
+  return allowed;
 };

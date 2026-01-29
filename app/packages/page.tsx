@@ -35,6 +35,7 @@ import {
   Lock,
   Package,
   User,
+  X,
 } from "lucide-react";
 import { useManageCredits, usePackageManagement } from "@/lib/api";
 import { useAppSelector } from "@/lib/hooks";
@@ -340,6 +341,7 @@ export default function PackagesPage() {
   };
 
   const handleShowTermsAndConditions = () => {
+    setAcceptsTerms(false);
     setCarouselSlide(CAROUSEL_SLIDES.TERMS);
     carouselRef.current.goTo(CAROUSEL_SLIDES.TERMS);
   };
@@ -671,124 +673,20 @@ export default function PackagesPage() {
 
   // Test Maya Checkout
 
-  return (
-    <AuthenticatedLayout>
-      {contextHolder}
-
-      {packageLoading && (
-        <Row wrap={false} className="justify-center">
-          <Spin spinning={true} />
-        </Row>
-      )}
-
-      <div className="space-y-6">
-        {/* <Button onClick={async () => await handleSendConfirmationEmail()}>
-          Test email
-        </Button> */}
-        <Row gutter={[20, 20]} className="gap-x-[20px] xl:justify-start">
-          {packages &&
-            packages.map((item, index) => {
-              const showToolTip = user?.currentPackage && user?.credits !== 0;
-              const hasPendingPurchase = user?.pendingPurchases;
-
-              const disablePurchase =
-                (user?.currentPackage !== null ||
-                  user?.currentPackage !== undefined) &&
-                user?.credits !== 0;
-              return (
-                <Card
-                  key={index}
-                  title={
-                    item.packageCredits ? `${item.packageCredits}` : `Unlimited`
-                  }
-                  styles={{
-                    title: {
-                      gap: 0,
-                      textWrap: "wrap",
-                      textAlign: "center",
-                      marginInline: "auto",
-                    },
-                    header: {
-                      backgroundColor: "#36013F",
-                      color: "white",
-                      textAlign: "center",
-                      fontSize: "36px",
-                      height: "120px",
-                    },
-                    body: {
-                      paddingInline: "10px",
-                      paddingTop: "15px",
-                    },
-                  }}
-                  className="w-[270px] border-[#fbe2ff] rounded-[24px] shadow-sm transition-all duration-300 flex-nowrap"
-                >
-                  <Col className="flex flex-col gap-y-[10px] flex-nowrap">
-                    <Col className="flex-nowrap">
-                      <p>
-                        <span className="font-bold text-[16px]">
-                          {item.title}
-                        </span>
-                      </p>
-                      <p>
-                        <span className="font-light">
-                          {item.packageCredits
-                            ? `${item.packageCredits} sessions`
-                            : "Unlimited Sessions"}
-                        </span>
-                      </p>
-                      <p>
-                        <span className="font-light">
-                          Valid for{" "}
-                          <span className="font-semibold">
-                            {item.validityPeriod}
-                          </span>{" "}
-                          days
-                        </span>
-                      </p>
-                      <p>
-                        <span className="font-normal">
-                          PHP {formatPrice(item.price)}
-                        </span>
-                      </p>
-                    </Col>
-
-                    <Tooltip
-                      title={showToolTip && "You still have an active package"}
-                    >
-                      <Button
-                        // disabled={disablePurchase}
-                        onClick={() => handleOpenModal(item)}
-                        className={`${
-                          !disablePurchase
-                            ? "!bg-[#36013F] !border-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
-                            : "!bg-slate-200 !border-slate-bg-slate-200 hover:!bg-slate-200"
-                        } h-[40px] !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
-                      >
-                        Purchase
-                      </Button>
-                    </Tooltip>
-                  </Col>
-                </Card>
-              );
-            })}
-        </Row>
-        {packages && packages.length === 0 && (
-          <Card className="shadow-sm">
-            <div className="text-center py-12 text-slate-500">
-              <CalendarOutlined className="text-4xl mb-4" />
-              <p>No packages are being offered at this time.</p>
-            </div>
-          </Card>
-        )}
-      </div>
-
+  const renderCheckoutDrawer = useMemo(() => {
+    return (
       <Drawer
         keyboard={false}
         title={carouselSlide === CAROUSEL_SLIDES.TERMS && "Back to Agreement"}
-        // closeIcon={
-        //   (carouselSlide === CAROUSEL_SLIDES.TERMS && <ChevronRight />) ||
-        //   (carouselSlide === CAROUSEL_SLIDES.CHECKOUT && <ChevronLeft />)
-        // }
+        closeIcon={
+          carouselSlide === CAROUSEL_SLIDES.TERMS ? (
+            <ChevronRight />
+          ) : carouselSlide === CAROUSEL_SLIDES.CHECKOUT ? (
+            <ChevronLeft />
+          ) : (
+            <X />
+          )
+        }
         // closable={carouselSlide === CAROUSEL_SLIDES.CHECKOUT ? false : true}
         maskClosable={false}
         placement="right"
@@ -874,7 +772,11 @@ export default function PackagesPage() {
                   <div className="py-[10px]">
                     <Collapse
                       defaultActiveKey={selectedPaymentMethod}
-                      onChange={(e) => setSelectedPaymentMethod(e[0] as any)}
+                      onChange={(e: any) => {
+                        if (!!e?.length) {
+                          setSelectedPaymentMethod(e[0] as any);
+                        }
+                      }}
                       accordion
                       items={items}
                     />
@@ -882,7 +784,9 @@ export default function PackagesPage() {
 
                   <Row justify={"start"} className="w-full mb-[10px]">
                     <Checkbox
-                      value={acceptsTerms}
+                      defaultChecked={acceptsTerms}
+                      checked={acceptsTerms}
+                      // value={acceptsTerms}
                       onChange={handleAcceptTermsChange}
                     >
                       I have read the
@@ -1037,11 +941,11 @@ export default function PackagesPage() {
               {selectedPaymentMethod === "maya" && (
                 <>
                   <Row className="w-full items-center mb-6 gap-[10px]">
-                    <ChevronLeft
+                    {/* <ChevronLeft
                       size={20}
                       onClick={handlePrev}
                       className="cursor-pointer"
-                    />
+                    /> */}
                     <Title level={3} className="!m-0">
                       Payment Details
                     </Title>
@@ -1342,6 +1246,120 @@ export default function PackagesPage() {
           </Carousel>
         </div>
       </Drawer>
+    );
+  }, [carouselSlide, selectedPaymentMethod, isModalOpen, acceptsTerms]);
+  return (
+    <AuthenticatedLayout>
+      {contextHolder}
+
+      {packageLoading && (
+        <Row wrap={false} className="justify-center">
+          <Spin spinning={true} />
+        </Row>
+      )}
+
+      <div className="space-y-6">
+        {/* <Button onClick={async () => await handleSendConfirmationEmail()}>
+          Test email
+        </Button> */}
+        <Row gutter={[20, 20]} className="gap-x-[20px] xl:justify-start">
+          {packages &&
+            packages.map((item, index) => {
+              const showToolTip = user?.currentPackage && user?.credits !== 0;
+              const hasPendingPurchase = user?.pendingPurchases;
+
+              const disablePurchase =
+                (user?.currentPackage !== null ||
+                  user?.currentPackage !== undefined) &&
+                user?.credits !== 0;
+              return (
+                <Card
+                  key={index}
+                  title={
+                    item.packageCredits ? `${item.packageCredits}` : `Unlimited`
+                  }
+                  styles={{
+                    title: {
+                      gap: 0,
+                      textWrap: "wrap",
+                      textAlign: "center",
+                      marginInline: "auto",
+                    },
+                    header: {
+                      backgroundColor: "#36013F",
+                      color: "white",
+                      textAlign: "center",
+                      fontSize: "36px",
+                      height: "120px",
+                    },
+                    body: {
+                      paddingInline: "10px",
+                      paddingTop: "15px",
+                    },
+                  }}
+                  className="w-[270px] border-[#fbe2ff] rounded-[24px] shadow-sm transition-all duration-300 flex-nowrap"
+                >
+                  <Col className="flex flex-col gap-y-[10px] flex-nowrap">
+                    <Col className="flex-nowrap">
+                      <p>
+                        <span className="font-bold text-[16px]">
+                          {item.title}
+                        </span>
+                      </p>
+                      <p>
+                        <span className="font-light">
+                          {item.packageCredits
+                            ? `${item.packageCredits} sessions`
+                            : "Unlimited Sessions"}
+                        </span>
+                      </p>
+                      <p>
+                        <span className="font-light">
+                          Valid for{" "}
+                          <span className="font-semibold">
+                            {item.validityPeriod}
+                          </span>{" "}
+                          days
+                        </span>
+                      </p>
+                      <p>
+                        <span className="font-normal">
+                          PHP {formatPrice(item.price)}
+                        </span>
+                      </p>
+                    </Col>
+
+                    <Tooltip
+                      title={showToolTip && "You still have an active package"}
+                    >
+                      <Button
+                        // disabled={disablePurchase}
+                        onClick={() => handleOpenModal(item)}
+                        className={`${
+                          !disablePurchase
+                            ? "!bg-[#36013F] !border-[#36013F] hover:!bg-[#36013F] hover:scale-[1.03]"
+                            : "!bg-slate-200 !border-slate-bg-slate-200 hover:!bg-slate-200"
+                        } h-[40px] !text-white font-medium rounded-lg shadow-sm transition-all duration-200`}
+                      >
+                        Purchase
+                      </Button>
+                    </Tooltip>
+                  </Col>
+                </Card>
+              );
+            })}
+        </Row>
+        {packages && packages.length === 0 && (
+          <Card className="shadow-sm">
+            <div className="text-center py-12 text-slate-500">
+              <CalendarOutlined className="text-4xl mb-4" />
+              <p>No packages are being offered at this time.</p>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {renderCheckoutDrawer}
 
       {processingMaya && renderCheckoutLoader()}
     </AuthenticatedLayout>

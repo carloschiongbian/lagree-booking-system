@@ -41,8 +41,9 @@ export default function ProfilePage() {
 
       if (error) {
         showMessage({
-          type: "error",
-          content: "Error updating email",
+          type: "success",
+          content: "Please check your email for a confirmation link",
+          duration: 10000,
         });
       }
 

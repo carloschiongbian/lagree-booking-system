@@ -69,7 +69,7 @@ export default function BookingsPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDelayedOverflow(
-        carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto"
+        carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto",
       );
     }, 400);
 
@@ -137,7 +137,7 @@ export default function BookingsPage() {
             taken_slots: lagreeClass.taken_slots,
             slots: `${lagreeClass.taken_slots} / ${lagreeClass.available_slots}`,
           };
-        })
+        }),
       );
       setClasses(mapped);
     }
@@ -166,7 +166,7 @@ export default function BookingsPage() {
   const handleSendConfirmationEmail = async () => {
     try {
       const classDate = `${dayjs(selectedDate).format("MMMM")} ${dayjs(
-        selectedDate
+        selectedDate,
       ).format("DD")} ${dayjs(selectedDate).format("YYYY")}`;
 
       const classTime = dayjs(selectedRecord?.start_time).format("hh:mm A");
@@ -211,7 +211,7 @@ export default function BookingsPage() {
             updateUserCredits({
               userID: user.id as string,
               values: { credits: updatedCredits },
-            })
+            }),
           );
 
           dispatch(setUser({ ...user, credits: updatedCredits }));
@@ -278,8 +278,8 @@ export default function BookingsPage() {
                 user?.credits === 0
                   ? "hover:!bg-[#36013F]"
                   : item.taken_slots === item.available_slots
-                  ? ""
-                  : "hover:!bg-[#36013F]"
+                    ? ""
+                    : "hover:!bg-[#36013F]"
               } !border-none !text-white font-medium rounded-lg px-4 sm:px-6 shadow-sm transition-all duration-200 hover:scale-[1.03] w-full sm:w-auto text-sm sm:text-sm`}
             >
               {user?.credits === 0 ? "Get Credits" : "Join"}
@@ -288,7 +288,7 @@ export default function BookingsPage() {
         </>
       );
     },
-    [classes, user?.credits]
+    [classes, user?.credits],
   );
 
   const RenderClassList = useMemo(() => {
@@ -327,7 +327,7 @@ export default function BookingsPage() {
                     </Text>
                     <Text className="font-normal text-xs sm:text-sm text-gray-600">
                       {`${dayjs(item.start_time).format("h:mm A")} to ${dayjs(
-                        item.end_time
+                        item.end_time,
                       ).format("h:mm A")}`}
                     </Text>
                     <div className={`flex flex-col ${isMobile && "mt-1"}`}>
@@ -342,8 +342,8 @@ export default function BookingsPage() {
                         {slotsRemaining <= 0
                           ? "Full"
                           : slotsRemaining === 1
-                          ? "Last Slot"
-                          : `${slotsRemaining} slots left`}
+                            ? "Last Slot"
+                            : `${slotsRemaining} slots left`}
                       </span>
                     </div>
                   </div>
@@ -373,7 +373,7 @@ export default function BookingsPage() {
             >
               <p className="!mb-0 !pb-0 text-[24px] sm:text-[28px] md:text-[34px] xl:text-[42px] font-[400]">
                 {`${dayjs().format("MMMM").toLowerCase()} ${dayjs().format(
-                  "YYYY"
+                  "YYYY",
                 )}`}
               </p>
 
@@ -395,8 +395,8 @@ export default function BookingsPage() {
                     {user?.credits && user?.credits >= 0 && user?.credits !== 1
                       ? "credits"
                       : user?.credits === 1
-                      ? "credit"
-                      : "credits"}
+                        ? "credit"
+                        : "credits"}
                   </span>
                 </span>
               </Row>
@@ -475,7 +475,7 @@ export default function BookingsPage() {
                 <Col className="mb-[20px] items-start w-full">
                   <Title>
                     {`${dayjs(selectedDate).format("MMMM")} ${dayjs(
-                      selectedDate
+                      selectedDate,
                     ).format("D")}, ${dayjs(selectedDate).format("YYYY")}`}
                   </Title>
                   <Title level={4} className="!m-0 p-0">
@@ -499,7 +499,8 @@ export default function BookingsPage() {
                 </Col>
                 <Row justify={"start"} className="w-full mb-[10px]">
                   <Checkbox
-                    value={acceptsTerms}
+                    defaultChecked={acceptsTerms}
+                    checked={acceptsTerms}
                     onChange={handleAcceptTermsChange}
                   >
                     I have read the
