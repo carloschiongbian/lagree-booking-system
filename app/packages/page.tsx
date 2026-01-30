@@ -828,11 +828,6 @@ export default function PackagesPage() {
 
                   <Button
                     onClick={handleNext}
-                    /**
-                     * temporary button disable since payment
-                     * is not integrated yet
-                     * to prevent multiple clicking
-                     */
                     loading={isSubmitting}
                     disabled={!acceptsTerms || isSubmitting}
                     className={`bg-[#36013F] ${

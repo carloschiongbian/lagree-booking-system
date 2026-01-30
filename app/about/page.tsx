@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  Button,
   Card,
   Typography,
   Row,
@@ -13,7 +12,6 @@ import {
   TableColumnsType,
 } from "antd";
 import { EnvironmentOutlined, UserOutlined } from "@ant-design/icons";
-import { supabase } from "@/lib/supabase";
 import { Class, Trainer, Schedule, Testimonial } from "@/lib/props";
 import { useRouter } from "next/navigation";
 import UnauthenticatedLayout from "@/components/layout/UnauthenticatedLayout";
@@ -107,22 +105,6 @@ export default function About() {
     ],
     [schedules],
   );
-
-  const daysOrder = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-  // const sortedSchedules = [...schedules].sort((a, b) => {
-  //   const dayDiff =
-  //     daysOrder.indexOf(a.day_of_week) - daysOrder.indexOf(b.day_of_week);
-  //   if (dayDiff !== 0) return dayDiff;
-  //   return a.start_time.localeCompare(b.start_time);
-  // });
 
   return (
     <UnauthenticatedLayout>

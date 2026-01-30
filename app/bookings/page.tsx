@@ -364,8 +364,8 @@ export default function BookingsPage() {
               className="items-center"
               justify={"space-between"}
             >
-              <p className="!mb-0 !pb-0 text-[24px] sm:text-[28px] md:text-[34px] xl:text-[42px] font-[400]">
-                {`${dayjs(selectedDate).format("MMMM YYYY").toLowerCase()}`}
+              <p className="!mb-0 !pb-0 text-[24px] sm:text-[28px] md:text-[34px] xl:text-[42px] font-bold">
+                {`${dayjs(selectedDate).format("MMMM YYYY").toUpperCase()}`}
               </p>
 
               <Row
@@ -513,11 +513,6 @@ export default function BookingsPage() {
                 </Row>
 
                 <Button
-                  /**
-                   * temporary button disable since payment
-                   * is not integrated yet
-                   * to prevent multiple clicking
-                   */
                   loading={loading || isSubmitting}
                   onClick={handleBookClass}
                   disabled={!acceptsTerms || loading || isSubmitting}
