@@ -278,7 +278,7 @@ export default function PackagesPage() {
       console.error("Error sending confirmation email: ", error);
     }
   };
-
+  // trigger deployment
   const handleNext = async () => {
     try {
       //temporary behavior
