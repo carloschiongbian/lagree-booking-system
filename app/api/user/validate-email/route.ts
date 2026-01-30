@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ data: null });
     }
 
+    // trigger deployment
     return NextResponse.json({ data: profile });
   } catch (err: any) {
     console.log("err: ", err);
