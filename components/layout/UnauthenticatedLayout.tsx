@@ -25,9 +25,9 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   const menuItems = [
-    { label: "Home", href: "/about" },
-    { label: "Login", href: "/login" },
-    { label: "Join for Free", href: "/signup", primary: true },
+    { label: "Home", href: "/about", primary: false },
+    { label: "Login", href: "/login", primary: false },
+    // { label: "JOIN THE 8CLUB", href: "/signup", primary: true },
   ];
   return (
     <div className="h-[100vh]">
@@ -63,7 +63,7 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
                     setDrawerVisible(false);
                   }}
                 >
-                  Join for Free
+                  JOIN THE 8CLUB
                 </Button>
                 {/* Hamburger Icon */}
                 <Button
@@ -86,9 +86,9 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
                   {menuItems.map((item) => (
                     <Button
                       key={item.label}
-                      type={item.primary ? "primary" : "text"}
+                      type={item?.primary ? "primary" : "text"}
                       className={`${
-                        item.primary
+                        item?.primary
                           ? "bg-[#800020] border-[#800020] text-white hover:!bg-[#800020] font-medium w-full"
                           : "px-2 py-3 text-left text-sm font-normal w-full"
                       }`}
@@ -109,9 +109,9 @@ export default function UnauthenticatedLayout({ children }: LayoutProps) {
               {menuItems.map((item) => (
                 <Button
                   key={item.label}
-                  type={item.primary ? "primary" : "text"}
+                  type={item?.primary ? "primary" : "text"}
                   className={`${
-                    item.primary
+                    item?.primary
                       ? "bg-[#800020] border-[#800020] text-white hover:!bg-[#800020] font-medium px-3 sm:px-4"
                       : "px-2 sm:px-3 text-sm sm:text-base font-normal"
                   }`}

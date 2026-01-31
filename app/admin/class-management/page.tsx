@@ -567,9 +567,7 @@ export default function ClassManagementPage() {
       {contextHolder}
       <div className="space-y-6">
         <p className="!mb-0 !pb-0 text-[42px] font-[400]">
-          {`${dayjs(selectedDate)
-            .format("MMMM")
-            .toLowerCase()} ${dayjs().format("YYYY")}`}
+          {`${dayjs(selectedDate).format("MMMM YYYY").toUpperCase()}`}
         </p>
         <Divider className="m-0 pb-[10px]" />
         <Row className="wrap-none justify-center bg-transparent !mt-0">

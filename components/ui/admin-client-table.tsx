@@ -71,7 +71,7 @@ const AdminClientTable = ({
   const handleSearch = (
     selectedKeys: string[],
     confirm: FilterDropdownProps["confirm"],
-    dataIndex: DataIndex
+    dataIndex: DataIndex,
   ) => {
     confirm();
     setSearchText(selectedKeys[0]);
@@ -104,7 +104,7 @@ const AdminClientTable = ({
   };
 
   const getColumnSearchProps = (
-    dataIndex: DataIndex
+    dataIndex: DataIndex,
   ): TableColumnType<UserProps> => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -261,7 +261,7 @@ const AdminClientTable = ({
         ),
       },
     ],
-    [isMobile, searchedColumn, searchText, data]
+    [isMobile, searchedColumn, searchText, data],
   );
 
   return (
@@ -295,9 +295,9 @@ const AdminClientTable = ({
       >
         <Row className="py-[20px]">
           <Text>Are you sure you want to delete this user?</Text>
-          <Text>
+          {/* <Text>
             Once deleted, data attached to this user will be gone too.
-          </Text>
+          </Text> */}
         </Row>
       </Modal>
     </>

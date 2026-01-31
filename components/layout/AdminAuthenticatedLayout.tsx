@@ -31,8 +31,6 @@ import {
   useManageCredits,
   usePackageManagement,
 } from "@/lib/api";
-import dayjs from "dayjs";
-import axios from "axios";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -54,49 +52,6 @@ export default function AuthenticatedLayout({
   const { updateUserCredits, loading: updatingCredits } = useManageCredits();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        router.push("/login");
-        return;
-      }
-
-      const profile = await getAdmin({ id: session.user.id });
-
-      const clientPackages = await fetchClientPackages({ findExpiry: true });
-
-      if (!!clientPackages?.length) {
-        const toExpire = clientPackages.flatMap((item: any) => [
-          updateClientPackage({
-            clientPackageID: item.id,
-            values: { status: "expired" },
-          }),
-          updateUserCredits({
-            userID: item.user_id,
-            values: { credits: 0 },
-          }),
-        ]);
-
-        await Promise.all(toExpire);
-      }
-
-      if (profile) {
-        if (profile.user_type === "general") {
-          router.push("/dashboard");
-          return;
-        } else if (profile.user_type === "instructor") {
-          router.push("/instructor/assigned-schedules");
-          return;
-        }
-        dispatch(setUser(profile));
-      }
-    };
-
-    checkUser();
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -104,7 +59,7 @@ export default function AuthenticatedLayout({
         if (event === "SIGNED_OUT") {
           dispatch(logoutAction());
           router.push("/login");
-        } else if (session) {
+        } else if (session && user === null) {
           checkUser();
         }
       })();
@@ -114,6 +69,47 @@ export default function AuthenticatedLayout({
       subscription.unsubscribe();
     };
   }, [dispatch, router]);
+
+  const checkUser = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+
+    const profile = await getAdmin({ id: session.user.id });
+
+    const clientPackages = await fetchClientPackages({ findExpiry: true });
+
+    if (!!clientPackages?.length) {
+      const toExpire = clientPackages.flatMap((item: any) => [
+        updateClientPackage({
+          clientPackageID: item.id,
+          values: { status: "expired" },
+        }),
+        updateUserCredits({
+          userID: item.user_id,
+          values: { credits: 0 },
+        }),
+      ]);
+
+      await Promise.all(toExpire);
+    }
+
+    if (profile) {
+      if (profile.user_type === "general") {
+        router.push("/dashboard");
+        return;
+      } else if (profile.user_type === "instructor") {
+        router.push("/instructor/assigned-schedules");
+        return;
+      }
+      dispatch(setUser(profile));
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  Button,
   Card,
   Typography,
   Row,
@@ -13,7 +12,6 @@ import {
   TableColumnsType,
 } from "antd";
 import { EnvironmentOutlined, UserOutlined } from "@ant-design/icons";
-import { supabase } from "@/lib/supabase";
 import { Class, Trainer, Schedule, Testimonial } from "@/lib/props";
 import { useRouter } from "next/navigation";
 import UnauthenticatedLayout from "@/components/layout/UnauthenticatedLayout";
@@ -58,7 +56,7 @@ export default function About() {
           return (
             <Row wrap={false} className="items-center gap-x-[10px]">
               <Avatar
-                className="border-gray-500 border"
+                className="border-slate-200 border"
                 size={50}
                 icon={<UserOutlined />}
                 src={record.avatar_path}
@@ -105,32 +103,15 @@ export default function About() {
         },
       },
     ],
-    [schedules]
+    [schedules],
   );
-
-  const daysOrder = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-  // const sortedSchedules = [...schedules].sort((a, b) => {
-  //   const dayDiff =
-  //     daysOrder.indexOf(a.day_of_week) - daysOrder.indexOf(b.day_of_week);
-  //   if (dayDiff !== 0) return dayDiff;
-  //   return a.start_time.localeCompare(b.start_time);
-  // });
 
   return (
     <UnauthenticatedLayout>
-      {/* Hero Section */}
       <section
         style={{
           background: "#fff",
-          padding: "270px 40px",
+          padding: "300px 40px",
           textAlign: "center",
         }}
       >
@@ -143,7 +124,7 @@ export default function About() {
               letterSpacing: "0.02em",
             }}
           >
-            Welcome to 8ClubLagree
+            Welcome to the 8CLUB
           </Title>
           <Paragraph
             style={{
@@ -154,17 +135,7 @@ export default function About() {
               margin: 0,
             }}
           >
-            Where strength meets mindfulness
-          </Paragraph>
-          <Paragraph
-            style={{
-              fontSize: "1.25rem",
-              color: "#666",
-              lineHeight: 1.8,
-              fontWeight: 300,
-            }}
-          >
-            Experience Lagree fitness in the heart of Cebu.
+            Slow. Controlled. Intentional
           </Paragraph>
         </div>
       </section>
@@ -191,23 +162,36 @@ export default function About() {
           </Title>
 
           <Paragraph className="text-[1.25rem] font-light mb-12 text-justify">
-            Lagree is a full-body workout that is intense on the muscles, but
-            safe on the joints.
+            <span className="font-bold">
+              More than just a workout, Lagree is a method
+            </span>
+            —a joint-friendly alternative to{" "}
+            <span className="font-bold">
+              high-impact training that delivers a high-intensity, low-impact,
+              full-body workout.
+            </span>{" "}
+            Performed on the Megaformer, it builds strength, endurance, core
+            stability, cardiovascular fitness, balance, and flexibility through
+            slow, controlled, resistance-based movement that&apos;s safe on the
+            joints.
+          </Paragraph>
+          <Paragraph className="text-[1.25rem] font-light mb-12 text-justify">
+            Each <span className="font-bold">45-minute class</span> follows the
+            principle of{" "}
+            <span className="font-bold">progressive overload,</span> gradually
+            increasing resistance, time, or intensity so the body continuously
+            adapts and grows stronger—while supporting fat loss, muscle tone,
+            metabolism, mental toughness, and long-term joint health.
           </Paragraph>
 
-          <Paragraph className="text-[1.25rem] font-light mb-12 text-justify">
-            It builds strength, endurance, core stability, cardiovascular
-            fitness, and flexibility through slow, controlled, resistance-based
-            movements on the signature Megaformer.
-          </Paragraph>
-
-          <Paragraph className="text-[1.25rem] font-light mb-12 text-justify">
-            Each 50-minute class is designed to challenge both body and
-            mind—combining precise, time-under-tension training with immersive
-            music and intentional programming. The result is a workout that
-            makes you shake, sweat, and get stronger, without compromising joint
-            health.
-          </Paragraph>
+          <Row wrap={false} className="flex-col">
+            <Text className="text-[1.25rem] font-bold !m-0 text-justify">
+              Are you ready to shake, sweat, and sore?
+            </Text>
+            <Text className="text-[1.25rem] font-bold !m-0 text-justify">
+              JOIN THE 8CLUB
+            </Text>
+          </Row>
         </div>
       </section>
       <Divider style={{ margin: "60px 0", borderColor: "#e8e8e8" }} />
@@ -317,7 +301,7 @@ export default function About() {
                 <Row className="flex flex-col" wrap={false} justify={"center"}>
                   <Row wrap={false} justify={"center"}>
                     <Avatar
-                      className="border-gray-500 border"
+                      className="border-slate-200 border"
                       size={100}
                       icon={<UserOutlined />}
                       src={instructor.avatar_path}

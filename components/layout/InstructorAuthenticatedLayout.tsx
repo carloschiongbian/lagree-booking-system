@@ -23,7 +23,6 @@ import Link from "next/link";
 import { CurrentPackageProps, supabase } from "@/lib/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser, logout as logoutAction } from "@/lib/features/authSlice";
-import dayjs from "dayjs";
 import { useManageImage } from "@/lib/api";
 
 const { Header, Sider, Content } = Layout;
@@ -44,8 +43,6 @@ export default function InstructorAuthenticatedLayout({
   const { fetchImage } = useManageImage();
 
   useEffect(() => {
-    checkUser();
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -53,7 +50,7 @@ export default function InstructorAuthenticatedLayout({
         if (event === "SIGNED_OUT") {
           dispatch(logoutAction());
           router.push("/login");
-        } else if (session) {
+        } else if (session && user === null) {
           checkUser();
         }
       })();

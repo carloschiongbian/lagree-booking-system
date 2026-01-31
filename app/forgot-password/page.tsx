@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
                 loading={loading}
                 disabled={loading}
                 htmlType="submit"
-                className={`${loading ? "!bg-slate-200 hover:!bg-slate-200" : "!bg-[#36013F] hover:!bg-[#4a0358]"} !border-none !text-white font-medium rounded-lg shadow-sm transition-transform duration-200 hover:scale-[1.02]`}
+                className={`${loading ? "!bg-slate-200 hover:!bg-slate-200" : "!bg-[#800020] hover:!bg-[#800020]"} !border-none !text-white font-medium rounded-lg shadow-sm transition-transform duration-200 hover:scale-[1.02]`}
               >
                 Send Email
               </Button>

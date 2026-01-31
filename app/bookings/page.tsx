@@ -26,15 +26,12 @@ import {
   useManageCredits,
   useManageImage,
 } from "@/lib/api";
-import { calculateDuration } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
 import { useAppSelector } from "@/lib/hooks";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/lib/features/authSlice";
 import UserTermsAndConditions from "@/components/layout/UserTermsAndConditions";
-import { ChevronRight } from "lucide-react";
+import { Calendar, ChevronRight, Clock, User } from "lucide-react";
 import { useAppMessage } from "@/components/ui/message-popup";
-import axios from "axios";
 import axiosApi from "@/lib/axiosConfig";
 
 const { Title, Text } = Typography;
@@ -63,18 +60,9 @@ export default function BookingsPage() {
   const [acceptsTerms, setAcceptsTerms] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Dayjs>();
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
-  const [delayedOverflow, setDelayedOverflow] = useState("hidden");
+
   const { fetchImage } = useManageImage();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDelayedOverflow(
-        carouselSlide !== CAROUSEL_SLIDES.TERMS ? "hidden" : "auto",
-      );
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [carouselSlide]);
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -150,6 +138,7 @@ export default function BookingsPage() {
   const handleAcceptTermsChange = (e: any) => {
     setAcceptsTerms(e.target.checked);
   };
+
   const handleOpenModal = (item: any) => {
     setIsModalOpen(true);
     setSelectedRecord(item);
@@ -278,12 +267,12 @@ export default function BookingsPage() {
                   : item.taken_slots === item.available_slots
               }
               onClick={() => handleScheduleAction(item)}
-              className={`bg-[#36013F] ${
+              className={`bg-[#800020] ${
                 user?.credits === 0
-                  ? "hover:!bg-[#36013F]"
+                  ? "hover:!bg-[#800020]"
                   : item.taken_slots === item.available_slots
                     ? ""
-                    : "hover:!bg-[#36013F]"
+                    : "hover:!bg-[#800020]"
               } !border-none !text-white font-medium rounded-lg px-4 sm:px-6 shadow-sm transition-all duration-200 hover:scale-[1.03] w-full sm:w-auto text-sm sm:text-sm`}
             >
               {user?.credits === 0 ? "Get Credits" : "Join"}
@@ -312,16 +301,16 @@ export default function BookingsPage() {
               className="!flex-col sm:!flex-row !items-stretch sm:!items-center"
             >
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full">
-                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                  <div className="flex flex-col items-center gap-y-1 sm:gap-y-[5px] min-w-[70px] sm:min-w-[80px]">
+                <div className="flex items-center gap-[5px] w-full sm:w-auto">
+                  <div className="h-[100px] flex flex-col justify-center items-center gap-y-1 sm:gap-y-[5px] min-w-[70px] sm:min-w-[80px]">
                     <Avatar
-                      className="border-gray-500 border"
+                      className="border-slate-200 border"
                       size={isMobile ? 50 : 60}
                       icon={<UserOutlined />}
                       src={item.avatar_url}
                     />
-                    <div className="font-light text-xs sm:text-sm text-center">
-                      {item.instructor_name}
+                    <div className="font-light text-xs sm:text-sm text-center w-32 break-words">
+                      {item.instructors.user_profiles.first_name}
                     </div>
                   </div>
 
@@ -375,10 +364,8 @@ export default function BookingsPage() {
               className="items-center"
               justify={"space-between"}
             >
-              <p className="!mb-0 !pb-0 text-[24px] sm:text-[28px] md:text-[34px] xl:text-[42px] font-[400]">
-                {`${dayjs().format("MMMM").toLowerCase()} ${dayjs().format(
-                  "YYYY",
-                )}`}
+              <p className="!mb-0 !pb-0 text-[24px] sm:text-[28px] md:text-[34px] xl:text-[42px] font-bold">
+                {`${dayjs(selectedDate).format("MMMM YYYY").toUpperCase()}`}
               </p>
 
               <Row
@@ -469,7 +456,7 @@ export default function BookingsPage() {
               <Row className="flex flex-col items-center">
                 <Row className="w-full justify-center">
                   <Avatar
-                    className="border-gray-500 border w-full"
+                    className="border-slate-200 border w-full"
                     size={200}
                     icon={<UserOutlined />}
                     src={selectedRecord?.avatar_url}
@@ -477,29 +464,37 @@ export default function BookingsPage() {
                 </Row>
                 <Divider />
                 <Col className="mb-[20px] items-start w-full">
-                  <Title>
-                    {`${dayjs(selectedDate).format("MMMM")} ${dayjs(
-                      selectedDate,
-                    ).format("D")}, ${dayjs(selectedDate).format("YYYY")}`}
-                  </Title>
-                  <Title level={4} className="!m-0 p-0">
-                    {selectedRecord?.class_name}
-                  </Title>
-                  <Title level={5}>
-                    Class with{" "}
-                    <span className="text-red-400">
-                      {selectedRecord?.instructor_name}
-                    </span>{" "}
-                    <span className="text-red-400">{selectedRecord?.time}</span>{" "}
-                    on{" "}
-                    <span className="text-red-400">
-                      {dayjs(selectedRecord?.date).format("dddd")}
-                    </span>{" "}
-                    at{" "}
-                    <span className="text-red-400">
-                      {dayjs(selectedRecord?.start_time).format("h:mm A")}
-                    </span>
-                  </Title>
+                  <Title>{selectedRecord?.class_name}</Title>
+                  <Row wrap={false} className="items-center gap-2 mb-[10px]">
+                    <User size={18} />
+                    <Title level={5} className="!m-0">
+                      Class with{" "}
+                      <span className="text-red-400">
+                        {selectedRecord?.instructor_name}
+                      </span>{" "}
+                    </Title>
+                  </Row>
+
+                  <Row wrap={false} className="items-center gap-2 mb-[10px]">
+                    <Calendar size={18} />
+                    <Title level={5} className="!m-0 p-0">
+                      {`${dayjs(selectedDate).format("MMMM")} ${dayjs(
+                        selectedDate,
+                      ).format("D")}, ${dayjs(selectedDate).format("YYYY")}`}
+                    </Title>
+                  </Row>
+                  <Row wrap={false} className="items-center gap-2 mb-[10px]">
+                    <Clock size={18} />
+                    <Title level={5} className="!m-0">
+                      <span className="text-red-400">
+                        {dayjs(selectedRecord?.date).format("dddd")}
+                      </span>{" "}
+                      at{" "}
+                      <span className="text-red-400">
+                        {dayjs(selectedRecord?.start_time).format("h:mm A")}
+                      </span>
+                    </Title>
+                  </Row>
                 </Col>
                 <Row justify={"start"} className="w-full mb-[10px]">
                   <Checkbox
@@ -518,20 +513,15 @@ export default function BookingsPage() {
                 </Row>
 
                 <Button
-                  /**
-                   * temporary button disable since payment
-                   * is not integrated yet
-                   * to prevent multiple clicking
-                   */
                   loading={loading || isSubmitting}
                   onClick={handleBookClass}
                   disabled={!acceptsTerms || loading || isSubmitting}
                   className={`${
-                    acceptsTerms && "hover:!bg-[#36013F] hover:scale-[1.03]"
+                    acceptsTerms && "hover:!bg-[#800020] hover:scale-[1.03]"
                   } ${
                     !acceptsTerms || loading || isSubmitting
-                      ? "!bg-[gray]"
-                      : "!bg-[#36013F]"
+                      ? "!bg-slate-200"
+                      : "!bg-[#800020]"
                   } !border-none !text-white font-medium rounded-lg px-6 shadow-sm transition-all duration-200 w-full h-[40px]`}
                 >
                   Book

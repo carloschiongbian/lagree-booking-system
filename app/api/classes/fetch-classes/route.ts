@@ -30,7 +30,8 @@ export async function GET(req: NextRequest) {
           id,
           avatar_path,
           deactivated,
-          full_name
+          full_name,
+          first_name
         )
       ),
       class_bookings (
