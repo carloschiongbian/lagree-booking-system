@@ -3,10 +3,9 @@
 
 import { useState } from "react";
 import UnauthenticatedLayout from "@/components/layout/UnauthenticatedLayout";
-import { supabase } from "@/lib/supabase";
 import { Button, Col, Form, Input, Row, Typography } from "antd";
-import { MailOutlined } from "@ant-design/icons";
 import { useManagePassword } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 const { Title, Text } = Typography;
 
@@ -15,8 +14,14 @@ export default function ResetPasswordPage() {
   const [form] = Form.useForm();
   const { sendResetLink, loading } = useManagePassword();
 
-  const handleSubmit = async (values: { email: string }) => {
-    const response = await sendResetLink({ email: values.email });
+  const handleSubmit = async (values: {
+    new_password: string;
+    confirm_new_password: string;
+  }) => {
+    // your existing submit logic
+    // example:
+    await supabase.auth.updateUser({ password: values.new_password });
+    setChanged(true);
   };
 
   return (
@@ -67,11 +72,22 @@ export default function ResetPasswordPage() {
                 <Form.Item
                   label="Confirm New Password"
                   name="confirm_new_password"
+                  dependencies={["new_password"]}
                   rules={[
                     {
                       required: true,
                       message: "Please confirm your new password",
                     },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("new_password") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("Passwords do not match"),
+                        );
+                      },
+                    }),
                   ]}
                 >
                   <Input.Password placeholder="Confirm New Password" />
@@ -84,14 +100,18 @@ export default function ResetPasswordPage() {
               loading={loading}
               disabled={loading}
               htmlType="submit"
-              className={`${loading ? "!bg-slate-200 hover:!bg-slate-200" : "!bg-[#36013F] hover:!bg-[#4a0358]"} !border-none !text-white font-medium rounded-lg shadow-sm transition-transform duration-200 hover:scale-[1.02]`}
+              className={`${
+                loading
+                  ? "!bg-slate-200 hover:!bg-slate-200"
+                  : "!bg-[#36013F] hover:!bg-[#4a0358]"
+              } !border-none !text-white font-medium rounded-lg shadow-sm transition-transform duration-200 hover:scale-[1.02]`}
             >
               Change Password
             </Button>
 
             {changed && (
               <Text className="block text-center text-green-600 mt-4">
-                Password reset email sent ✔
+                Password updated successfully ✔
               </Text>
             )}
           </Form>
